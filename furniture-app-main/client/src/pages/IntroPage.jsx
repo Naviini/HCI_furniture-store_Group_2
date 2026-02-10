@@ -274,8 +274,8 @@ export default function IntroPage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────── */}
-      <section style={{ ...st.hero, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.9s cubic-bezier(0.16,1,0.3,1)' }}>
-        <div style={st.heroBadge}>
+      <section style={{ ...st.hero, opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(24px)', transition: 'all 0.9s cubic-bezier(0.16,1,0.3,1)' }} aria-label="Welcome">
+        <div style={st.heroBadge} aria-hidden="true">
           <span style={st.heroDot} /> Design & Planning Tool
         </div>
 
@@ -308,12 +308,14 @@ export default function IntroPage() {
           <p style={st.sectionP}>Select a room type below and jump straight into the designer. Set dimensions, add furniture, and visualise in 3D.</p>
         </div>
 
-        <div style={st.roomGrid}>
+        <div style={st.roomGrid} role="list" aria-label="Room types">
           {ROOMS.map((room) => {
             const isHovered = hoveredRoom === room.id;
             return (
               <button
                 key={room.id}
+                role="listitem"
+                aria-label={`Design a ${room.label}, typical size ${room.size}`}
                 style={{
                   ...st.roomCard,
                   borderColor: isHovered ? room.color : 'var(--border)',
@@ -451,7 +453,7 @@ export default function IntroPage() {
       </section>
 
       {/* ── Footer ───────────────────────────────── */}
-      <footer style={st.footer}>
+      <footer style={st.footer} role="contentinfo">
         <div style={st.footerInner}>
           <div style={st.footerLeft}>
             <div style={st.brand}>

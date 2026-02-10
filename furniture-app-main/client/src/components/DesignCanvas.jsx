@@ -1,7 +1,7 @@
 import React, { useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { 
-  OrbitControls, PointerLockControls, Sky, Stars, 
+  OrbitControls, Sky, Stars, 
   GizmoHelper, GizmoViewport, SoftShadows, Grid 
 } from '@react-three/drei';
 import Furniture from './Furniture';
@@ -68,14 +68,12 @@ const DesignCanvas = forwardRef(({
           shape={roomConfig.shape}
         />
         
-        {mode !== 'Tour' && (
-          <Grid 
-            args={[roomConfig.width, roomConfig.depth]} 
-            sectionColor="#555" 
-            cellColor="#777" 
-            infiniteGrid={false} 
-          />
-        )}
+        <Grid 
+          args={[roomConfig.width, roomConfig.depth]} 
+          sectionColor="#555" 
+          cellColor="#777" 
+          infiniteGrid={false} 
+        />
       </group>
 
       {/* --- Furniture Items --- */}
@@ -92,24 +90,18 @@ const DesignCanvas = forwardRef(({
       ))}
 
       {/* --- Controls --- */}
-      {mode === 'Tour' ? (
-        <PointerLockControls selector="#tour-overlay" />
-      ) : (
-        <>
-          <OrbitControls 
-            makeDefault 
-            enabled={!isDragging} // Disable camera when dragging furniture
-            enableDamping 
-            dampingFactor={0.05}
-            maxPolarAngle={mode === '2D' ? 0 : Math.PI / 2 - 0.05}
-            minDistance={2}
-            maxDistance={50}
-          />
-          <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
-            <GizmoViewport axisColors={['#d15656', '#4fa853', '#4a7ecf']} labelColor="white" />
-          </GizmoHelper>
-        </>
-      )}
+      <OrbitControls 
+        makeDefault 
+        enabled={!isDragging} // Disable camera when dragging furniture
+        enableDamping 
+        dampingFactor={0.05}
+        maxPolarAngle={mode === '2D' ? 0 : Math.PI / 2 - 0.05}
+        minDistance={2}
+        maxDistance={50}
+      />
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport axisColors={['#d15656', '#4fa853', '#4a7ecf']} labelColor="white" />
+      </GizmoHelper>
     </Canvas>
   );
 });
