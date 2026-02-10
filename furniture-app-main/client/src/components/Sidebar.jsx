@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const TABS = { 
   LIBRARY: 'library', 
@@ -26,44 +26,55 @@ export default function Sidebar({
 }) {
   const [activeTab, setActiveTab] = useState(TABS.LIBRARY);
   const [collapsed, setCollapsed] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const selectedItem = items.find(i => i.id === selectedId);
   const updateRoom = (key, value) => setRoomConfig(prev => ({ ...prev, [key]: value }));
 
+  // HCI: Confirmation before destructive actions (error prevention)
+  const handleDelete = useCallback(() => {
+    setShowDeleteConfirm(true);
+  }, []);
+
+  const confirmDelete = useCallback(() => {
+    deleteItem(selectedId);
+    setShowDeleteConfirm(false);
+  }, [deleteItem, selectedId]);
+
   if (collapsed) {
     return (
-      <div style={styles.collapsedSidebar}>
-        <button style={styles.expandBtn} onClick={() => setCollapsed(false)} title="Expand">
+      <aside style={styles.collapsedSidebar} aria-label="Sidebar collapsed">
+        <button style={styles.expandBtn} onClick={() => setCollapsed(false)} title="Expand sidebar" aria-label="Expand sidebar">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
         </button>
-        <div style={styles.collapsedIcons}>
-          <CollapsedIcon icon="➕" active={activeTab === TABS.LIBRARY} onClick={() => { setActiveTab(TABS.LIBRARY); setCollapsed(false); }} />
-          <CollapsedIcon icon="🎨" active={activeTab === TABS.PROPERTIES} onClick={() => { setActiveTab(TABS.PROPERTIES); setCollapsed(false); }} />
-          <CollapsedIcon icon="🏠" active={activeTab === TABS.ROOM} onClick={() => { setActiveTab(TABS.ROOM); setCollapsed(false); }} />
-          <CollapsedIcon icon="⚙️" active={activeTab === TABS.GLOBAL} onClick={() => { setActiveTab(TABS.GLOBAL); setCollapsed(false); }} />
-        </div>
-      </div>
+        <nav style={styles.collapsedIcons} aria-label="Quick navigation">
+          <CollapsedIcon icon="➕" label="Library" active={activeTab === TABS.LIBRARY} onClick={() => { setActiveTab(TABS.LIBRARY); setCollapsed(false); }} />
+          <CollapsedIcon icon="🎨" label="Edit" active={activeTab === TABS.PROPERTIES} onClick={() => { setActiveTab(TABS.PROPERTIES); setCollapsed(false); }} />
+          <CollapsedIcon icon="🏠" label="Room" active={activeTab === TABS.ROOM} onClick={() => { setActiveTab(TABS.ROOM); setCollapsed(false); }} />
+          <CollapsedIcon icon="⚙️" label="Settings" active={activeTab === TABS.GLOBAL} onClick={() => { setActiveTab(TABS.GLOBAL); setCollapsed(false); }} />
+        </nav>
+      </aside>
     );
   }
 
   return (
-    <div style={styles.sidebar}>
+    <aside style={styles.sidebar} aria-label="Design tools sidebar">
       
       {/* Header */}
       <div style={styles.header}>
         <div style={styles.headerTop}>
           <div style={styles.logoWrap}>
-            <div style={styles.logoIcon}>🛋️</div>
+            <div style={styles.logoIcon} aria-hidden="true">🛋️</div>
             <div>
               <div style={styles.logoTitle}>Design Studio</div>
               <div style={styles.logoSub}>v2.0 Professional</div>
             </div>
           </div>
-          <button style={styles.collapseBtn} onClick={() => setCollapsed(true)} title="Collapse">
+          <button style={styles.collapseBtn} onClick={() => setCollapsed(true)} title="Collapse sidebar" aria-label="Collapse sidebar">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
         </div>
-        <div style={styles.userBadge}>
-          <div style={styles.avatar}>{user.username?.charAt(0).toUpperCase()}</div>
+        <div style={styles.userBadge} aria-label={`Logged in as ${user.username}`}>
+          <div style={styles.avatar} aria-hidden="true">{user.username?.charAt(0).toUpperCase()}</div>
           <div style={styles.userInfo}>
             <span style={styles.userName}>{user.username}</span>
             <span style={styles.userRole}>Designer</span>
@@ -71,25 +82,27 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={styles.tabBar}>
+      {/* Tabs - HCI: Clear navigation with active state indicators */}
+      <nav style={styles.tabBar} role="tablist" aria-label="Sidebar sections">
         <TabButton label="Library" icon="➕" active={activeTab === TABS.LIBRARY} onClick={() => setActiveTab(TABS.LIBRARY)} />
         <TabButton label="Edit" icon="🎨" active={activeTab === TABS.PROPERTIES} onClick={() => setActiveTab(TABS.PROPERTIES)} />
         <TabButton label="Room" icon="🏠" active={activeTab === TABS.ROOM} onClick={() => setActiveTab(TABS.ROOM)} />
         <TabButton label="Settings" icon="⚙️" active={activeTab === TABS.GLOBAL} onClick={() => setActiveTab(TABS.GLOBAL)} />
-      </div>
+      </nav>
 
       {/* Content */}
-      <div style={styles.content}>
+      <div style={styles.content} role="tabpanel" aria-label={`${activeTab} panel`}>
         
-        {/* LIBRARY */}
+        {/* LIBRARY - HCI: Recognition rather than recall */}
         {activeTab === TABS.LIBRARY && (
           <div style={{ animation: 'fadeIn 0.25s ease-out' }}>
             <div className="section-title">
               <span>Furniture Library</span>
-              <span style={styles.badge}>{items.length} placed</span>
+              <span style={styles.badge} aria-label={`${items.length} items placed`}>{items.length} placed</span>
             </div>
-            <div style={styles.libraryGrid}>
+            {/* HCI: Help text for new users (help & documentation) */}
+            <p style={styles.helpText}>Click any item below to add it to your room canvas.</p>
+            <div style={styles.libraryGrid} role="list" aria-label="Available furniture items">
               {FURNITURE_ITEMS.map(f => (
                 <LibraryCard key={f.name} {...f} onClick={() => addItem(f.name)} />
               ))}
@@ -97,14 +110,15 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* PROPERTIES */}
+        {/* PROPERTIES - HCI: Direct manipulation & immediate feedback */}
         {activeTab === TABS.PROPERTIES && (
           <div style={{ animation: 'fadeIn 0.25s ease-out' }}>
             {!selectedItem ? (
-              <div style={styles.emptyState}>
-                <div style={styles.emptyIcon}>🎯</div>
+              <div style={styles.emptyState} role="status">
+                <div style={styles.emptyIcon} aria-hidden="true">🎯</div>
                 <p style={styles.emptyTitle}>No Selection</p>
                 <p style={styles.emptyDesc}>Click on a furniture item in the canvas to edit its properties.</p>
+                <p style={styles.helpHint}>💡 Tip: You can also select items from the 2D Blueprint view for precise placement.</p>
               </div>
             ) : (
               <>
@@ -182,7 +196,7 @@ export default function Sidebar({
                 </div>
 
                 <div style={styles.divider} />
-                <button className="btn btn-danger" style={{ width: '100%' }} onClick={() => deleteItem(selectedId)}>
+                <button className="btn btn-danger" style={{ width: '100%' }} onClick={handleDelete} aria-label={`Delete ${selectedItem.type}`}>
                   🗑️ Delete {selectedItem.type}
                 </button>
               </>
@@ -190,7 +204,24 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* ROOM */}
+        {/* Delete Confirmation Dialog (HCI: Error prevention) */}
+        {showDeleteConfirm && selectedItem && (
+          <div className="confirm-overlay" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" onClick={() => setShowDeleteConfirm(false)}>
+            <div style={styles.confirmDialog} onClick={e => e.stopPropagation()} className="animate-slideUp">
+              <div style={styles.confirmIcon} aria-hidden="true">⚠️</div>
+              <h3 id="delete-title" style={styles.confirmTitle}>Delete {selectedItem.type}?</h3>
+              <p style={styles.confirmDesc}>This action cannot be undone. The item will be permanently removed from your design.</p>
+              <div style={styles.confirmBtns}>
+                <button className="btn" onClick={() => setShowDeleteConfirm(false)} autoFocus>Cancel</button>
+                <button className="btn btn-danger" onClick={confirmDelete} style={{ background: 'var(--danger)', color: 'white', borderColor: 'var(--danger)' }}>
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ROOM - HCI: Constraints to guide valid input */}
         {activeTab === TABS.ROOM && (
           <div style={{ animation: 'fadeIn 0.25s ease-out' }}>
             <div className="section-title"><span>Room Shape</span></div>
@@ -225,30 +256,32 @@ export default function Sidebar({
             <div className="section-title"><span>Room Dimensions</span></div>
             
             <div className="input-group">
-              <label className="label">Width (meters)</label>
-              <input type="number" className="input" min="3" max="50" value={roomConfig.width} onChange={e => updateRoom('width', Number(e.target.value))} />
+              <label className="label" htmlFor="room-width">Width (meters)</label>
+              <input id="room-width" type="number" className="input" min="3" max="50" value={roomConfig.width} onChange={e => updateRoom('width', Number(e.target.value))} aria-describedby="width-hint" />
+              <small id="width-hint" style={styles.inputHint}>Min: 3m — Max: 50m</small>
             </div>
             <div className="input-group">
-              <label className="label">Depth (meters)</label>
-              <input type="number" className="input" min="3" max="50" value={roomConfig.depth} onChange={e => updateRoom('depth', Number(e.target.value))} />
+              <label className="label" htmlFor="room-depth">Depth (meters)</label>
+              <input id="room-depth" type="number" className="input" min="3" max="50" value={roomConfig.depth} onChange={e => updateRoom('depth', Number(e.target.value))} aria-describedby="depth-hint" />
+              <small id="depth-hint" style={styles.inputHint}>Min: 3m — Max: 50m</small>
             </div>
 
             <div className="section-title" style={{ marginTop: '20px' }}><span>Materials</span></div>
 
             <div className="input-group">
-              <label className="label">Wall Color</label>
+              <label className="label" htmlFor="wall-color">Wall Color</label>
               <div className="color-picker-wrap">
                 <div className="color-swatch">
-                  <input type="color" value={roomConfig.wallColor} onChange={e => updateRoom('wallColor', e.target.value)} />
+                  <input id="wall-color" type="color" value={roomConfig.wallColor} onChange={e => updateRoom('wallColor', e.target.value)} aria-label="Wall color picker" />
                 </div>
                 <span className="color-hex">{roomConfig.wallColor}</span>
               </div>
             </div>
             <div className="input-group">
-              <label className="label">Floor Color</label>
+              <label className="label" htmlFor="floor-color">Floor Color</label>
               <div className="color-picker-wrap">
                 <div className="color-swatch">
-                  <input type="color" value={roomConfig.floorColor} onChange={e => updateRoom('floorColor', e.target.value)} />
+                  <input id="floor-color" type="color" value={roomConfig.floorColor} onChange={e => updateRoom('floorColor', e.target.value)} aria-label="Floor color picker" />
                 </div>
                 <span className="color-hex">{roomConfig.floorColor}</span>
               </div>
@@ -256,14 +289,14 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* GLOBAL */}
+        {/* GLOBAL - HCI: Flexibility & efficiency of use */}
         {activeTab === TABS.GLOBAL && (
           <div style={{ animation: 'fadeIn 0.25s ease-out' }}>
             <div className="section-title"><span>Environment</span></div>
 
             <div className="input-group">
-              <label className="label">Lighting Mode</label>
-              <select className="input" value={roomConfig.lightingMode} onChange={e => updateRoom('lightingMode', e.target.value)}>
+              <label className="label" htmlFor="lighting-mode">Lighting Mode</label>
+              <select id="lighting-mode" className="input" value={roomConfig.lightingMode} onChange={e => updateRoom('lightingMode', e.target.value)} aria-label="Select lighting mode">
                 <option value="Day">☀️  Daylight</option>
                 <option value="Golden">🌅  Golden Hour</option>
                 <option value="Night">🌙  Night Mode</option>
@@ -272,13 +305,13 @@ export default function Sidebar({
 
             <div className="section-title" style={{ marginTop: '24px' }}><span>Project</span></div>
             
-            <button className="btn btn-primary" style={{ width: '100%', marginBottom: '8px' }} onClick={saveDesign}>
+            <button className="btn btn-primary" style={{ width: '100%', marginBottom: '8px' }} onClick={saveDesign} aria-label="Save current project">
               💾 Save Project
             </button>
-            <button className="btn" style={{ width: '100%', marginBottom: '8px' }} onClick={loadDesigns}>
+            <button className="btn" style={{ width: '100%', marginBottom: '8px' }} onClick={loadDesigns} aria-label="Load a previous project">
               📂 Load Previous
             </button>
-            <button className="btn" style={{ width: '100%' }} onClick={downloadScreenshot}>
+            <button className="btn" style={{ width: '100%' }} onClick={downloadScreenshot} aria-label="Download screenshot of current design">
               📸 Screenshot
             </button>
           </div>
@@ -287,20 +320,20 @@ export default function Sidebar({
 
       {/* Footer */}
       <div style={styles.footer}>
-        <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={onLogout}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={onLogout} aria-label="Sign out of your account">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
           Sign Out
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
 
 /* ============================
    SUB-COMPONENTS
    ============================ */
-const CollapsedIcon = ({ icon, active, onClick }) => (
-  <button onClick={onClick} style={{
+const CollapsedIcon = ({ icon, label, active, onClick }) => (
+  <button onClick={onClick} title={label} aria-label={label} style={{
     width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: active ? 'var(--accent-subtle)' : 'transparent',
     border: active ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
@@ -314,6 +347,9 @@ const CollapsedIcon = ({ icon, active, onClick }) => (
 const TabButton = ({ label, icon, active, onClick }) => (
   <button 
     onClick={onClick}
+    role="tab"
+    aria-selected={active}
+    aria-label={`${label} tab`}
     style={{
       flex: 1, 
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
@@ -327,7 +363,7 @@ const TabButton = ({ label, icon, active, onClick }) => (
       fontFamily: 'inherit',
     }}
   >
-    <span style={{ fontSize: '1.1rem' }}>{icon}</span>
+    <span style={{ fontSize: '1.1rem' }} aria-hidden="true">{icon}</span>
     <span style={{ fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</span>
   </button>
 );
@@ -335,6 +371,8 @@ const TabButton = ({ label, icon, active, onClick }) => (
 const LibraryCard = ({ name, icon, desc, onClick }) => (
   <button 
     onClick={onClick}
+    role="listitem"
+    aria-label={`Add ${name} to room. ${desc}`}
     style={{
       background: 'var(--bg-card)', 
       border: '1px solid var(--border)', 
@@ -359,7 +397,7 @@ const LibraryCard = ({ name, icon, desc, onClick }) => (
       e.currentTarget.style.boxShadow = 'none';
     }}
   >
-    <span style={{ fontSize: '1.6rem' }}>{icon}</span>
+    <span style={{ fontSize: '1.6rem' }} aria-hidden="true">{icon}</span>
     <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{name}</span>
     <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{desc}</span>
   </button>
@@ -492,6 +530,40 @@ const styles = {
   },
   divider: {
     height: '1px', background: 'var(--border)', margin: '16px 0',
+  },
+  helpText: {
+    fontSize: '0.75rem', color: 'var(--text-muted)', margin: '0 0 12px 0',
+    lineHeight: 1.5, fontStyle: 'italic',
+  },
+  helpHint: {
+    fontSize: '0.75rem', color: 'var(--accent-hover)', margin: '16px 0 0 0',
+    lineHeight: 1.5, padding: '10px 12px',
+    background: 'var(--accent-subtle)', borderRadius: 'var(--radius-sm)',
+    border: '1px solid rgba(99,102,241,0.15)',
+  },
+  inputHint: {
+    display: 'block', fontSize: '0.67rem', color: 'var(--text-muted)',
+    marginTop: '4px', fontWeight: 400,
+  },
+  confirmDialog: {
+    background: 'var(--bg-panel)', border: '1px solid var(--border)',
+    borderRadius: 'var(--radius-lg)', padding: '28px',
+    maxWidth: '360px', width: '90%', textAlign: 'center',
+    boxShadow: 'var(--shadow-lg)',
+  },
+  confirmIcon: {
+    fontSize: '2rem', marginBottom: '12px',
+  },
+  confirmTitle: {
+    fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)',
+    marginBottom: '8px',
+  },
+  confirmDesc: {
+    fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: 1.5,
+    marginBottom: '20px',
+  },
+  confirmBtns: {
+    display: 'flex', gap: '10px', justifyContent: 'center',
   },
   footer: {
     padding: '12px 16px',

@@ -11,7 +11,7 @@
 }
 
 /* ============================
-   TOAST NOTIFICATION
+   TOAST NOTIFICATION (HCI: System Status Visibility)
    ============================ */
 .toast {
   position: fixed;
@@ -32,6 +32,9 @@
   font-weight: 500;
   z-index: 9999;
   animation: slideUp 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+}
+.toast[role="alert"] {
+  /* Ensures screen readers announce toast messages */
 }
 
 @keyframes fadeOut {
@@ -72,6 +75,9 @@
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  /* HCI: Adequate click target */
+  min-height: 36px;
+  position: relative;
 }
 .toolbar-btn:hover {
   color: var(--text-main);

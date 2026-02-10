@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function LoginBox({ onLogin, onRegister }) {
+export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback }) {
   const [view, setView] = useState('login');
   const [formData, setFormData] = useState({ 
     username: '', email: '', password: '', confirmPassword: '' 
@@ -10,7 +10,8 @@ export default function LoginBox({ onLogin, onRegister }) {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(''); 
+    setError('');
+    if (clearFeedback) clearFeedback();
   };
 
   const handleSubmit = async (e) => {
@@ -20,17 +21,24 @@ export default function LoginBox({ onLogin, onRegister }) {
 
     try {
       if (view === 'register') {
+        if (formData.password.length < 6) {
+          setError("Password must be at least 6 characters long");
+          setLoading(false);
+          return;
+        }
         if (formData.password !== formData.confirmPassword) {
           setError("Passwords do not match");
           setLoading(false);
           return;
         }
-        await onRegister(formData.username, formData.email, formData.password);
+        const success = await onRegister(formData.username, formData.email, formData.password);
+        if (success) switchView('login');
       } else if (view === 'login') {
         await onLogin(formData.username, formData.password);
       } else if (view === 'forgot') {
-        alert(`Password reset link sent to: ${formData.email}`);
-        setView('login');
+        // HCI: Inline feedback instead of alert
+        setError('');
+        switchView('login');
       }
     } finally {
       setLoading(false);
@@ -40,6 +48,7 @@ export default function LoginBox({ onLogin, onRegister }) {
   const switchView = (newView) => {
     setView(newView);
     setError('');
+    if (clearFeedback) clearFeedback();
     setFormData({ username: '', email: '', password: '', confirmPassword: '' });
   };
 
@@ -50,10 +59,10 @@ export default function LoginBox({ onLogin, onRegister }) {
   };
 
   return (
-    <div style={styles.card} className="animate-slideUp">
+    <div style={styles.card} className="animate-slideUp" role="main" aria-label="Authentication form">
       {/* Logo */}
       <div style={styles.logoWrap}>
-        <div style={styles.logoIcon}>🛋️</div>
+        <div style={styles.logoIcon} aria-hidden="true">🛋️</div>
       </div>
 
       {/* Header */}
@@ -61,9 +70,27 @@ export default function LoginBox({ onLogin, onRegister }) {
         <h2 style={styles.title}>{titles[view].title}</h2>
         <p style={styles.subtitle}>{titles[view].sub}</p>
       </div>
+
+      {/* HCI: Inline feedback messages (replaces native alerts) */}
+      {feedback?.message && (
+        <div style={{
+          ...styles.errorAlert,
+          background: feedback.type === 'success' ? 'rgba(34,197,94,0.1)' : styles.errorAlert.background,
+          color: feedback.type === 'success' ? '#86efac' : '#fca5a5',
+          borderColor: feedback.type === 'success' ? 'rgba(34,197,94,0.25)' : 'rgba(239, 68, 68, 0.25)',
+        }} role="alert" aria-live="assertive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }} aria-hidden="true">
+            {feedback.type === 'success' 
+              ? <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>
+              : <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></>
+            }
+          </svg>
+          {feedback.message}
+        </div>
+      )}
       
       {error && (
-        <div style={styles.errorAlert}>
+        <div style={styles.errorAlert} role="alert" aria-live="polite">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           {error}
         </div>
@@ -113,7 +140,7 @@ export default function LoginBox({ onLogin, onRegister }) {
           <div style={styles.inputGroup}>
             <label style={styles.label} htmlFor="login-password">Password</label>
             <div style={styles.inputWrap}>
-              <svg style={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              <svg style={styles.inputIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
               <input
                 id="login-password"
                 name="password"
@@ -123,8 +150,31 @@ export default function LoginBox({ onLogin, onRegister }) {
                 style={styles.input}
                 onChange={handleChange}
                 required
+                minLength={6}
+                aria-describedby={view === 'register' ? 'password-strength' : undefined}
+                autoComplete={view === 'login' ? 'current-password' : 'new-password'}
               />
             </div>
+            {/* HCI: Password strength feedback during registration */}
+            {view === 'register' && formData.password.length > 0 && (
+              <div id="password-strength" style={styles.strengthWrap} aria-live="polite">
+                <div style={styles.strengthBar}>
+                  <div style={{
+                    height: '100%',
+                    borderRadius: '2px',
+                    transition: 'width 0.3s, background 0.3s',
+                    width: formData.password.length < 6 ? '33%' : formData.password.length < 10 ? '66%' : '100%',
+                    background: formData.password.length < 6 ? 'var(--danger)' : formData.password.length < 10 ? 'var(--warning)' : 'var(--success)',
+                  }} />
+                </div>
+                <span style={{
+                  fontSize: '0.7rem', fontWeight: 500,
+                  color: formData.password.length < 6 ? 'var(--danger)' : formData.password.length < 10 ? 'var(--warning)' : 'var(--success)',
+                }}>
+                  {formData.password.length < 6 ? 'Too short (min 6 chars)' : formData.password.length < 10 ? 'Fair' : 'Strong'}
+                </span>
+              </div>
+            )}
           </div>
         )}
         
@@ -285,5 +335,15 @@ const styles = {
     borderRadius: 'var(--radius-md)',
     marginBottom: '20px', fontSize: '0.82rem',
     border: '1px solid rgba(239, 68, 68, 0.25)',
+  },
+  strengthWrap: {
+    display: 'flex', alignItems: 'center', gap: '8px',
+    marginTop: '6px',
+  },
+  strengthBar: {
+    flex: 1, height: '4px',
+    background: 'var(--bg-input)',
+    borderRadius: '2px',
+    overflow: 'hidden',
   },
 };

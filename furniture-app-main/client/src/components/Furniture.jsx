@@ -72,7 +72,7 @@ export default function Furniture({
   const meshRef = useRef();
   const controlsRef = useRef();
   const modelInfo = MODEL_MAP[type];
-  const isEditable = isSelected && mode !== 'Tour';
+  const isEditable = isSelected;
 
   const handleClick = (e) => {
     e.stopPropagation();
