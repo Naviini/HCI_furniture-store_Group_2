@@ -31,6 +31,10 @@ export default function Dashboard() {
     shape: 'rectangle', width: 15, depth: 15, wallColor: '#e0e0e0', floorColor: '#5c3a21', lightingMode: 'Day'
   });
 
+  // Windows state: each window has { id, wall, position, width, height }
+  // wall: 'back'|'left'|'right', position: 0-1 along wall, width/height in meters
+  const [windows, setWindows] = useState([]);
+
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -91,6 +95,28 @@ export default function Dashboard() {
     showToast('Item removed', 'info');
   };
 
+  /* ── Window management ── */
+  const addWindow = (wall) => {
+    const newWin = {
+      id: `win-${Date.now()}`,
+      wall,          // 'back' | 'left' | 'right'
+      position: 0.5, // 0-1 along the wall
+      width: 2,      // meters
+      height: 2,     // meters
+      sillHeight: 1,  // meters from floor
+    };
+    setWindows(prev => [...prev, newWin]);
+    showToast(`Window added to ${wall} wall`, 'success');
+  };
+
+  const updateWindow = (id, data) =>
+    setWindows(prev => prev.map(w => w.id === id ? { ...w, ...data } : w));
+
+  const deleteWindow = (id) => {
+    setWindows(prev => prev.filter(w => w.id !== id));
+    showToast('Window removed', 'info');
+  };
+
   const handleSaveSubmit = async (designName) => {
     const thumbnail = canvasRef.current?.takeScreenshot() || '';
     setIsSaving(true);
@@ -101,7 +127,7 @@ export default function Dashboard() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`
         },
-        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, thumbnail }),
+        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, thumbnail }),
       });
       showToast('Project saved successfully', 'success');
       setShowSaveModal(false);
@@ -120,6 +146,7 @@ export default function Dashboard() {
         const design = data[data.length - 1];
         setItems(design.items);
         if(design.roomConfig) setRoomConfig(design.roomConfig);
+        if(design.windows) setWindows(design.windows);
         showToast(`Loaded: ${design.name}`, 'success');
       } else showToast('No saved designs found', 'info');
     } catch (err) { showToast('Failed to load designs. Please try again.', 'error'); }
@@ -143,6 +170,10 @@ export default function Dashboard() {
         deleteItem={deleteItem}
         roomConfig={roomConfig}
         setRoomConfig={setRoomConfig}
+        windows={windows}
+        addWindow={addWindow}
+        updateWindow={updateWindow}
+        deleteWindow={deleteWindow}
         saveDesign={() => setShowSaveModal(true)}
         loadDesigns={loadDesigns}
         downloadScreenshot={() => {
@@ -187,6 +218,7 @@ export default function Dashboard() {
             selectedId={selectedId}
             setSelectedId={setSelectedId}
             updateItem={updateItem}
+            windows={windows}
           />
         ) : (
           <DesignCanvas
@@ -197,6 +229,7 @@ export default function Dashboard() {
             updateItem={updateItem}
             mode={mode}
             roomConfig={roomConfig}
+            windows={windows}
           />
         )}
 
@@ -209,6 +242,7 @@ export default function Dashboard() {
           <div style={{ display: 'flex', gap: '16px' }}>
             <span className="status-item" aria-label={`Current mode: ${mode}`}>Mode: {mode}</span>
             <span className="status-item" aria-label={`${items.length} items placed`}>Items: {items.length}</span>
+            <span className="status-item" aria-label={`${windows.length} windows`}>Windows: {windows.length}</span>
             <span className="status-item" aria-label={`Room shape: ${roomConfig.shape}, dimensions: ${roomConfig.width} by ${roomConfig.depth} meters`}>Room: {roomConfig.shape} {roomConfig.width}m × {roomConfig.depth}m</span>
             <span className="status-item" style={{ opacity: 0.5, fontSize: '0.65rem' }}>Del: remove • Esc: deselect</span>
           </div>
