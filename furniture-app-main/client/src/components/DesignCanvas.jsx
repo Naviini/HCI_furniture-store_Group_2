@@ -14,7 +14,7 @@ const LIGHT_CONFIG = {
 };
 
 const DesignCanvas = forwardRef(({ 
-  items, selectedId, setSelectedId, updateItem, mode, roomConfig 
+  items, selectedId, setSelectedId, updateItem, mode, roomConfig, windows = []
 }, ref) => {
   const canvasRef = useRef();
   
@@ -66,6 +66,7 @@ const DesignCanvas = forwardRef(({
           wallColor={roomConfig.wallColor} 
           floorColor={roomConfig.floorColor}
           shape={roomConfig.shape}
+          windows={windows}
         />
         
         <Grid 

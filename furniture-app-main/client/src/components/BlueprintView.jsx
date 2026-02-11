@@ -73,7 +73,7 @@ const ITEM_COLORS = {
 /* ════════════════════════════════════════════
    BlueprintView Component
    ════════════════════════════════════════════ */
-export default function BlueprintView({ roomConfig, items, selectedId, setSelectedId, updateItem }) {
+export default function BlueprintView({ roomConfig, items, selectedId, setSelectedId, updateItem, windows = [] }) {
   const containerRef = useRef(null);
   const [dragging, setDragging] = useState(null); // { id, offsetX, offsetZ }
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
@@ -247,6 +247,60 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
         {/* Dimension arrows - width */}
         <line x1={toSvgX(-hw)} y1={toSvgY(hd) + 14} x2={toSvgX(hw)} y2={toSvgY(hd) + 14}
           stroke="#666" strokeWidth="1" markerStart="url(#arrowL)" markerEnd="url(#arrowR)" />
+
+        {/* Windows on 2D blueprint */}
+        {windows.map((win) => {
+          // Determine wall endpoints for placement
+          let wallFrom, wallTo;
+          if (win.wall === 'back')  { wallFrom = [-hw, -hd]; wallTo = [hw, -hd]; }
+          else if (win.wall === 'left')  { wallFrom = [-hw, hd]; wallTo = [-hw, -hd]; }
+          else if (win.wall === 'right') { wallFrom = [hw, -hd]; wallTo = [hw, hd]; }
+          else return null;
+
+          const wdx = wallTo[0] - wallFrom[0];
+          const wdz = wallTo[1] - wallFrom[1];
+          const wlen = Math.sqrt(wdx * wdx + wdz * wdz);
+          const t = win.position;
+          // Center of window on the wall
+          const wcx = wallFrom[0] + wdx * t;
+          const wcz = wallFrom[1] + wdz * t;
+          // Window half-width along wall direction
+          const whalf = Math.min(win.width, wlen * 0.8) / 2;
+          const udx = wdx / wlen;
+          const udz = wdz / wlen;
+          const x1 = toSvgX(wcx - udx * whalf);
+          const y1 = toSvgY(wcz - udz * whalf);
+          const x2 = toSvgX(wcx + udx * whalf);
+          const y2 = toSvgY(wcz + udz * whalf);
+
+          // Normal direction for sun rays
+          const nx = -udz;
+          const nz = udx;
+          const rayLen = 20; // px
+
+          return (
+            <g key={win.id}>
+              {/* Window gap (bright blue line) */}
+              <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#60a5fa" strokeWidth={6} strokeLinecap="round" />
+              <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#93c5fd" strokeWidth={2} strokeLinecap="round" />
+              {/* Sun ray indicators */}
+              {[0.2, 0.4, 0.6, 0.8].map((p, ri) => {
+                const rx = toSvgX(wcx - udx * whalf + udx * whalf * 2 * p);
+                const ry = toSvgY(wcz - udz * whalf + udz * whalf * 2 * p);
+                return (
+                  <line key={ri}
+                    x1={rx} y1={ry}
+                    x2={rx + nx * rayLen} y2={ry + nz * rayLen}
+                    stroke="rgba(255,245,160,0.35)" strokeWidth={1.5}
+                    strokeDasharray="3 3"
+                  />
+                );
+              })}
+            </g>
+          );
+        })}
 
         {/* Arrow markers */}
         <defs>
