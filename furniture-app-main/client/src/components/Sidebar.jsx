@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 
 const TABS = {
   LIBRARY: 'library',
@@ -141,12 +142,10 @@ export default function Sidebar({
       <header style={S.header}>
         <div style={S.headerRow}>
           <div style={S.brand}>
-            <div style={S.brandIcon} aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
-            </div>
+            <img src={ndLogo} alt="ND Furniture" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
             <div>
-              <div style={S.brandTitle}>Design Studio</div>
-              <div style={S.brandSub}>Professional</div>
+              <div style={S.brandTitle}>ND Furniture</div>
+              <div style={S.brandSub}>Design Studio</div>
             </div>
           </div>
           <button style={S.collapseBtn} onClick={() => setCollapsed(true)} title="Collapse sidebar" aria-label="Collapse sidebar">
