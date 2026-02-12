@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 
 export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback }) {
   const [view, setView] = useState('login');
@@ -62,7 +63,7 @@ export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback 
     <div style={styles.card} className="animate-slideUp" role="main" aria-label="Authentication form">
       {/* Logo */}
       <div style={styles.logoWrap}>
-        <div style={styles.logoIcon} aria-hidden="true">🛋️</div>
+        <img src={ndLogo} alt="ND Furniture" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
       </div>
 
       {/* Header */}

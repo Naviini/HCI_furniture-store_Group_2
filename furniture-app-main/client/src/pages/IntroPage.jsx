@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 
 /* ─── Room Types ──────────────────────────────────── */
 const ROOMS = [
@@ -256,10 +257,8 @@ export default function IntroPage() {
       <nav style={{ ...st.nav, borderBottomColor: scrollY > 30 ? 'var(--border)' : 'transparent', background: scrollY > 30 ? 'rgba(12,15,23,0.92)' : 'transparent' }}>
         <div style={st.navInner}>
           <div style={st.brand}>
-            <div style={st.brandIcon}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9,22 9,12 15,12 15,22" /></svg>
-            </div>
-            <span style={st.brandName}>FurnishStudio</span>
+            <img src={ndLogo} alt="ND Furniture" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
+            <span style={st.brandName}>ND Furniture</span>
           </div>
           <div style={st.navRight}>
             <a href="#rooms" style={st.navLink}>Rooms</a>
@@ -281,7 +280,7 @@ export default function IntroPage() {
 
         <h1 style={st.heroH1}>
           Design your perfect space<br />
-          <span style={st.heroAccent}>with FurnishStudio</span>
+          <span style={st.heroAccent}>with ND Furniture</span>
         </h1>
 
         <p style={st.heroP}>
@@ -457,10 +456,8 @@ export default function IntroPage() {
         <div style={st.footerInner}>
           <div style={st.footerLeft}>
             <div style={st.brand}>
-              <div style={{ ...st.brandIcon, width: 28, height: 28 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9,22 9,12 15,12 15,22" /></svg>
-              </div>
-              <span style={{ ...st.brandName, fontSize: '0.85rem' }}>FurnishStudio</span>
+              <img src={ndLogo} alt="ND Furniture" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }} />
+              <span style={{ ...st.brandName, fontSize: '0.85rem' }}>ND Furniture</span>
             </div>
             <span style={st.footerCopy}>Built with React · Three.js · Node.js · MongoDB</span>
           </div>

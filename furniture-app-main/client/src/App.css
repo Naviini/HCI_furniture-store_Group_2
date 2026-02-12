@@ -52,41 +52,67 @@
   z-index: 10;
   display: flex;
   gap: 4px;
-  background: rgba(20, 24, 32, 0.9);
-  padding: 5px;
-  border-radius: var(--radius-xl);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
+  background: rgba(15, 18, 28, 0.85);
+  padding: 4px;
+  border-radius: 14px;
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .toolbar-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
-  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.45);
   background: transparent;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: 11px;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
-  /* HCI: Adequate click target */
-  min-height: 36px;
+  min-height: 40px;
   position: relative;
+  overflow: hidden;
 }
+
+.toolbar-btn svg {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
 .toolbar-btn:hover {
-  color: var(--text-main);
-  background: var(--bg-hover);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.06);
 }
+
+.toolbar-btn:hover svg {
+  opacity: 1;
+}
+
 .toolbar-btn.active {
-  color: white;
-  background: var(--accent);
-  box-shadow: 0 2px 12px var(--accent-glow);
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  box-shadow:
+    0 2px 12px rgba(99, 102, 241, 0.35),
+    0 0 0 1px rgba(99, 102, 241, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.toolbar-btn.active svg {
+  opacity: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 /* ============================
