@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   
   const [roomConfig, setRoomConfig] = useState({
-    shape: 'rectangle', width: 15, depth: 15, wallColor: '#e0e0e0', floorColor: '#5c3a21', lightingMode: 'Day'
+    shape: 'rectangle', width: 15, depth: 15, wallColor: '#e0e0e0', floorColor: '#5c3a21', floorType: 'solid', lightingMode: 'Day'
   });
 
   // Windows state: each window has { id, wall, position, width, height }

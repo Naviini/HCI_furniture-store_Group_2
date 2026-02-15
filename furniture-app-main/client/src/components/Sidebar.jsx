@@ -372,6 +372,31 @@ export default function Sidebar({
               </div>
             </div>
 
+            <SectionHeader title="Floor Type" />
+            <div style={S.floorTypeGrid}>
+              {[
+                { id: 'solid',    label: 'Solid',    icon: '◼' },
+                { id: 'wood',     label: 'Wood',     icon: '🪵' },
+                { id: 'tiles',    label: 'Tiles',    icon: '🔲' },
+                { id: 'marble',   label: 'Marble',   icon: '🪨' },
+                { id: 'concrete', label: 'Concrete', icon: '🧱' },
+                { id: 'carpet',   label: 'Carpet',   icon: '🧶' },
+              ].map(ft => (
+                <button
+                  key={ft.id}
+                  onClick={() => updateRoom('floorType', ft.id)}
+                  aria-label={`${ft.label} floor`}
+                  style={{
+                    ...S.floorTypeBtn,
+                    ...(roomConfig.floorType === ft.id ? S.floorTypeBtnActive : {}),
+                  }}
+                >
+                  <span style={{ fontSize: '1.1rem' }}>{ft.icon}</span>
+                  <span style={S.floorTypeLabel}>{ft.label}</span>
+                </button>
+              ))}
+            </div>
+
             {/* ── Windows ── */}
             <SectionHeader title="Windows" badge={`${windows.length}`} />
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
@@ -947,6 +972,30 @@ const S = {
   },
   tipIcon: {
     flexShrink: 0, fontSize: '0.9rem', marginTop: 1,
+  },
+
+  /* Floor type buttons */
+  floorTypeGrid: {
+    display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 20,
+  },
+  floorTypeBtn: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    padding: '8px 4px',
+    borderRadius: 10,
+    cursor: 'pointer',
+    border: '1.5px solid rgba(255,255,255,0.06)',
+    background: 'rgba(255,255,255,0.02)',
+    color: 'var(--text-muted)',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+  },
+  floorTypeBtnActive: {
+    border: '1.5px solid rgba(99,102,241,0.5)',
+    background: 'rgba(99,102,241,0.1)',
+    color: 'var(--accent)',
+  },
+  floorTypeLabel: {
+    fontSize: '0.58rem', fontWeight: 600, letterSpacing: '0.2px',
   },
 
   /* Room shape buttons */
