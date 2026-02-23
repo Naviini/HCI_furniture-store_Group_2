@@ -5,80 +5,91 @@ const TABS = {
   LIBRARY: 'library',
   PROPERTIES: 'properties',
   ROOM: 'room',
+  PRICING: 'pricing',
   GLOBAL: 'global',
 };
 
 const FURNITURE_ITEMS = [
-  { name: 'Coffee Table', icon: '☕',  desc: 'Round coffee table (3D)', model: true, category: '3D' },
-  { name: 'Chair',        icon: '💺',  desc: 'Monobloc chair (3D)',    model: true, category: '3D' },
-  { name: 'Drawer',       icon: '🗄️', desc: 'Vintage drawer (3D)',   model: true, category: '3D' },
-  { name: 'Table',        icon: '🔲',  desc: 'Dining / Work table',   category: 'Basic' },
-  { name: 'Bed',          icon: '🛏️', desc: 'King / Queen bed',      category: 'Basic' },
-  { name: 'Lamp',         icon: '💡',  desc: 'Floor lamp',            category: 'Basic' },
-  { name: 'Sofa',         icon: '🛋️', desc: 'Lounge sofa',           category: 'Basic' },
-  { name: 'Cabinet',      icon: '🚪',  desc: 'Storage cabinet',       category: 'Basic' },
+  { name: 'Coffee Table', icon: '☕', desc: 'LACK – Round coffee table', model: true, category: 'Tables', material: 'Wood', color: 'Brown', price: 49.99 },
+  { name: 'Chair', icon: '💺', desc: 'TEODORES – Monobloc chair', model: true, category: 'Seating', material: 'Plastic', color: 'White', price: 29.99 },
+  { name: 'Drawer', icon: '🗄️', desc: 'HEMNES – Vintage drawer', model: true, category: 'Storage', material: 'Wood', color: 'Walnut', price: 149.99 },
+  { name: 'Table', icon: '🔲', desc: 'MELLTORP – Dining table', category: 'Tables', material: 'Wood', color: 'White', price: 89.99 },
+  { name: 'Bed', icon: '🛏️', desc: 'MALM – King bed frame', category: 'Bedroom', material: 'Wood', color: 'Oak', price: 299.99 },
+  { name: 'Lamp', icon: '💡', desc: 'HEKTAR – Floor lamp', category: 'Lighting', material: 'Metal', color: 'Black', price: 39.99 },
+  { name: 'Sofa', icon: '🛋️', desc: 'KIVIK – 3-seat sofa', category: 'Seating', material: 'Fabric', color: 'Grey', price: 499.99 },
+  { name: 'Cabinet', icon: '🚪', desc: 'KALLAX – Storage cabinet', category: 'Storage', material: 'Wood', color: 'White', price: 79.99 },
 ];
+
+/* ── Price formatter helper ── */
+const formatPrice = (price) => `$${price.toFixed(2)}`;
 
 /* ── SVG icon helpers ── */
 const Icons = {
   chevronRight: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
   ),
   chevronLeft: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
   ),
   logout: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
   ),
   search: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
   ),
   plus: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
   ),
   palette: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="8" r="1.5" fill="currentColor" /><circle cx="8" cy="12" r="1.5" fill="currentColor" /><circle cx="16" cy="12" r="1.5" fill="currentColor" /><circle cx="12" cy="16" r="1.5" fill="currentColor" /></svg>
   ),
   home: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
   ),
   settings: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" /></svg>
   ),
   trash: (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
   ),
   save: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
   ),
   folder: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" /></svg>
   ),
   camera: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></svg>
   ),
   sun: (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
   ),
   move: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15" /><polyline points="9 5 12 2 15 5" /><polyline points="15 19 12 22 9 19" /><polyline points="19 9 22 12 19 15" /><line x1="2" y1="12" x2="22" y2="12" /><line x1="12" y1="2" x2="12" y2="22" /></svg>
   ),
   rotate: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" /></svg>
   ),
   maximize: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" /><line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" /></svg>
   ),
   windowIcon: (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>
+  ),
+  cart: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></svg>
+  ),
+  tag: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>
   ),
 };
 
 const TAB_META = [
-  { id: TABS.LIBRARY,    label: 'Library',  icon: Icons.plus },
-  { id: TABS.PROPERTIES, label: 'Edit',     icon: Icons.palette },
-  { id: TABS.ROOM,       label: 'Room',     icon: Icons.home },
-  { id: TABS.GLOBAL,     label: 'Settings', icon: Icons.settings },
+  { id: TABS.LIBRARY, label: 'Library', icon: Icons.plus },
+  { id: TABS.PROPERTIES, label: 'Edit', icon: Icons.palette },
+  { id: TABS.ROOM, label: 'Room', icon: Icons.home },
+  { id: TABS.PRICING, label: 'Cart', icon: Icons.cart },
+  { id: TABS.GLOBAL, label: 'Settings', icon: Icons.settings },
 ];
 
 export default function Sidebar({
@@ -90,17 +101,37 @@ export default function Sidebar({
   const [collapsed, setCollapsed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [materialFilter, setMaterialFilter] = useState('All');
+  const [colorFilter, setColorFilter] = useState('All');
 
   const selectedItem = items.find(i => i.id === selectedId);
   const updateRoom = (key, value) => setRoomConfig(prev => ({ ...prev, [key]: value }));
 
   const filteredFurniture = useMemo(() => {
-    if (!searchQuery.trim()) return FURNITURE_ITEMS;
-    const q = searchQuery.toLowerCase();
-    return FURNITURE_ITEMS.filter(f =>
-      f.name.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q) || f.category.toLowerCase().includes(q),
-    );
-  }, [searchQuery]);
+    let result = FURNITURE_ITEMS;
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(f =>
+        f.name.toLowerCase().includes(q) || f.desc.toLowerCase().includes(q)
+      );
+    }
+
+    if (categoryFilter !== 'All') {
+      result = result.filter(f => f.category === categoryFilter);
+    }
+
+    if (materialFilter !== 'All') {
+      result = result.filter(f => f.material === materialFilter);
+    }
+
+    if (colorFilter !== 'All') {
+      result = result.filter(f => f.color === colorFilter);
+    }
+
+    return result;
+  }, [searchQuery, categoryFilter, materialFilter, colorFilter]);
 
   const handleDelete = useCallback(() => setShowDeleteConfirm(true), []);
   const confirmDelete = useCallback(() => {
@@ -195,6 +226,22 @@ export default function Sidebar({
               )}
             </div>
 
+            {/* Filters */}
+            <div style={S.filtersRow}>
+              <select style={S.filterSelect} value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} aria-label="Filter by category">
+                <option value="All">All Categories</option>
+                {[...new Set(FURNITURE_ITEMS.map(f => f.category))].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <select style={S.filterSelect} value={materialFilter} onChange={e => setMaterialFilter(e.target.value)} aria-label="Filter by material">
+                <option value="All">All Materials</option>
+                {[...new Set(FURNITURE_ITEMS.map(f => f.material))].map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <select style={S.filterSelect} value={colorFilter} onChange={e => setColorFilter(e.target.value)} aria-label="Filter by color">
+                <option value="All">All Colors</option>
+                {[...new Set(FURNITURE_ITEMS.map(f => f.color))].map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
             {filteredFurniture.length === 0 ? (
               <div style={S.emptyState}>
                 <p style={S.emptyTitle}>No results</p>
@@ -216,7 +263,7 @@ export default function Sidebar({
             {!selectedItem ? (
               <div style={S.emptyState} role="status">
                 <div style={S.emptyIconWrap} aria-hidden="true">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8" opacity=".4"/></svg>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 12h8M12 8v8" opacity=".4" /></svg>
                 </div>
                 <p style={S.emptyTitle}>No Selection</p>
                 <p style={S.emptyDesc}>Click on a furniture item in the canvas to edit its properties.</p>
@@ -239,6 +286,26 @@ export default function Sidebar({
                   <button style={S.deleteIconBtn} onClick={handleDelete} title={`Delete ${selectedItem.type}`} aria-label={`Delete ${selectedItem.type}`}>
                     {Icons.trash}
                   </button>
+                </div>
+
+                {/* Price Tag */}
+                <div style={S.priceTag}>
+                  <div style={S.priceTagLeft}>
+                    {Icons.tag}
+                    <span style={S.priceTagLabel}>Price</span>
+                  </div>
+                  <span style={S.priceTagValue}>
+                    {formatPrice(FURNITURE_ITEMS.find(f => f.name === selectedItem.type)?.price || 0)}
+                  </span>
+                </div>
+
+                {/* Material Info */}
+                <div style={S.materialInfo}>
+                  <span style={S.materialLabel}>Material:</span>
+                  <span style={S.materialValue}>{FURNITURE_ITEMS.find(f => f.name === selectedItem.type)?.material || 'N/A'}</span>
+                  <span style={S.materialSep}>·</span>
+                  <span style={S.materialLabel}>Color:</span>
+                  <span style={S.materialValue}>{FURNITURE_ITEMS.find(f => f.name === selectedItem.type)?.color || 'N/A'}</span>
                 </div>
 
                 {/* Color */}
@@ -313,7 +380,7 @@ export default function Sidebar({
           <div className="confirm-overlay" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" onClick={() => setShowDeleteConfirm(false)}>
             <div style={S.confirmDialog} onClick={e => e.stopPropagation()} className="animate-slideUp">
               <div style={S.confirmIconWrap} aria-hidden="true">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </div>
               <h3 id="delete-title" style={S.confirmTitle}>Delete {selectedItem.type}?</h3>
               <p style={S.confirmDesc}>This action cannot be undone. The item will be permanently removed from your design.</p>
@@ -333,12 +400,12 @@ export default function Sidebar({
             <SectionHeader title="Room Shape" />
             <div style={S.shapeGrid}>
               {[
-                { id: 'rectangle', label: 'Rectangle', svg: <svg viewBox="0 0 40 28" width="36" height="24"><rect x="2" y="2" width="36" height="24" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg> },
-                { id: 'square',    label: 'Square',    svg: <svg viewBox="0 0 32 32" width="24" height="24"><rect x="2" y="2" width="28" height="28" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5"/></svg> },
-                { id: 'l-shape',   label: 'L-Shape',   svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h16 v16 h12 v12 h-28 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-                { id: 't-shape',   label: 'T-Shape',   svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h28 v12 h-10 v16 h-8 v-16 h-10 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-                { id: 'u-shape',   label: 'U-Shape',   svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h8 v20 h12 v-20 h8 v28 h-28 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-                { id: 'open',      label: 'Open',      svg: <svg viewBox="0 0 36 36" width="24" height="24"><rect x="2" y="2" width="32" height="32" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3"/></svg> },
+                { id: 'rectangle', label: 'Rectangle', svg: <svg viewBox="0 0 40 28" width="36" height="24"><rect x="2" y="2" width="36" height="24" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg> },
+                { id: 'square', label: 'Square', svg: <svg viewBox="0 0 32 32" width="24" height="24"><rect x="2" y="2" width="28" height="28" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg> },
+                { id: 'l-shape', label: 'L-Shape', svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h16 v16 h12 v12 h-28 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg> },
+                { id: 't-shape', label: 'T-Shape', svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h28 v12 h-10 v16 h-8 v-16 h-10 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg> },
+                { id: 'u-shape', label: 'U-Shape', svg: <svg viewBox="0 0 36 36" width="24" height="24"><path d="M4 4 h8 v20 h12 v-20 h8 v28 h-28 z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg> },
+                { id: 'open', label: 'Open', svg: <svg viewBox="0 0 36 36" width="24" height="24"><rect x="2" y="2" width="32" height="32" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" /></svg> },
               ].map(shape => (
                 <ShapeButton key={shape.id} shape={shape} active={roomConfig.shape === shape.id} onClick={() => updateRoom('shape', shape.id)} />
               ))}
@@ -375,12 +442,12 @@ export default function Sidebar({
             <SectionHeader title="Floor Type" />
             <div style={S.floorTypeGrid}>
               {[
-                { id: 'solid',    label: 'Solid',    icon: '◼' },
-                { id: 'wood',     label: 'Wood',     icon: '🪵' },
-                { id: 'tiles',    label: 'Tiles',    icon: '🔲' },
-                { id: 'marble',   label: 'Marble',   icon: '🪨' },
+                { id: 'solid', label: 'Solid', icon: '◼' },
+                { id: 'wood', label: 'Wood', icon: '🪵' },
+                { id: 'tiles', label: 'Tiles', icon: '🔲' },
+                { id: 'marble', label: 'Marble', icon: '🪨' },
                 { id: 'concrete', label: 'Concrete', icon: '🧱' },
-                { id: 'carpet',   label: 'Carpet',   icon: '🧶' },
+                { id: 'carpet', label: 'Carpet', icon: '🧶' },
               ].map(ft => (
                 <button
                   key={ft.id}
@@ -472,15 +539,137 @@ export default function Sidebar({
           </div>
         )}
 
+        {/* ─── PRICING / CART ─── */}
+        {activeTab === TABS.PRICING && (
+          <div style={S.fadeIn}>
+            <SectionHeader title="Shopping Cart" badge={`${items.length} items`} />
+
+            {items.length === 0 ? (
+              <div style={S.emptyState}>
+                <div style={S.emptyIconWrap} aria-hidden="true">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></svg>
+                </div>
+                <p style={S.emptyTitle}>Your cart is empty</p>
+                <p style={S.emptyDesc}>Add furniture from the Library tab to see pricing here.</p>
+              </div>
+            ) : (
+              <>
+                {/* Cart items list */}
+                <div style={S.cartList}>
+                  {/* Group items by type and count them */}
+                  {Object.values(items.reduce((acc, item) => {
+                    if (!acc[item.type]) {
+                      const furnitureData = FURNITURE_ITEMS.find(f => f.name === item.type);
+                      acc[item.type] = {
+                        type: item.type,
+                        icon: furnitureData?.icon || '📦',
+                        desc: furnitureData?.desc || '',
+                        material: furnitureData?.material || 'N/A',
+                        price: furnitureData?.price || 0,
+                        qty: 0,
+                        ids: [],
+                      };
+                    }
+                    acc[item.type].qty += 1;
+                    acc[item.type].ids.push(item.id);
+                    return acc;
+                  }, {})).map(group => (
+                    <div key={group.type} style={S.cartItem}>
+                      <div style={S.cartItemLeft}>
+                        <div style={S.cartItemIcon}>{group.icon}</div>
+                        <div style={S.cartItemInfo}>
+                          <div style={S.cartItemName}>{group.type}</div>
+                          <div style={S.cartItemDesc}>{group.desc}</div>
+                          <div style={S.cartItemMaterial}>{group.material}</div>
+                        </div>
+                      </div>
+                      <div style={S.cartItemRight}>
+                        <div style={S.cartItemQty}>×{group.qty}</div>
+                        <div style={S.cartItemPrice}>{formatPrice(group.price * group.qty)}</div>
+                        <div style={S.cartItemUnitPrice}>{formatPrice(group.price)} each</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Price Summary — IKEA style */}
+                <div style={S.priceSummary}>
+                  <div style={S.priceSummaryHeader}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg>
+                    <span>Order Summary</span>
+                  </div>
+
+                  <div style={S.priceLine}>
+                    <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'items'})</span>
+                    <span style={S.priceLineValue}>
+                      {formatPrice(items.reduce((sum, item) => {
+                        const fData = FURNITURE_ITEMS.find(f => f.name === item.type);
+                        return sum + (fData?.price || 0);
+                      }, 0))}
+                    </span>
+                  </div>
+
+                  <div style={S.priceLine}>
+                    <span>Delivery Estimate</span>
+                    <span style={{ ...S.priceLineValue, color: '#22c55e' }}>FREE</span>
+                  </div>
+
+                  <div style={S.priceLine}>
+                    <span>Assembly Service</span>
+                    <span style={S.priceLineValue}>
+                      {formatPrice(items.reduce((sum, item) => {
+                        const fData = FURNITURE_ITEMS.find(f => f.name === item.type);
+                        return sum + (fData?.price || 0) * 0.1;
+                      }, 0))}
+                    </span>
+                  </div>
+
+                  <div style={S.priceLineEstTax}>
+                    <span>Est. Tax (8%)</span>
+                    <span style={S.priceLineValue}>
+                      {formatPrice(items.reduce((sum, item) => {
+                        const fData = FURNITURE_ITEMS.find(f => f.name === item.type);
+                        return sum + (fData?.price || 0) * 0.08;
+                      }, 0))}
+                    </span>
+                  </div>
+
+                  <div style={S.priceTotalLine}>
+                    <span style={S.priceTotalLabel}>Estimated Total</span>
+                    <span style={S.priceTotalValue}>
+                      {formatPrice(items.reduce((sum, item) => {
+                        const fData = FURNITURE_ITEMS.find(f => f.name === item.type);
+                        const p = fData?.price || 0;
+                        return sum + p + p * 0.1 + p * 0.08;
+                      }, 0))}
+                    </span>
+                  </div>
+
+                  <div style={S.savingsBadge}>
+                    <span style={{ fontSize: '1rem' }}>🏷️</span>
+                    <div>
+                      <div style={S.savingsTitle}>ND Furniture Member Price</div>
+                      <div style={S.savingsDesc}>Save an extra 5% when you sign up for ND Family</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
         {/* ─── SETTINGS ─── */}
         {activeTab === TABS.GLOBAL && (
           <div style={S.fadeIn}>
             <SectionHeader title="Environment" />
             <div style={S.lightingCards}>
               {[
-                { value: 'Day',    label: 'Daylight',    icon: '☀️', desc: 'Bright & natural' },
-                { value: 'Golden', label: 'Golden Hour',  icon: '🌅', desc: 'Warm sunset tones' },
-                { value: 'Night',  label: 'Night Mode',   icon: '🌙', desc: 'Soft ambient light' },
+                { value: 'Day', label: 'Daylight', icon: '☀️', desc: 'Bright & natural' },
+                { value: 'Golden', label: 'Golden Hour', icon: '🌅', desc: 'Warm sunset tones' },
+                { value: 'Night', label: 'Night Mode', icon: '🌙', desc: 'Soft ambient light' },
               ].map(mode => (
                 <button
                   key={mode.value}
@@ -594,20 +783,24 @@ const TabButton = ({ id, label, icon, active, onClick }) => (
   </button>
 );
 
-const LibraryCard = ({ name, icon, desc, category, onClick }) => (
+const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) => (
   <button
     onClick={onClick}
     role="listitem"
-    aria-label={`Add ${name} to room. ${desc}`}
+    aria-label={`Add ${name} to room. ${desc}. Price: ${formatPrice(price)}`}
     className="sidebar-library-card"
     style={S.libraryCard}
   >
     <div style={S.cardIconWrap}>
       <span style={S.cardIcon}>{icon}</span>
-      {category === '3D' && <span style={S.badge3d}>3D</span>}
+      {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
+      {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
+      {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
     </div>
     <span style={S.cardName}>{name}</span>
     <span style={S.cardDesc}>{desc}</span>
+    <span style={S.cardMaterial}>{material}</span>
+    <span style={S.cardPrice}>{formatPrice(price)}</span>
   </button>
 );
 
@@ -851,7 +1044,7 @@ const S = {
   },
   badge3d: {
     position: 'absolute', top: -3, right: -6,
-    fontSize: '0.5rem', fontWeight: 700,
+    fontSize: '0.48rem', fontWeight: 700,
     background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
     color: 'white',
     padding: '1px 5px',
@@ -862,7 +1055,16 @@ const S = {
     fontSize: '0.78rem', fontWeight: 600,
   },
   cardDesc: {
-    fontSize: '0.62rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3,
+    fontSize: '0.58rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3,
+  },
+  cardMaterial: {
+    fontSize: '0.55rem', color: 'rgba(129,140,248,0.6)', fontWeight: 500, letterSpacing: '0.3px',
+  },
+  cardPrice: {
+    fontSize: '0.88rem', fontWeight: 800, color: '#fbbf24',
+    marginTop: 2,
+    fontFamily: "'Inter', system-ui, sans-serif",
+    textShadow: '0 0 12px rgba(251,191,36,0.2)',
   },
 
   /* Properties panel */
@@ -1169,5 +1371,179 @@ const S = {
   windowLabel: {
     display: 'block', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: 4,
+  },
+
+  /* ── Price Tag (Properties panel) ── */
+  priceTag: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '12px 14px',
+    background: 'linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04))',
+    borderRadius: 12,
+    border: '1px solid rgba(251,191,36,0.2)',
+    marginBottom: 12,
+  },
+  priceTagLeft: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    color: '#fbbf24',
+  },
+  priceTagLabel: {
+    fontSize: '0.72rem', fontWeight: 600, color: '#fbbf24',
+    textTransform: 'uppercase', letterSpacing: '0.5px',
+  },
+  priceTagValue: {
+    fontSize: '1.15rem', fontWeight: 800, color: '#fbbf24',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    textShadow: '0 0 16px rgba(251,191,36,0.25)',
+  },
+
+  /* ── Material Info ── */
+  materialInfo: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '8px 12px',
+    background: 'rgba(255,255,255,0.02)',
+    borderRadius: 8,
+    marginBottom: 14,
+    flexWrap: 'wrap',
+  },
+  materialLabel: {
+    fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-muted)',
+  },
+  materialValue: {
+    fontSize: '0.68rem', fontWeight: 600, color: '#c7d2fe',
+  },
+  materialSep: {
+    fontSize: '0.6rem', color: 'rgba(255,255,255,0.15)',
+  },
+
+  /* ── Cart / Pricing Tab ── */
+  cartList: {
+    display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16,
+  },
+  cartItem: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '12px',
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: 12,
+    border: '1px solid rgba(255,255,255,0.06)',
+    transition: 'all 0.2s',
+  },
+  cartItemLeft: {
+    display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0,
+  },
+  cartItemIcon: {
+    width: 36, height: 36,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(99,102,241,0.1)',
+    borderRadius: 10,
+    fontSize: '1.1rem',
+    flexShrink: 0,
+  },
+  cartItemInfo: {
+    display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0,
+  },
+  cartItemName: {
+    fontSize: '0.8rem', fontWeight: 600, color: '#e8ecf4',
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+  },
+  cartItemDesc: {
+    fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1.3,
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+  },
+  cartItemMaterial: {
+    fontSize: '0.55rem', color: 'rgba(129,140,248,0.6)', fontWeight: 500,
+  },
+  cartItemRight: {
+    display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
+    flexShrink: 0, paddingLeft: 10,
+  },
+  cartItemQty: {
+    fontSize: '0.62rem', fontWeight: 600, color: 'var(--text-muted)',
+    background: 'rgba(255,255,255,0.06)',
+    padding: '1px 6px', borderRadius: 6,
+  },
+  cartItemPrice: {
+    fontSize: '0.92rem', fontWeight: 800, color: '#fbbf24',
+    fontFamily: "'Inter', system-ui, sans-serif",
+  },
+  cartItemUnitPrice: {
+    fontSize: '0.55rem', color: 'var(--text-muted)', fontWeight: 400,
+  },
+
+  /* ── Order Summary ── */
+  priceSummary: {
+    background: 'rgba(255,255,255,0.03)',
+    borderRadius: 14,
+    border: '1px solid rgba(255,255,255,0.07)',
+    overflow: 'hidden',
+  },
+  priceSummaryHeader: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '12px 14px',
+    background: 'rgba(99,102,241,0.06)',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    fontSize: '0.78rem', fontWeight: 700, color: '#a5b4fc',
+    textTransform: 'uppercase', letterSpacing: '0.4px',
+  },
+  priceLine: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '10px 14px',
+    fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-muted)',
+    borderBottom: '1px solid rgba(255,255,255,0.03)',
+  },
+  priceLineValue: {
+    fontWeight: 600, color: '#e8ecf4',
+    fontFamily: "'Inter', system-ui, sans-serif",
+  },
+  priceLineEstTax: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '10px 14px',
+    fontSize: '0.72rem', fontWeight: 500, color: 'var(--text-muted)',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+  },
+  priceTotalLine: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '14px',
+    background: 'linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04))',
+  },
+  priceTotalLabel: {
+    fontSize: '0.82rem', fontWeight: 700, color: '#f0f2f7',
+  },
+  priceTotalValue: {
+    fontSize: '1.1rem', fontWeight: 800, color: '#fbbf24',
+    fontFamily: "'Inter', system-ui, sans-serif",
+    textShadow: '0 0 14px rgba(251,191,36,0.2)',
+  },
+
+  /* ── Savings Badge ── */
+  savingsBadge: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '12px 14px',
+    background: 'rgba(34,197,94,0.06)',
+    borderTop: '1px solid rgba(34,197,94,0.12)',
+  },
+  savingsTitle: {
+    fontSize: '0.72rem', fontWeight: 700, color: '#4ade80',
+  },
+  savingsDesc: {
+    fontSize: '0.6rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: 1,
+  },
+  /* ── Sidebar Filters ── */
+  filtersRow: {
+    display: 'flex', gap: 6, marginBottom: 14,
+  },
+  filterSelect: {
+    flex: 1,
+    minWidth: 0,
+    padding: '7px 6px',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 8,
+    color: 'var(--text-secondary)',
+    fontSize: '0.62rem',
+    fontWeight: 500,
+    fontFamily: 'inherit',
+    outline: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
   },
 };

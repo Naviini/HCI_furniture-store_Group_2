@@ -503,6 +503,19 @@
   font-size: 0.63rem;
 }
 
+.db-stat--price {
+  color: #fbbf24 !important;
+  font-weight: 700;
+  font-size: 0.72rem;
+  gap: 5px;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.15);
+}
+
+.db-stat--price svg {
+  opacity: 0.8;
+  stroke: #fbbf24;
+}
+
 .db-stat--muted kbd {
   display: inline-flex;
   align-items: center;

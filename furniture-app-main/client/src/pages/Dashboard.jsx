@@ -10,9 +10,9 @@ import './Dashboard.css';
 const Toast = ({ message, type = 'info', onDismiss }) => {
   const configs = {
     success: { icon: '✓', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.3)' },
-    error:   { icon: '✕', color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.3)' },
+    error: { icon: '✕', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' },
     warning: { icon: '⚠', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)' },
-    info:    { icon: 'ℹ', color: '#6366f1', bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.3)' },
+    info: { icon: 'ℹ', color: '#6366f1', bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.3)' },
   };
   const cfg = configs[type] || configs.info;
   return (
@@ -52,11 +52,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const canvasRef = useRef();
 
-  const [user, setUser]           = useState(null);
-  const [items, setItems]         = useState([]);
+  const [user, setUser] = useState(null);
+  const [items, setItems] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  const [mode, setMode]           = useState('3D');
-  const [isSaving, setIsSaving]   = useState(false);
+  const [mode, setMode] = useState('3D');
+  const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [roomConfig, setRoomConfig] = useState({
@@ -66,7 +66,7 @@ export default function Dashboard() {
   });
 
   const [windows, setWindows] = useState([]);
-  const [toast, setToast]     = useState(null);
+  const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
 
@@ -99,9 +99,9 @@ export default function Dashboard() {
   const addItem = (type) => {
     const DEFAULTS = {
       'Coffee Table': { y: 0, color: '#888888' },
-      'Chair':        { y: 0, color: '#888888' },
-      'Drawer':       { y: 0, color: '#888888' },
-      'Lamp':         { y: 0.5, color: '#ffaa00' },
+      'Chair': { y: 0, color: '#888888' },
+      'Drawer': { y: 0, color: '#888888' },
+      'Lamp': { y: 0.5, color: '#ffaa00' },
     };
     const def = DEFAULTS[type] || { y: 0.5, color: '#888888' };
     const newItem = {
@@ -164,7 +164,7 @@ export default function Dashboard() {
   const loadDesigns = async () => {
     setIsLoading(true);
     try {
-      const res  = await fetch(`http://localhost:5000/api/designs/${user._id}`, {
+      const res = await fetch(`http://localhost:5000/api/designs/${user._id}`, {
         headers: { 'Authorization': `Bearer ${user.token}` },
       });
       const data = await res.json();
@@ -172,7 +172,7 @@ export default function Dashboard() {
         const design = data[data.length - 1];
         setItems(design.items);
         if (design.roomConfig) setRoomConfig(design.roomConfig);
-        if (design.windows)    setWindows(design.windows);
+        if (design.windows) setWindows(design.windows);
         showToast(`Loaded: ${design.name}`, 'success');
       } else {
         showToast('No saved designs found', 'info');
@@ -233,8 +233,8 @@ export default function Dashboard() {
             <div className="db-brand">
               <div className="db-brand-icon" aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
               <span className="db-brand-name">RoomCraft</span>
@@ -261,9 +261,9 @@ export default function Dashboard() {
                 aria-label="Switch to 3D view"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                  <path d="M2 17l10 5 10-5"/>
-                  <path d="M2 12l10 5 10-5"/>
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
                 </svg>
                 <span>3D View</span>
               </button>
@@ -275,11 +275,11 @@ export default function Dashboard() {
                 aria-label="Switch to 2D Blueprint view"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="3" y="3" width="18" height="18" rx="2"/>
-                  <line x1="3" y1="9" x2="21" y2="9"/>
-                  <line x1="3" y1="15" x2="21" y2="15"/>
-                  <line x1="9" y1="3" x2="9" y2="21"/>
-                  <line x1="15" y1="3" x2="15" y2="21"/>
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <line x1="3" y1="9" x2="21" y2="9" />
+                  <line x1="3" y1="15" x2="21" y2="15" />
+                  <line x1="9" y1="3" x2="9" y2="21" />
+                  <line x1="15" y1="3" x2="15" y2="21" />
                 </svg>
                 <span>Blueprint</span>
               </button>
@@ -290,7 +290,7 @@ export default function Dashboard() {
             {/* Selected item indicator */}
             {selectedItem && (
               <div className="db-selected-badge" aria-live="polite">
-                <span className="db-selected-dot" aria-hidden="true"/>
+                <span className="db-selected-dot" aria-hidden="true" />
                 <span>{selectedItem.type} selected</span>
               </div>
             )}
@@ -304,9 +304,9 @@ export default function Dashboard() {
               data-tooltip="Save (Ctrl+S)"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                <polyline points="17 21 17 13 7 13 7 21"/>
-                <polyline points="7 3 7 8 15 8"/>
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
               </svg>
               <span>Save</span>
             </button>
@@ -325,8 +325,8 @@ export default function Dashboard() {
               data-tooltip="Screenshot"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
               </svg>
               <span>Capture</span>
             </button>
@@ -370,8 +370,8 @@ export default function Dashboard() {
             <div className="db-empty-state" aria-live="polite">
               <div className="db-empty-icon" aria-hidden="true">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                  <polyline points="9 22 9 12 15 12 15 22"/>
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
               <p className="db-empty-title">Your canvas is empty</p>
@@ -384,27 +384,39 @@ export default function Dashboard() {
         <footer className="db-status-bar" role="status" aria-live="polite" aria-label="Design status">
           <div className="db-status-left">
             <span className="db-status-indicator">
-              <span className={`db-status-dot ${isSaving || isLoading ? 'db-status-dot--busy' : ''}`} aria-hidden="true"/>
+              <span className={`db-status-dot ${isSaving || isLoading ? 'db-status-dot--busy' : ''}`} aria-hidden="true" />
               <span className="db-status-text">
                 {isSaving ? 'Saving…' : isLoading ? 'Loading…' : 'Ready'}
               </span>
             </span>
-            <span className="db-status-divider" aria-hidden="true"/>
+            <span className="db-status-divider" aria-hidden="true" />
             <ModeBadge mode={mode} />
           </div>
 
           <div className="db-status-right">
             <span className="db-stat" aria-label={`${items.length} furniture items placed`}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
               {items.length} {items.length === 1 ? 'item' : 'items'}
             </span>
             <span className="db-stat" aria-label={`${windows.length} windows`}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="3" x2="12" y2="21" /><line x1="3" y1="12" x2="21" y2="12" /></svg>
               {windows.length} {windows.length === 1 ? 'window' : 'windows'}
             </span>
             <span className="db-stat" aria-label={`Room: ${roomConfig.shape}, ${roomConfig.width} by ${roomConfig.depth} metres`}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1"/></svg>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="1" /></svg>
               {roomConfig.shape} · {roomConfig.width}m × {roomConfig.depth}m
+            </span>
+            <span className="db-stat db-stat--price" aria-label={`Total cost: $${items.reduce((sum, item) => {
+              const prices = { 'Coffee Table': 49.99, 'Chair': 29.99, 'Drawer': 149.99, 'Table': 89.99, 'Bed': 299.99, 'Lamp': 39.99, 'Sofa': 499.99, 'Cabinet': 79.99 };
+              return sum + (prices[item.type] || 0);
+            }, 0).toFixed(2)}`}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+              </svg>
+              ${items.reduce((sum, item) => {
+                const prices = { 'Coffee Table': 49.99, 'Chair': 29.99, 'Drawer': 149.99, 'Table': 89.99, 'Bed': 299.99, 'Lamp': 39.99, 'Sofa': 499.99, 'Cabinet': 79.99 };
+                return sum + (prices[item.type] || 0);
+              }, 0).toFixed(2)}
             </span>
             <span className="db-stat db-stat--muted" aria-hidden="true">
               <kbd>Del</kbd> remove &nbsp;·&nbsp; <kbd>Esc</kbd> deselect
