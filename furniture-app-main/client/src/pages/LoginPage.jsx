@@ -22,37 +22,43 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
-      
+
       if (data.success) {
         localStorage.setItem('user', JSON.stringify(data));
-        navigate('/dashboard');
+        // Route to admin dashboard if role is admin, else standard dashboard
+        if (data.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/dashboard');
+        }
       } else {
         showFeedback(data.message || 'Invalid credentials. Please try again.', 'error');
       }
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
-      showFeedback('Unable to connect to the server. Please check your connection and try again.', 'error'); 
+      showFeedback('Unable to connect to the server. Please check your connection and try again.', 'error');
     }
   };
 
   // --- REGISTRATION LOGIC ---
-  const handleRegister = async (username, email, password) => {
+  const handleRegister = async (username, email, password, role = 'user', adminCode = '') => {
     try {
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, role, adminCode }),
       });
       const data = await res.json();
-      
+
       if (data.success) {
-        showFeedback('Account created successfully! Please sign in.', 'success');
-        return true; // Signal LoginBox to switch to login view
+        const roleLabel = data.role === 'admin' ? 'Staff account' : 'Account';
+        showFeedback(`${roleLabel} created successfully! Please sign in.`, 'success');
+        return true;
       } else {
         showFeedback(data.message || 'Registration failed. Username or email may already be in use.', 'error');
         return false;
       }
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
       showFeedback('Unable to connect to the server. Please try again later.', 'error');
       return false;
@@ -61,9 +67,9 @@ export default function LoginPage() {
 
   return (
     <div style={pageStyles.wrapper}>
-      <LoginBox 
-        onLogin={handleLogin} 
-        onRegister={handleRegister} 
+      <LoginBox
+        onLogin={handleLogin}
+        onRegister={handleRegister}
         feedback={feedback}
         clearFeedback={() => setFeedback({ message: '', type: '' })}
       />
@@ -86,6 +92,6 @@ const pageStyles = {
     `,
     margin: 0,
     padding: 0,
-    overflow: 'hidden',
+    overflowY: 'auto',
   }
 };

@@ -1,0 +1,413 @@
+/* ══════════════════════════════════════
+   TEMPLATES PAGE — TemplatesPage.css
+══════════════════════════════════════ */
+
+/* Backdrop */
+.tp-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 16px;
+    animation: tp-backdrop-in 0.25s ease;
+}
+
+@keyframes tp-backdrop-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal container */
+.tp-modal {
+    background: #0d0f17;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 20px;
+    width: min(1100px, 100%);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+    animation: tp-modal-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tp-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.93) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ── Header ── */
+.tp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    flex-shrink: 0;
+}
+
+.tp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.tp-header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.15));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.tp-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    margin: 0 0 4px;
+    letter-spacing: -0.02em;
+}
+
+.tp-subtitle {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.tp-close-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s;
+}
+
+.tp-close-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+/* ── Category tabs ── */
+.tp-categories {
+    display: flex;
+    gap: 8px;
+    padding: 16px 28px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+}
+
+.tp-categories::-webkit-scrollbar {
+    display: none;
+}
+
+.tp-cat-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+.tp-cat-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+}
+
+.tp-cat-btn--active {
+    border-color: var(--cat-color, #6366f1);
+    color: var(--cat-color, #6366f1);
+    background: rgba(99, 102, 241, 0.12);
+}
+
+.tp-cat-icon {
+    font-size: 1rem;
+}
+
+/* ── Grid ── */
+.tp-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+    padding: 20px 28px;
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.tp-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tp-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+/* ── Template card ── */
+.tp-card {
+    display: flex;
+    flex-direction: column;
+    background: #131722;
+    border: 2px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-color 0.18s,
+        box-shadow 0.22s;
+    font-family: inherit;
+    color: inherit;
+}
+
+.tp-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.2);
+}
+
+.tp-card--selected {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3) !important;
+}
+
+/* Card preview area */
+.tp-card-preview {
+    position: relative;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.tp-card-emoji {
+    font-size: 3rem;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4));
+    z-index: 2;
+    transition: transform 0.3s;
+    position: relative;
+}
+
+.tp-card:hover .tp-card-emoji {
+    transform: scale(1.15) rotate(-5deg);
+}
+
+/* Mini furniture icons floating in preview */
+.tp-card-mini-items {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+    pointer-events: none;
+}
+
+.tp-mini-item {
+    font-size: 0.85rem;
+    opacity: 0.4;
+    animation: tp-float 3s ease-in-out infinite;
+}
+
+@keyframes tp-float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* Stats bar */
+.tp-card-stats {
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    display: flex;
+    gap: 4px;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+}
+
+/* Tag badge */
+.tp-card-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Selected check */
+.tp-card-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #6366f1;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 800;
+    animation: tp-check-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes tp-check-in {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Card body */
+.tp-card-body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tp-card-category {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #6366f1;
+}
+
+.tp-card-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.tp-card-desc {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Chips */
+.tp-card-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 2px;
+    flex-wrap: wrap;
+}
+
+.tp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+/* CTA */
+.tp-card-cta {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #6366f1;
+    margin-top: 4px;
+    transition: color 0.18s;
+}
+
+.tp-card:hover .tp-card-cta {
+    color: #a5b4fc;
+}
+
+/* ── Footer ── */
+.tp-footer {
+    padding: 16px 28px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tp-skip-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.18s;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.tp-skip-btn:hover {
+    color: #94a3b8;
+}
