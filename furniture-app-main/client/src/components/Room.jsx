@@ -1,6 +1,24 @@
 import React, { useMemo } from 'react';
-import { Grid } from '@react-three/drei';
+import { Grid, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
+
+/* ── Floor texture images (directly imported for Vite resolution) ── */
+import plankDiff  from '../assets/textures/plank_flooring_04_diff_1k.jpg';
+import plankNor   from '../assets/textures/plank_flooring_04_nor_gl_1k.jpg';
+import plankArm   from '../assets/textures/plank_flooring_04_arm_1k.jpg';
+import cartDiff   from '../assets/textures/grey_cartago_03_diff_1k.jpg';
+import cartNor    from '../assets/textures/grey_cartago_03_nor_gl_1k.jpg';
+import cartArm    from '../assets/textures/grey_cartago_03_arm_1k.jpg';
+import graniteDiff from '../assets/textures/granite_tile_diff_1k.jpg';
+import graniteNor  from '../assets/textures/granite_tile_nor_gl_1k.jpg';
+import graniteArm  from '../assets/textures/granite_tile_arm_1k.jpg';
+
+/* Lookup map: floorType → { diff, nor, arm } texture paths */
+const FLOOR_TEX_MAP = {
+  plank_flooring: { diff: plankDiff,   nor: plankNor,   arm: plankArm,   roughness: 0.6,  metalness: 0.0 },
+  grey_cartago:   { diff: cartDiff,    nor: cartNor,    arm: cartArm,    roughness: 0.4,  metalness: 0.05 },
+  granite_tile:   { diff: graniteDiff, nor: graniteNor, arm: graniteArm, roughness: 0.25, metalness: 0.08 },
+};
 
 const WALL_HEIGHT = 5;
 const WALL_THICK = 0.2;
@@ -198,13 +216,56 @@ function Wall({ from, to, color, wallId, windows = [] }) {
 }
 
 /* ────────────────────────────────────────────
-   FloorTile: a single rectangular floor piece
+   TexturedFloorTile: renders a floor plane with
+   real PBR textures (diff + normal + ARM).
+   Uses useTexture for reliable Vite asset handling.
    ──────────────────────────────────────────── */
-function FloorTile({ cx, cz, w, d, color }) {
+function TexturedFloorTile({ cx, cz, w, d, floorType }) {
+  const texInfo = FLOOR_TEX_MAP[floorType];
+  const [diffMap, norMap, armMap] = useTexture([texInfo.diff, texInfo.nor, texInfo.arm]);
+
+  // Configure tiling & color-space once textures are ready
+  useMemo(() => {
+    const repeatX = w / 3;
+    const repeatY = d / 3;
+    [diffMap, norMap, armMap].forEach(tex => {
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(repeatX, repeatY);
+      tex.needsUpdate = true;
+    });
+    diffMap.colorSpace = THREE.SRGBColorSpace;
+  }, [diffMap, norMap, armMap, w, d]);
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, -0.01, cz]} receiveShadow>
       <planeGeometry args={[w, d]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial
+        map={diffMap}
+        normalMap={norMap}
+        roughnessMap={armMap}
+        metalnessMap={armMap}
+        roughness={texInfo.roughness}
+        metalness={texInfo.metalness}
+        envMapIntensity={0.5}
+      />
+    </mesh>
+  );
+}
+
+/* ────────────────────────────────────────────
+   FloorTile: delegates to TexturedFloorTile for
+   the 3 real material types; solid color fallback.
+   ──────────────────────────────────────────── */
+function FloorTile({ cx, cz, w, d, color, floorType = 'plank_flooring' }) {
+  if (FLOOR_TEX_MAP[floorType]) {
+    return <TexturedFloorTile cx={cx} cz={cz} w={w} d={d} floorType={floorType} />;
+  }
+  // Fallback: solid color plane
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, -0.01, cz]} receiveShadow>
+      <planeGeometry args={[w, d]} />
+      <meshStandardMaterial color={color} roughness={0.5} metalness={0.0} />
     </mesh>
   );
 }
@@ -228,7 +289,7 @@ function getShapeGeometry(shape, w, d) {
         walls: [
           { from: [-hs, -hs], to: [hs, -hs], id: 'back' },
           { from: [-hs, hs], to: [-hs, -hs], id: 'left' },
-          { from: [hs, -hs], to: [hs, hs],   id: 'right' },
+          { from: [hs, -hs], to: [hs, hs], id: 'right' },
         ],
       };
     }
@@ -243,11 +304,11 @@ function getShapeGeometry(shape, w, d) {
           { cx: (-hw + splitX) / 2, cz: (splitZ + hd) / 2, w: splitX + hw, d: hd - splitZ },
         ],
         walls: [
-          { from: [-hw, -hd], to: [hw, -hd],         id: 'back' },
-          { from: [hw, -hd], to: [hw, splitZ],         id: 'right' },
-          { from: [hw, splitZ], to: [splitX, splitZ],   id: 'l-inner-h' },
-          { from: [splitX, splitZ], to: [splitX, hd],   id: 'l-inner-v' },
-          { from: [-hw, hd], to: [-hw, -hd],           id: 'left' },
+          { from: [-hw, -hd], to: [hw, -hd], id: 'back' },
+          { from: [hw, -hd], to: [hw, splitZ], id: 'right' },
+          { from: [hw, splitZ], to: [splitX, splitZ], id: 'l-inner-h' },
+          { from: [splitX, splitZ], to: [splitX, hd], id: 'l-inner-v' },
+          { from: [-hw, hd], to: [-hw, -hd], id: 'left' },
         ],
       };
     }
@@ -263,13 +324,13 @@ function getShapeGeometry(shape, w, d) {
           { cx: 0, cz: (barZ + hd) / 2, w: stemHW * 2, d: hd - barZ },
         ],
         walls: [
-          { from: [-hw, -hd], to: [hw, -hd],           id: 'back' },
-          { from: [hw, -hd], to: [hw, barZ],             id: 'right' },
-          { from: [hw, barZ], to: [stemHW, barZ],         id: 't-step-r' },
-          { from: [stemHW, barZ], to: [stemHW, hd],       id: 't-stem-r' },
-          { from: [-stemHW, hd], to: [-stemHW, barZ],     id: 't-stem-l' },
-          { from: [-stemHW, barZ], to: [-hw, barZ],       id: 't-step-l' },
-          { from: [-hw, barZ], to: [-hw, -hd],           id: 'left' },
+          { from: [-hw, -hd], to: [hw, -hd], id: 'back' },
+          { from: [hw, -hd], to: [hw, barZ], id: 'right' },
+          { from: [hw, barZ], to: [stemHW, barZ], id: 't-step-r' },
+          { from: [stemHW, barZ], to: [stemHW, hd], id: 't-stem-r' },
+          { from: [-stemHW, hd], to: [-stemHW, barZ], id: 't-stem-l' },
+          { from: [-stemHW, barZ], to: [-hw, barZ], id: 't-step-l' },
+          { from: [-hw, barZ], to: [-hw, -hd], id: 'left' },
         ],
       };
     }
@@ -286,13 +347,13 @@ function getShapeGeometry(shape, w, d) {
           { cx: hw - armW / 2, cz: (-hd + innerZ) / 2, w: armW, d: innerZ + hd },
         ],
         walls: [
-          { from: [-hw, -hd], to: [-hw + armW, -hd],           id: 'back' },
-          { from: [-hw + armW, -hd], to: [-hw + armW, innerZ],  id: 'u-inner-l' },
+          { from: [-hw, -hd], to: [-hw + armW, -hd], id: 'back' },
+          { from: [-hw + armW, -hd], to: [-hw + armW, innerZ], id: 'u-inner-l' },
           { from: [-hw + armW, innerZ], to: [hw - armW, innerZ], id: 'u-inner-b' },
-          { from: [hw - armW, innerZ], to: [hw - armW, -hd],    id: 'u-inner-r' },
-          { from: [hw - armW, -hd], to: [hw, -hd],              id: 'u-back-r' },
-          { from: [hw, -hd], to: [hw, hd],                      id: 'right' },
-          { from: [-hw, hd], to: [-hw, -hd],                    id: 'left' },
+          { from: [hw - armW, innerZ], to: [hw - armW, -hd], id: 'u-inner-r' },
+          { from: [hw - armW, -hd], to: [hw, -hd], id: 'u-back-r' },
+          { from: [hw, -hd], to: [hw, hd], id: 'right' },
+          { from: [-hw, hd], to: [-hw, -hd], id: 'left' },
         ],
       };
     }
@@ -312,7 +373,7 @@ function getShapeGeometry(shape, w, d) {
         walls: [
           { from: [-hw, -hd], to: [hw, -hd], id: 'back' },    // back
           { from: [-hw, hd], to: [-hw, -hd], id: 'left' },     // left
-          { from: [hw, -hd], to: [hw, hd],   id: 'right' },    // right
+          { from: [hw, -hd], to: [hw, hd], id: 'right' },    // right
         ],
       };
   }
@@ -321,7 +382,7 @@ function getShapeGeometry(shape, w, d) {
 /* ════════════════════════════════════════════
    Room Component
    ════════════════════════════════════════════ */
-export default function Room({ width, depth, wallColor, floorColor, shape = 'rectangle', windows = [] }) {
+export default function Room({ width, depth, wallColor, floorColor, floorType = 'solid', shape = 'rectangle', windows = [] }) {
   const { floors, walls } = useMemo(
     () => getShapeGeometry(shape, width, depth),
     [shape, width, depth]
@@ -331,7 +392,7 @@ export default function Room({ width, depth, wallColor, floorColor, shape = 'rec
     <group>
       {/* Floor tiles */}
       {floors.map((f, i) => (
-        <FloorTile key={`floor-${shape}-${i}`} cx={f.cx} cz={f.cz} w={f.w} d={f.d} color={floorColor} />
+        <FloorTile key={`floor-${shape}-${floorType}-${i}`} cx={f.cx} cz={f.cz} w={f.w} d={f.d} color={floorColor} floorType={floorType} />
       ))}
 
       {/* Walls (with optional window cutouts) */}
@@ -367,12 +428,12 @@ function WindowSunlight({ win, roomWidth, roomDepth, shape, walls }) {
   const dz = wall.to[1] - wall.from[1];
   const len = Math.sqrt(dx * dx + dz * dz);
   const angle = Math.atan2(dx, dz);
-  
+
   // Position along the wall
   const t = win.position;
   const wx = wall.from[0] + dx * t;
   const wz = wall.from[1] + dz * t;
-  
+
   // Light position: outside the wall, angled down
   // Normal to wall (pointing outward)
   const nx = -Math.cos(angle);
