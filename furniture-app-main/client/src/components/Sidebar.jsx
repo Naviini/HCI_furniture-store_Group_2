@@ -442,23 +442,21 @@ export default function Sidebar({
             <SectionHeader title="Floor Type" />
             <div style={S.floorTypeGrid}>
               {[
-                { id: 'solid', label: 'Solid', icon: '◼' },
-                { id: 'wood', label: 'Wood', icon: '🪵' },
-                { id: 'tiles', label: 'Tiles', icon: '🔲' },
-                { id: 'marble', label: 'Marble', icon: '🪨' },
-                { id: 'concrete', label: 'Concrete', icon: '🧱' },
-                { id: 'carpet', label: 'Carpet', icon: '🧶' },
+                { id: 'plank_flooring', label: 'Plank', icon: '🪵', desc: 'Wood planks' },
+                { id: 'grey_cartago', label: 'Cartago', icon: '⬜', desc: 'Grey stone' },
+                { id: 'granite_tile', label: 'Granite', icon: '🔲', desc: 'Granite tile' },
               ].map(ft => (
                 <button
                   key={ft.id}
                   onClick={() => updateRoom('floorType', ft.id)}
-                  aria-label={`${ft.label} floor`}
+                  aria-label={`${ft.label} floor – ${ft.desc}`}
+                  title={ft.desc}
                   style={{
                     ...S.floorTypeBtn,
                     ...(roomConfig.floorType === ft.id ? S.floorTypeBtnActive : {}),
                   }}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>{ft.icon}</span>
+                  <span style={{ fontSize: '1.3rem' }}>{ft.icon}</span>
                   <span style={S.floorTypeLabel}>{ft.label}</span>
                 </button>
               ))}
