@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
 import CustomModal from '../components/CustomModal';
+import TemplatesPage from '../components/TemplatesPage';
 import './Dashboard.css';
 
 /* ── Toast Notification (HCI: Visibility of system status) ── */
@@ -69,6 +70,7 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
   useEffect(() => {
@@ -86,7 +88,11 @@ export default function Dashboard() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) navigate('/login');
-    else setUser(JSON.parse(storedUser));
+    else {
+      setUser(JSON.parse(storedUser));
+      // Show templates picker on very first visit (empty canvas)
+      setShowTemplates(true);
+    }
   }, [navigate]);
 
   const showToast = (msg, type = 'info') => {
@@ -182,6 +188,15 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /* ── Load a template ── */
+  const handleSelectTemplate = (template) => {
+    setItems(template.items.map(item => ({ ...item, id: Date.now() + Math.random() })));
+    setRoomConfig(template.roomConfig);
+    setWindows(template.windows || []);
+    setShowTemplates(false);
+    showToast(`Loaded template: ${template.name}`, 'success');
   };
 
   if (!user) return null;
@@ -296,8 +311,19 @@ export default function Dashboard() {
             )}
 
             {/* Quick actions */}
+            {/* Templates button */}
             <button
-              id="btn-save-header"
+              id="btn-templates"
+              className="db-header-btn"
+              onClick={() => setShowTemplates(true)}
+              aria-label="Browse room templates"
+              data-tooltip="Templates"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+              <span>Templates</span>
+            </button>
+
+            <button
               className="db-header-btn db-header-btn--save"
               onClick={() => setShowSaveModal(true)}
               aria-label="Save design (Ctrl+S)"
@@ -331,12 +357,31 @@ export default function Dashboard() {
               <span>Capture</span>
             </button>
 
+            {/* Admin panel shortcut (only visible to admin users) */}
+            {user.role === 'admin' && (
+              <button
+                id="btn-admin-panel"
+                className="db-header-btn"
+                onClick={() => navigate('/admin')}
+                aria-label="Go to admin panel"
+                data-tooltip="Admin Panel"
+                style={{ background: 'rgba(245,158,11,0.15)', borderColor: 'rgba(245,158,11,0.3)', color: '#fbbf24' }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                <span>Admin Panel</span>
+              </button>
+            )}
+
             {/* User avatar */}
-            <div className="db-user-chip" aria-label={`Logged in as ${user.name || user.email}`} data-tooltip={user.name || user.email}>
-              <div className="db-avatar" aria-hidden="true">
-                {(user.name || user.email || 'U')[0].toUpperCase()}
+            <div className="db-user-chip" aria-label={`Logged in as ${user.username || user.email}`} data-tooltip={user.username || user.email}>
+              <div className="db-avatar" aria-hidden="true"
+                style={user.role === 'admin' ? { background: 'rgba(245,158,11,0.18)', color: '#fbbf24' } : {}}>
+                {(user.username || user.email || 'U')[0].toUpperCase()}
               </div>
-              <span className="db-username">{(user.name || user.email || '').split('@')[0]}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
+                {user.role === 'admin' && <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Staff</span>}
+              </div>
             </div>
           </div>
         </header>
@@ -443,6 +488,15 @@ export default function Dashboard() {
         onClose={() => setShowSaveModal(false)}
         onSubmit={handleSaveSubmit}
       />
+
+      {/* ── TEMPLATES PICKER ── */}
+      {showTemplates && (
+        <TemplatesPage
+          onSelectTemplate={handleSelectTemplate}
+          onSkip={() => setShowTemplates(false)}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
     </div>
   );
 }

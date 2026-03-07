@@ -13,15 +13,9 @@ const protect = async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     try {
-      // Extract token from header
       token = req.headers.authorization.split(' ')[1];
-
-      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_secret_key');
-
-      // Attach user to request (excluding password)
       req.user = await User.findById(decoded.id).select('-password');
-
       next();
     } catch (error) {
       console.error('Auth middleware error:', error.message);
@@ -34,4 +28,16 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+/**
+ * Middleware to restrict routes to admin users only.
+ * Must be used after `protect`.
+ */
+const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied: Admins only' });
+  }
+};
+
+module.exports = { protect, adminOnly };

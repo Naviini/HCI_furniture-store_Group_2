@@ -1,19 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  registerUser, 
-  loginUser, 
-  forgotPassword 
+const {
+  registerUser,
+  loginUser,
+  forgotPassword,
+  getAllUsers,
+  deleteUser,
 } = require('../controllers/authController');
+const { protect, adminOnly } = require('../middleware/auth');
 
-// @route   POST /api/auth/register
+// Public routes
 router.post('/register', registerUser);
-
-// @route   POST /api/auth/login
 router.post('/login', loginUser);
-
-// @route   POST /api/auth/forgot-password
-// Added to support the "Forgot Password" functionality in the UI
 router.post('/forgot-password', forgotPassword);
+
+// Admin-only routes
+router.get('/users', protect, adminOnly, getAllUsers);
+router.delete('/users/:id', protect, adminOnly, deleteUser);
 
 module.exports = router;
