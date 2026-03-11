@@ -25,11 +25,16 @@ export default function LoginPage() {
 
       if (data.success) {
         localStorage.setItem('user', JSON.stringify(data));
-        // Route to admin dashboard if role is admin, else standard dashboard
+        // Route to admin dashboard if role is admin, else check onboarding
         if (data.role === 'admin') {
           navigate('/admin');
         } else {
-          navigate('/dashboard');
+          const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+          if (onboardingCompleted) {
+            navigate('/dashboard');
+          } else {
+            navigate('/onboarding');
+          }
         }
       } else {
         showFeedback(data.message || 'Invalid credentials. Please try again.', 'error');
