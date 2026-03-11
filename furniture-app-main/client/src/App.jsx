@@ -4,6 +4,8 @@ import IntroPage from './pages/IntroPage';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import Onboarding from './components/Onboarding';
+import { ThemeProvider } from './components/ThemeContext';
 
 /* ── Route guard: redirect to /login if not authenticated ── */
 function PrivateRoute({ children }) {
@@ -21,17 +23,20 @@ function AdminRoute({ children }) {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<IntroPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        path="/dashboard"
-        element={<PrivateRoute><Dashboard /></PrivateRoute>}
-      />
-      <Route
-        path="/admin"
-        element={<AdminRoute><AdminDashboard /></AdminRoute>}
-      />
-    </Routes>
+    <ThemeProvider>
+      <Routes>
+        <Route path="/" element={<IntroPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
+        <Route
+          path="/dashboard"
+          element={<PrivateRoute><Dashboard /></PrivateRoute>}
+        />
+        <Route
+          path="/admin"
+          element={<AdminRoute><AdminDashboard /></AdminRoute>}
+        />
+      </Routes>
+    </ThemeProvider>
   );
 }
