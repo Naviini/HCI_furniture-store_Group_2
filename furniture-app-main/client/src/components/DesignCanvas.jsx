@@ -14,7 +14,7 @@ const LIGHT_CONFIG = {
 };
 
 const DesignCanvas = forwardRef(({ 
-  items, selectedId, setSelectedId, updateItem, mode, cameraMode = 'TPP', roomConfig, windows = []
+  items, selectedId, setSelectedId, updateItem, mode, cameraMode = 'TPP', roomConfig, windows = [], doors = []
 }, ref) => {
   const canvasRef = useRef();
   
@@ -74,6 +74,7 @@ const DesignCanvas = forwardRef(({
           floorType={roomConfig.floorType}
           shape={roomConfig.shape}
           windows={windows}
+          doors={doors}
         />
         
         <Grid 

@@ -1,5 +1,6 @@
 import React, { useRef, useMemo } from 'react';
 import { TransformControls, Html, Outlines, useGLTF } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 
 /* ── glTF model paths (from /src/assets) ── */
 import coffeeTablePath from '../assets/coffee_table_round_01_1k.gltf?url';
@@ -79,6 +80,13 @@ export default function Furniture({
     onSelect(id);
   };
 
+  // Clamp Y every frame so furniture never sinks below the floor (Y = 0)
+  useFrame(() => {
+    if (meshRef.current && meshRef.current.position.y < 0) {
+      meshRef.current.position.y = 0;
+    }
+  });
+
   return (
     <>
       {isEditable && (
@@ -90,6 +98,8 @@ export default function Furniture({
           onMouseUp={() => {
             if (setIsDragging) setIsDragging(false);
             if (meshRef.current) {
+              // Clamp Y to floor level before saving
+              if (meshRef.current.position.y < 0) meshRef.current.position.y = 0;
               onChange(id, {
                 position: meshRef.current.position.toArray(),
                 rotation: meshRef.current.rotation.toArray(),
