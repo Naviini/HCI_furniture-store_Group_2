@@ -57,6 +57,7 @@ export default function Dashboard() {
   const [items, setItems] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [mode, setMode] = useState('3D');
+  const [cameraMode, setCameraMode] = useState('TPP');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -380,7 +381,11 @@ export default function Dashboard() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                 <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
-                {user.role === 'admin' && <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Staff</span>}
+                {user.role === 'admin' ? (
+                  <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Designer</span>
+                ) : (
+                  <span style={{ fontSize: '0.6rem', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>User</span>
+                )}
               </div>
             </div>
           </div>
@@ -405,9 +410,87 @@ export default function Dashboard() {
               setSelectedId={setSelectedId}
               updateItem={updateItem}
               mode={mode}
+              cameraMode={cameraMode}
               roomConfig={roomConfig}
               windows={windows}
             />
+          )}
+
+          {/* Camera Mode Toggle Switch (TPP/FPP) */}
+          {mode === '3D' && (
+            <div 
+              style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                zIndex: 9999,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px',
+                background: 'rgba(30, 30, 40, 0.85)',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* TPP Button */}
+              <button
+                onClick={() => setCameraMode('TPP')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  background: cameraMode === 'TPP' ? '#6366f1' : 'transparent',
+                  color: cameraMode === 'TPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: cameraMode === 'TPP' ? 'bold' : 'normal',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.3s ease',
+                  boxShadow: cameraMode === 'TPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>TPP</span>
+              </button>
+
+              {/* FPP Button */}
+              <button
+                onClick={() => setCameraMode('FPP')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  background: cameraMode === 'FPP' ? '#6366f1' : 'transparent',
+                  color: cameraMode === 'FPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: cameraMode === 'FPP' ? 'bold' : 'normal',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.3s ease',
+                  boxShadow: cameraMode === 'FPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="3" />
+                  <line x1="12" y1="4" x2="12" y2="6" />
+                  <line x1="12" y1="18" x2="12" y2="20" />
+                </svg>
+                <span>FPP</span>
+              </button>
+            </div>
           )}
 
           {/* Empty state overlay */}

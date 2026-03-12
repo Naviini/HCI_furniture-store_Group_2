@@ -189,7 +189,7 @@ export default function Sidebar({
           <div style={S.avatar} aria-hidden="true">{user.username?.charAt(0).toUpperCase()}</div>
           <div style={S.userMeta}>
             <span style={S.userName}>{user.username}</span>
-            <span style={S.userRole}>Designer</span>
+            <span style={S.userRole}>{user.role === 'admin' ? 'Designer' : 'User'}</span>
           </div>
           <div style={S.onlineDot} title="Online" />
         </div>
