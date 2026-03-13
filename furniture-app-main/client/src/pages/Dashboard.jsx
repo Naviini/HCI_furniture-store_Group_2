@@ -71,6 +71,8 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [savedDesigns, setSavedDesigns] = useState([]);
   const [showTemplates, setShowTemplates] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
@@ -176,11 +178,8 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (data.length > 0) {
-        const design = data[data.length - 1];
-        setItems(design.items);
-        if (design.roomConfig) setRoomConfig(design.roomConfig);
-        if (design.windows) setWindows(design.windows);
-        showToast(`Loaded: ${design.name}`, 'success');
+        setSavedDesigns(data);
+        setShowLoadModal(true);
       } else {
         showToast('No saved designs found', 'info');
       }
@@ -189,6 +188,14 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLoadDesign = (design) => {
+    setItems(design.items || []);
+    if (design.roomConfig) setRoomConfig(design.roomConfig);
+    if (design.windows) setWindows(design.windows);
+    setShowLoadModal(false);
+    showToast(`Loaded: ${design.name}`, 'success');
   };
 
   /* ── Load a template ── */
@@ -245,28 +252,6 @@ export default function Dashboard() {
         {/* ── TOP HEADER BAR ── */}
         <header className="db-header" role="banner">
           <div className="db-header-left">
-            {/* Logo / Brand */}
-            <div className="db-brand">
-              <div className="db-brand-icon" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-              </div>
-              <span className="db-brand-name">RoomCraft</span>
-              <span className="db-brand-sep" aria-hidden="true" />
-              <span className="db-brand-sub">Design Studio</span>
-            </div>
-
-            {/* Keyboard shortcut hint */}
-            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
-              <span className="db-hint"><kbd>Del</kbd> Remove</span>
-              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
-              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
-            </div>
-          </div>
-
-          <div className="db-header-center">
             {/* ── View Mode Toggle ── */}
             <div className="db-mode-toggle" role="toolbar" aria-label="View mode selector">
               <button
@@ -300,17 +285,15 @@ export default function Dashboard() {
                 <span>Blueprint</span>
               </button>
             </div>
+            {/* Keyboard shortcut hints */}
+            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
+              <span className="db-hint"><kbd>Del</kbd> Remove</span>
+              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
+              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+            </div>
           </div>
 
           <div className="db-header-right">
-            {/* Selected item indicator */}
-            {selectedItem && (
-              <div className="db-selected-badge" aria-live="polite">
-                <span className="db-selected-dot" aria-hidden="true" />
-                <span>{selectedItem.type} selected</span>
-              </div>
-            )}
-
             {/* Quick actions */}
             {/* Templates button */}
             <button
@@ -371,6 +354,14 @@ export default function Dashboard() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                 <span>Admin Panel</span>
               </button>
+            )}
+
+            {/* Selected item indicator */}
+            {selectedItem && (
+              <div className="db-selected-badge" aria-live="polite">
+                <span className="db-selected-dot" aria-hidden="true" />
+                <span>{selectedItem.type} selected</span>
+              </div>
             )}
 
             {/* User avatar */}
@@ -571,6 +562,59 @@ export default function Dashboard() {
         onClose={() => setShowSaveModal(false)}
         onSubmit={handleSaveSubmit}
       />
+
+      {/* ── LOAD PREVIOUS MODAL ── */}
+      {showLoadModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}
+          onClick={() => setShowLoadModal(false)}
+          role="dialog" aria-modal="true" aria-labelledby="load-modal-title"
+        >
+          <div
+            style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: 420, maxWidth: '92vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-lg)', position: 'relative', overflow: 'hidden' }}
+            onClick={e => e.stopPropagation()}
+            className="animate-slideUp"
+          >
+            {/* Header */}
+            <div style={{ padding: '22px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <h3 id="load-modal-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Load Previous Project</h3>
+              <p style={{ margin: '5px 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{savedDesigns.length} saved design{savedDesigns.length !== 1 ? 's' : ''} found</p>
+              <button
+                onClick={() => setShowLoadModal(false)}
+                style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex' }}
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Design list */}
+            <div style={{ overflowY: 'auto', padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[...savedDesigns].reverse().map((design) => (
+                <button
+                  key={design._id}
+                  onClick={() => handleLoadDesign(design)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.18s', width: '100%' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e8ecf4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{design.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      {design.items?.length ?? 0} item{design.items?.length !== 1 ? 's' : ''}
+                      {design.createdAt ? ` · ${new Date(design.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── TEMPLATES PICKER ── */}
       {showTemplates && (
