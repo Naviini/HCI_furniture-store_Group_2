@@ -465,75 +465,116 @@ export default function Sidebar({
             {/* ── Windows ── */}
             <SectionHeader title="Windows" badge={`${windows.length}`} />
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-              Add windows to walls. They cast natural sunlight & shadows.
+              Add windows to any wall. They admit natural light and cast shadows.
             </p>
 
-            {/* Add window buttons */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-              {['back', 'left', 'right'].map(wall => (
-                <button
-                  key={wall}
-                  onClick={() => addWindow(wall)}
-                  style={S.addWindowBtn}
-                  aria-label={`Add window to ${wall} wall`}
-                >
-                  {Icons.windowIcon}
-                  <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
-                </button>
-              ))}
-            </div>
+            {/* Add window buttons – 2×2 grid covering all four walls */}
+            {(() => {
+              const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
+                  {['back', 'left', 'right'].map(wall => {
+                    const wc = WALL_COLORS[wall];
+                    const count = windows.filter(w => w.wall === wall).length;
+                    return (
+                      <button
+                        key={wall}
+                        onClick={() => addWindow(wall)}
+                        style={{ ...S.addWindowBtn, borderColor: `${wc}55`, color: wc, background: `${wc}0d` }}
+                        aria-label={`Add window to ${wall} wall`}
+                      >
+                        {Icons.windowIcon}
+                        <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
+                        {count > 0 && (
+                          <span style={{ fontSize: '0.58rem', background: `${wc}22`, color: wc, borderRadius: 10, padding: '1px 5px', fontWeight: 700, lineHeight: 1.4 }}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
 
-            {/* Window list */}
-            {windows.map((win, idx) => (
-              <div key={win.id} style={S.windowCard}>
-                <div style={S.windowCardHeader}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ color: '#60a5fa', display: 'flex' }}>{Icons.windowIcon}</span>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
-                      {win.wall} Wall #{idx + 1}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => deleteWindow(win.id)}
-                    style={S.windowDeleteBtn}
-                    aria-label="Remove window"
-                  >
-                    {Icons.trash}
-                  </button>
-                </div>
-                <div style={S.windowCardBody}>
-                  <div style={S.windowField}>
-                    <label style={S.windowLabel}>Position</label>
-                    <div style={S.sliderRow}>
-                      <input type="range" min="0.1" max="0.9" step="0.05" value={win.position}
-                        onChange={e => updateWindow(win.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
-                      <span style={S.sliderVal}>{Math.round(win.position * 100)}%</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <div style={{ ...S.windowField, flex: 1 }}>
-                      <label style={S.windowLabel}>Width (m)</label>
-                      <input type="number" className="input" min="0.5" max="6" step="0.25" value={win.width}
-                        onChange={e => updateWindow(win.id, { width: parseFloat(e.target.value) || 1 })} />
-                    </div>
-                    <div style={{ ...S.windowField, flex: 1 }}>
-                      <label style={S.windowLabel}>Height (m)</label>
-                      <input type="number" className="input" min="0.5" max="4" step="0.25" value={win.height}
-                        onChange={e => updateWindow(win.id, { height: parseFloat(e.target.value) || 1 })} />
-                    </div>
-                  </div>
-                  <div style={S.windowField}>
-                    <label style={S.windowLabel}>Sill Height (m)</label>
-                    <div style={S.sliderRow}>
-                      <input type="range" min="0.3" max="3" step="0.1" value={win.sillHeight}
-                        onChange={e => updateWindow(win.id, { sillHeight: parseFloat(e.target.value) })} style={{ flex: 1 }} />
-                      <span style={S.sliderVal}>{win.sillHeight.toFixed(1)}m</span>
-                    </div>
-                  </div>
-                </div>
+            {/* Empty state */}
+            {windows.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px 0 8px', color: 'var(--text-muted)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, display: 'block', margin: '0 auto 8px' }}>
+                  <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" />
+                </svg>
+                <p style={{ fontSize: '0.72rem', margin: 0, lineHeight: 1.5 }}>No windows yet.<br />Select a wall above to add one.</p>
               </div>
-            ))
-            }
+            )}
+
+            {/* Window cards */}
+            {windows.map((win, idx) => {
+              const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
+              const wc = WALL_COLORS[win.wall] || '#60a5fa';
+              return (
+                <div key={win.id} style={{ ...S.windowCard, borderColor: `${wc}30` }}>
+                  <div style={{ ...S.windowCardHeader, background: `${wc}08` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ color: wc, display: 'flex' }}>{Icons.windowIcon}</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
+                        {win.wall} Wall
+                      </span>
+                      <span style={{ fontSize: '0.65rem', background: `${wc}22`, color: wc, borderRadius: 10, padding: '1px 6px', fontWeight: 700 }}>
+                        #{idx + 1}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => deleteWindow(win.id)}
+                      style={S.windowDeleteBtn}
+                      aria-label="Remove window"
+                    >
+                      {Icons.trash}
+                    </button>
+                  </div>
+                  <div style={S.windowCardBody}>
+                    <div style={S.windowField}>
+                      <label style={S.windowLabel}>Style</label>
+                      <select className="input" value={win.style || 'single'}
+                        onChange={e => updateWindow(win.id, { style: e.target.value })}
+                        style={{ width: '100%' }}>
+                        <option value="single">Single Pane</option>
+                        <option value="double">Double Pane</option>
+                        <option value="bay">Bay Window</option>
+                        <option value="arched">Arched Top</option>
+                      </select>
+                    </div>
+                    <div style={S.windowField}>
+                      <label style={S.windowLabel}>Position</label>
+                      <div style={S.sliderRow}>
+                        <input type="range" min="0.1" max="0.9" step="0.05" value={win.position}
+                          onChange={e => updateWindow(win.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                        <span style={S.sliderVal}>{Math.round(win.position * 100)}%</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ ...S.windowField, flex: 1 }}>
+                        <label style={S.windowLabel}>Width (m)</label>
+                        <input type="number" className="input" min="0.5" max="6" step="0.25" value={win.width}
+                          onChange={e => updateWindow(win.id, { width: parseFloat(e.target.value) || 1 })} />
+                      </div>
+                      <div style={{ ...S.windowField, flex: 1 }}>
+                        <label style={S.windowLabel}>Height (m)</label>
+                        <input type="number" className="input" min="0.5" max="4" step="0.25" value={win.height}
+                          onChange={e => updateWindow(win.id, { height: parseFloat(e.target.value) || 1 })} />
+                      </div>
+                    </div>
+                    <div style={{ ...S.windowField, marginBottom: 0 }}>
+                      <label style={S.windowLabel}>Sill Height (m)</label>
+                      <div style={S.sliderRow}>
+                        <input type="range" min="0.3" max="3" step="0.1" value={win.sillHeight}
+                          onChange={e => updateWindow(win.id, { sillHeight: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                        <span style={S.sliderVal}>{win.sillHeight.toFixed(1)}m</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -663,27 +704,89 @@ export default function Sidebar({
         {activeTab === TABS.GLOBAL && (
           <div style={S.fadeIn}>
             <SectionHeader title="Environment" />
-            <div style={S.lightingCards}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
               {[
-                { value: 'Day', label: 'Daylight', icon: '☀️', desc: 'Bright & natural' },
-                { value: 'Golden', label: 'Golden Hour', icon: '🌅', desc: 'Warm sunset tones' },
-                { value: 'Night', label: 'Night Mode', icon: '🌙', desc: 'Soft ambient light' },
-              ].map(mode => (
-                <button
-                  key={mode.value}
-                  onClick={() => updateRoom('lightingMode', mode.value)}
-                  style={{
-                    ...S.lightingCard,
-                    ...(roomConfig.lightingMode === mode.value ? S.lightingCardActive : {}),
-                  }}
-                >
-                  <span style={{ fontSize: '1.4rem' }}>{mode.icon}</span>
-                  <div>
-                    <div style={S.lightingLabel}>{mode.label}</div>
-                    <div style={S.lightingDesc}>{mode.desc}</div>
-                  </div>
-                </button>
-              ))}
+                {
+                  value: 'Day',
+                  label: 'Daylight',
+                  icon: '☀️',
+                  desc: 'Bright & natural',
+                  gradient: 'linear-gradient(160deg, #1d4ed8 0%, #3b82f6 55%, #93c5fd 100%)',
+                  accent: '#60a5fa',
+                  glow: 'rgba(96,165,250,0.4)',
+                },
+                {
+                  value: 'Golden',
+                  label: 'Golden',
+                  icon: '🌅',
+                  desc: 'Warm sunset',
+                  gradient: 'linear-gradient(160deg, #92400e 0%, #d97706 50%, #fbbf24 100%)',
+                  accent: '#fb923c',
+                  glow: 'rgba(251,146,60,0.4)',
+                },
+                {
+                  value: 'Night',
+                  label: 'Night',
+                  icon: '🌙',
+                  desc: 'Soft ambient',
+                  gradient: 'linear-gradient(160deg, #0f0a1e 0%, #1e1b4b 55%, #4c1d95 100%)',
+                  accent: '#a78bfa',
+                  glow: 'rgba(167,139,250,0.4)',
+                },
+              ].map(mode => {
+                const isActive = roomConfig.lightingMode === mode.value;
+                return (
+                  <button
+                    key={mode.value}
+                    onClick={() => updateRoom('lightingMode', mode.value)}
+                    aria-label={`${mode.label} environment mode`}
+                    aria-pressed={isActive}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      padding: 0, gap: 0,
+                      borderRadius: 12,
+                      border: isActive ? `2px solid ${mode.accent}` : '2px solid rgba(255,255,255,0.07)',
+                      background: 'rgba(255,255,255,0.02)',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+                      fontFamily: 'inherit',
+                      overflow: 'hidden',
+                      boxShadow: isActive ? `0 0 18px ${mode.glow}, inset 0 0 0 1px ${mode.accent}22` : 'none',
+                      transform: isActive ? 'translateY(-1px)' : 'none',
+                    }}
+                  >
+                    {/* Sky preview */}
+                    <div style={{
+                      width: '100%', height: 54,
+                      background: mode.gradient,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1.6rem',
+                      position: 'relative',
+                    }}>
+                      {mode.icon}
+                      {isActive && (
+                        <span style={{
+                          position: 'absolute', top: 5, right: 6,
+                          width: 7, height: 7, borderRadius: '50%',
+                          background: mode.accent,
+                          boxShadow: `0 0 8px ${mode.accent}`,
+                        }} />
+                      )}
+                    </div>
+                    {/* Label */}
+                    <div style={{ padding: '7px 4px 8px', textAlign: 'center', width: '100%' }}>
+                      <div style={{
+                        fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.2,
+                        color: isActive ? mode.accent : '#e8ecf4',
+                      }}>{mode.label}</div>
+                      <div style={{
+                        fontSize: '0.54rem', color: 'var(--text-muted)',
+                        marginTop: 2, lineHeight: 1.3,
+                      }}>{mode.desc}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             <SectionHeader title="Project Actions" />
@@ -1223,33 +1326,6 @@ const S = {
   },
   inputHint: {
     display: 'block', fontSize: '0.62rem', color: 'var(--text-muted)', marginTop: 4, fontWeight: 400,
-  },
-
-  /* Lighting cards */
-  lightingCards: {
-    display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20,
-  },
-  lightingCard: {
-    display: 'flex', alignItems: 'center', gap: 12,
-    padding: '12px 14px',
-    borderRadius: 10,
-    border: '1.5px solid rgba(255,255,255,0.06)',
-    background: 'rgba(255,255,255,0.02)',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    fontFamily: 'inherit',
-    color: 'var(--text-main)',
-    textAlign: 'left',
-  },
-  lightingCardActive: {
-    border: '1.5px solid rgba(99,102,241,0.45)',
-    background: 'rgba(99,102,241,0.08)',
-  },
-  lightingLabel: {
-    fontSize: '0.8rem', fontWeight: 600, color: '#e8ecf4',
-  },
-  lightingDesc: {
-    fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 1,
   },
 
   /* Action buttons */
