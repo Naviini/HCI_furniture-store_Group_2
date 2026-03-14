@@ -1,0 +1,11 @@
+Model Information:
+* title:	Lounge Chair
+* source:	https://sketchfab.com/3d-models/lounge-chair-ddab2f2c25e944fba590a8d51bbf8174
+* author:	Grapxly (https://sketchfab.com/grapxly)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Lounge Chair" (https://sketchfab.com/3d-models/lounge-chair-ddab2f2c25e944fba590a8d51bbf8174) by Grapxly (https://sketchfab.com/grapxly) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
