@@ -157,7 +157,15 @@ export default function IntroPage() {
 
   useEffect(() => {
     const user = localStorage.getItem('user');
-    if (user) { navigate('/dashboard'); return; }
+    if (user) {
+      const parsed = JSON.parse(user);
+      if (parsed.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/onboarding');
+      }
+      return;
+    }
     requestAnimationFrame(() => setHeroVisible(true));
   }, [navigate]);
 

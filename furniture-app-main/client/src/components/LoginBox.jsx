@@ -53,8 +53,8 @@ export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback 
   };
 
   const titles = {
-    login: { title: 'Welcome Back', sub: 'Sign in to your design workspace' },
-    register: { title: 'Get Started', sub: 'Create your designer account' },
+    login: { title: 'Welcome Back', sub: 'Access the ND Furniture design studio' },
+    register: { title: 'Get Started', sub: 'Create your ND Furniture design studio account' },
     forgot: { title: 'Reset Password', sub: "We'll send you a recovery link" },
   };
 
@@ -335,10 +335,14 @@ const styles = {
   card: {
     width: '440px',
     padding: '40px',
-    background: 'var(--bg-panel)',
+    position: 'relative',
+    zIndex: 2,
+    background: 'rgba(255,255,255,0.05)',
+    backdropFilter: 'blur(18px)',
+    WebkitBackdropFilter: 'blur(18px)',
     borderRadius: 'var(--radius-lg)',
-    boxShadow: 'var(--shadow-lg)',
-    border: '1px solid var(--border)',
+    boxShadow: '0 18px 45px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.12)',
     maxHeight: '90vh',
     overflowY: 'auto',
   },
@@ -374,8 +378,8 @@ const styles = {
     display: 'block', width: '100%',
     padding: '12px 14px 12px 42px',
     borderRadius: 'var(--radius-md)',
-    border: '1px solid var(--border)',
-    background: 'var(--bg-input)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'rgba(255,255,255,0.08)',
     color: 'var(--text-main)',
     boxSizing: 'border-box',
     fontSize: '0.9rem',
@@ -392,15 +396,15 @@ const styles = {
     display: 'flex', alignItems: 'center', gap: '10px',
     padding: '12px 14px',
     borderRadius: 'var(--radius-md)',
-    border: '2px solid var(--border)',
-    background: 'var(--bg-input)',
+    border: '2px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.08)',
     cursor: 'pointer', transition: 'all 0.2s',
     color: 'var(--text-secondary)',
   },
   roleOptionActive: {
-    borderColor: '#6366f1',
-    background: 'rgba(99,102,241,0.08)',
-    color: '#a5b4fc',
+    borderColor: '#a855f7',
+    background: 'rgba(168,85,247,0.16)',
+    color: '#f0abfc',
   },
   roleOptionActiveAdmin: {
     borderColor: '#f59e0b',
@@ -413,12 +417,12 @@ const styles = {
   btn: {
     width: '100%', padding: '13px',
     cursor: 'pointer',
-    background: 'var(--accent)',
+    background: 'linear-gradient(90deg, #ec4899, #9333ea)',
     color: 'white', border: 'none',
     borderRadius: 'var(--radius-md)',
     fontWeight: 600, fontSize: '0.9rem',
     fontFamily: 'inherit',
-    boxShadow: '0 2px 12px var(--accent-glow)',
+    boxShadow: '0 8px 24px rgba(147,51,234,0.28)',
     transition: 'all var(--transition-fast)',
   },
   btnAdmin: {
@@ -426,7 +430,7 @@ const styles = {
     boxShadow: '0 2px 12px rgba(217,119,6,0.3)',
   },
   linkBtn: {
-    background: 'none', border: 'none', color: 'var(--accent-hover)',
+    background: 'none', border: 'none', color: '#f0abfc',
     cursor: 'pointer', fontWeight: 600, marginLeft: '6px',
     fontSize: '0.85rem', fontFamily: 'inherit',
   },
@@ -441,7 +445,7 @@ const styles = {
   },
   dividerText: {
     position: 'relative', top: '-10px',
-    background: 'var(--bg-panel)', padding: '0 12px',
+    background: 'rgba(18,19,30,0.75)', padding: '0 12px',
     fontSize: '0.75rem', color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: '1px',
   },

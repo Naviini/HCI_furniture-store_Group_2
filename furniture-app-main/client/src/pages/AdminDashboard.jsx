@@ -137,7 +137,11 @@ export default function AdminDashboard() {
         }
     };
 
-    const handleLogout = () => { localStorage.removeItem('user'); navigate('/login'); };
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('onboardingCompleted');
+        navigate('/login');
+    };
 
     /* ── Derived stats ── */
     const regularUsers = users.filter(u => u.role !== 'admin');

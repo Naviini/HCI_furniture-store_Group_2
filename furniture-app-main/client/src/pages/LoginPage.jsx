@@ -25,16 +25,11 @@ export default function LoginPage() {
 
       if (data.success) {
         localStorage.setItem('user', JSON.stringify(data));
-        // Route to admin dashboard if role is admin, else check onboarding
+        // Route to admin dashboard if role is admin, else always show onboarding
         if (data.role === 'admin') {
           navigate('/admin');
         } else {
-          const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-          if (onboardingCompleted) {
-            navigate('/dashboard');
-          } else {
-            navigate('/onboarding');
-          }
+          navigate('/onboarding');
         }
       } else {
         showFeedback(data.message || 'Invalid credentials. Please try again.', 'error');
@@ -72,6 +67,8 @@ export default function LoginPage() {
 
   return (
     <div style={pageStyles.wrapper}>
+      <div style={pageStyles.animatedGradient} aria-hidden="true" />
+      <div style={pageStyles.blurOverlay} aria-hidden="true" />
       <LoginBox
         onLogin={handleLogin}
         onRegister={handleRegister}
@@ -84,19 +81,32 @@ export default function LoginPage() {
 
 const pageStyles = {
   wrapper: {
+    position: 'relative',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
     width: '100vw',
-    backgroundColor: 'var(--bg-dark)',
-    backgroundImage: `
-      radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 100%, rgba(99, 102, 241, 0.04) 0%, transparent 50%)
-    `,
+    backgroundColor: '#0a0a0f',
     margin: 0,
     padding: 0,
     overflowY: 'auto',
-  }
+  },
+  animatedGradient: {
+    position: 'absolute',
+    inset: 0,
+    backgroundSize: '400% 400%',
+    backgroundImage: 'linear-gradient(120deg, #4c1d95, #be185d, #0f172a, #312e81)',
+    opacity: 0.45,
+    animation: 'login-gradient-shift 20s linear infinite',
+    zIndex: 0,
+  },
+  blurOverlay: {
+    position: 'absolute',
+    inset: 0,
+    backdropFilter: 'blur(80px)',
+    WebkitBackdropFilter: 'blur(80px)',
+    backgroundColor: 'rgba(10,10,15,0.65)',
+    zIndex: 1,
+  },
 };
