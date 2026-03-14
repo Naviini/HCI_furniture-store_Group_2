@@ -76,6 +76,9 @@ const Icons = {
   windowIcon: (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>
   ),
+  doorIcon: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><circle cx="17" cy="12" r="1" fill="currentColor" /></svg>
+  ),
   cart: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></svg>
   ),
@@ -96,6 +99,7 @@ export default function Sidebar({
   user, onLogout, addItem, selectedId, items, updateItem, deleteItem,
   roomConfig, setRoomConfig, saveDesign, loadDesigns, downloadScreenshot,
   windows = [], addWindow, updateWindow, deleteWindow,
+  doors = [], addDoor, updateDoor, deleteDoor,
 }) {
   const [activeTab, setActiveTab] = useState(TABS.LIBRARY);
   const [collapsed, setCollapsed] = useState(false);
@@ -468,6 +472,40 @@ export default function Sidebar({
               Add windows to any wall. They admit natural light and cast shadows.
             </p>
 
+
+            {/* Add window buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+              {['back', 'left', 'right', 'front'].map(wall => (
+                <button
+                  key={wall}
+                  onClick={() => addWindow(wall)}
+                  style={S.addWindowBtn}
+                  aria-label={`Add window to ${wall} wall`}
+                >
+                  {Icons.windowIcon}
+                  <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Window list */}
+            {windows.map((win, idx) => (
+              <div key={win.id} style={S.windowCard}>
+                <div style={S.windowCardHeader}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ color: '#60a5fa', display: 'flex' }}>{Icons.windowIcon}</span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
+                      {win.wall} Wall #{idx + 1}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => deleteWindow(win.id)}
+                    style={S.windowDeleteBtn}
+                    aria-label="Remove window"
+                  >
+                    {Icons.trash}
+                  </button>
+
             {/* Add window buttons – 2×2 grid covering all four walls */}
             {(() => {
               const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
@@ -493,6 +531,7 @@ export default function Sidebar({
                       </button>
                     );
                   })}
+
                 </div>
               );
             })()}
@@ -573,8 +612,79 @@ export default function Sidebar({
                     </div>
                   </div>
                 </div>
+
+              </div>
+            ))
+            }
+
+            {/* ── Doors ── */}
+            <SectionHeader title="Doors" badge={`${doors.length}`} />
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+              Add doors to walls for room entrances and exits.
+            </p>
+
+            {/* Add door buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+              {['back', 'left', 'right', 'front'].map(wall => (
+                <button
+                  key={wall}
+                  onClick={() => addDoor(wall)}
+                  style={S.addDoorBtn}
+                  aria-label={`Add door to ${wall} wall`}
+                >
+                  {Icons.doorIcon}
+                  <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Door list */}
+            {doors.map((door, idx) => (
+              <div key={door.id} style={S.doorCard}>
+                <div style={S.doorCardHeader}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ color: '#f59e0b', display: 'flex' }}>{Icons.doorIcon}</span>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
+                      {door.wall} Wall #{idx + 1}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => deleteDoor(door.id)}
+                    style={S.doorDeleteBtn}
+                    aria-label="Remove door"
+                  >
+                    {Icons.trash}
+                  </button>
+                </div>
+                <div style={S.doorCardBody}>
+                  <div style={S.doorField}>
+                    <label style={S.doorLabel}>Position</label>
+                    <div style={S.sliderRow}>
+                      <input type="range" min="0.1" max="0.9" step="0.05" value={door.position}
+                        onChange={e => updateDoor(door.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                      <span style={S.sliderVal}>{Math.round(door.position * 100)}%</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <div style={{ ...S.doorField, flex: 1 }}>
+                      <label style={S.doorLabel}>Width (m)</label>
+                      <input type="number" className="input" min="0.6" max="2.5" step="0.1" value={door.width}
+                        onChange={e => updateDoor(door.id, { width: parseFloat(e.target.value) || 1.2 })} />
+                    </div>
+                    <div style={{ ...S.doorField, flex: 1 }}>
+                      <label style={S.doorLabel}>Height (m)</label>
+                      <input type="number" className="input" min="1.8" max="3" step="0.1" value={door.height}
+                        onChange={e => updateDoor(door.id, { height: parseFloat(e.target.value) || 2.4 })} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+            }
+
               );
             })}
+
           </div>
         )}
 
@@ -1443,6 +1553,52 @@ const S = {
     marginBottom: 8,
   },
   windowLabel: {
+    display: 'block', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)',
+    textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: 4,
+  },
+
+  /* Door controls */
+  addDoorBtn: {
+    flex: 1,
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    padding: '10px 6px',
+    borderRadius: 10,
+    border: '1.5px dashed rgba(245,158,11,0.3)',
+    background: 'rgba(245,158,11,0.05)',
+    color: '#f59e0b',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+  },
+  doorCard: {
+    marginBottom: 10,
+    borderRadius: 10,
+    border: '1px solid rgba(245,158,11,0.15)',
+    background: 'rgba(245,158,11,0.04)',
+    overflow: 'hidden',
+  },
+  doorCardHeader: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '8px 10px',
+    borderBottom: '1px solid rgba(245,158,11,0.1)',
+  },
+  doorCardBody: {
+    padding: '10px',
+  },
+  doorDeleteBtn: {
+    width: 28, height: 28,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(239,68,68,0.08)',
+    border: '1px solid rgba(239,68,68,0.15)',
+    borderRadius: 6,
+    color: 'var(--danger)',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  doorField: {
+    marginBottom: 8,
+  },
+  doorLabel: {
     display: 'block', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: 4,
   },

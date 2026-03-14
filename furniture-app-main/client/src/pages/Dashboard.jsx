@@ -68,6 +68,7 @@ export default function Dashboard() {
   });
 
   const [windows, setWindows] = useState([]);
+  const [doors, setDoors] = useState([]);
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -149,6 +150,24 @@ export default function Dashboard() {
     showToast('Window removed', 'info');
   };
 
+  /* ── Door management ── */
+  const addDoor = (wall) => {
+    const newDoor = {
+      id: `door-${Date.now()}`, wall,
+      position: 0.5, width: 1.2, height: 2.4,
+    };
+    setDoors(prev => [...prev, newDoor]);
+    showToast(`Door added to ${wall} wall`, 'success');
+  };
+
+  const updateDoor = (id, data) =>
+    setDoors(prev => prev.map(d => d.id === id ? { ...d, ...data } : d));
+
+  const deleteDoor = (id) => {
+    setDoors(prev => prev.filter(d => d.id !== id));
+    showToast('Door removed', 'info');
+  };
+
   const handleSaveSubmit = async (designName) => {
     const thumbnail = canvasRef.current?.takeScreenshot() || '';
     setIsSaving(true);
@@ -159,7 +178,7 @@ export default function Dashboard() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, thumbnail }),
+        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, doors, thumbnail }),
       });
       showToast('Project saved successfully!', 'success');
       setShowSaveModal(false);
@@ -178,8 +197,17 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (data.length > 0) {
+
+        const design = data[data.length - 1];
+        setItems(design.items);
+        if (design.roomConfig) setRoomConfig(design.roomConfig);
+        if (design.windows) setWindows(design.windows);
+        if (design.doors) setDoors(design.doors);
+        showToast(`Loaded: ${design.name}`, 'success');
+
         setSavedDesigns(data);
         setShowLoadModal(true);
+
       } else {
         showToast('No saved designs found', 'info');
       }
@@ -203,6 +231,7 @@ export default function Dashboard() {
     setItems(template.items.map(item => ({ ...item, id: Date.now() + Math.random() })));
     setRoomConfig(template.roomConfig);
     setWindows(template.windows || []);
+    setDoors(template.doors || []);
     setShowTemplates(false);
     showToast(`Loaded template: ${template.name}`, 'success');
   };
@@ -231,6 +260,10 @@ export default function Dashboard() {
         addWindow={addWindow}
         updateWindow={updateWindow}
         deleteWindow={deleteWindow}
+        doors={doors}
+        addDoor={addDoor}
+        updateDoor={updateDoor}
+        deleteDoor={deleteDoor}
         saveDesign={() => setShowSaveModal(true)}
         loadDesigns={loadDesigns}
         downloadScreenshot={() => {
@@ -392,6 +425,7 @@ export default function Dashboard() {
               setSelectedId={setSelectedId}
               updateItem={updateItem}
               windows={windows}
+              doors={doors}
             />
           ) : (
             <DesignCanvas
@@ -404,6 +438,7 @@ export default function Dashboard() {
               cameraMode={cameraMode}
               roomConfig={roomConfig}
               windows={windows}
+              doors={doors}
             />
           )}
 

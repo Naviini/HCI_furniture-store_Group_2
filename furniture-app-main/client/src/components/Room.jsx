@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { Grid, useTexture } from '@react-three/drei';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 /* ── Floor texture images (directly imported for Vite resolution) ── */
@@ -26,9 +27,10 @@ const WALL_THICK = 0.2;
 /* ────────────────────────────────────────────
    Wall: a box between two XZ points
    If windows are supplied, we create cutouts visually using multiple segments +
-   glass panes.
+   glass panes. If doors are supplied, we create door openings and frames.
+   Front wall is rendered semi-transparent for better visibility.
    ──────────────────────────────────────────── */
-function Wall({ from, to, color, wallId, windows = [] }) {
+function Wall({ from, to, color, wallId, windows = [], doors = [] }) {
   const dx = to[0] - from[0];
   const dz = to[1] - from[1];
   const len = Math.sqrt(dx * dx + dz * dz);
@@ -36,153 +38,243 @@ function Wall({ from, to, color, wallId, windows = [] }) {
   const cx = (from[0] + to[0]) / 2;
   const cz = (from[1] + to[1]) / 2;
 
-  // Filter windows for this wall
-  const wallWindows = windows.filter(w => w.wall === wallId);
+  const groupRef = useRef();
+  const stateRef = useRef({ isTransparent: undefined });
 
-  if (wallWindows.length === 0) {
+  // When wall config changes, force re-evaluation on next frame
+  useEffect(() => {
+    stateRef.current.isTransparent = undefined;
+  }, [color, windows, doors, wallId]);
+
+  useFrame(({ camera }) => {
+    const group = groupRef.current;
+    if (!group) return;
+    // Determine which single outer wall the camera currently faces
+    const camAngle = Math.atan2(camera.position.x, camera.position.z);
+    let facingWall;
+    if      (camAngle >= -Math.PI / 4 && camAngle <  Math.PI / 4)       facingWall = 'front';
+    else if (camAngle >=  Math.PI / 4 && camAngle <  3 * Math.PI / 4)   facingWall = 'right';
+    else if (camAngle >= -3 * Math.PI / 4 && camAngle < -Math.PI / 4)   facingWall = 'left';
+    else                                                                   facingWall = 'back';
+    const shouldBeTransparent = (wallId === facingWall);
+    if (shouldBeTransparent === stateRef.current.isTransparent) return;
+    stateRef.current.isTransparent = shouldBeTransparent;
+    group.traverse(child => {
+      if (!child.isMesh || !child.material) return;
+      if (shouldBeTransparent) {
+        if (child.userData.savedOpacity === undefined) {
+          child.userData.savedOpacity = child.material.opacity;
+          child.userData.savedTransparent = child.material.transparent;
+          child.userData.savedDepthWrite = child.material.depthWrite;
+        }
+        child.material.transparent = true;
+        child.material.opacity = 0.1;
+        child.material.depthWrite = false;
+      } else {
+        child.material.transparent = child.userData.savedTransparent ?? false;
+        child.material.opacity    = child.userData.savedOpacity    ?? 1.0;
+        child.material.depthWrite = child.userData.savedDepthWrite ?? true;
+        child.userData.savedOpacity    = undefined;
+        child.userData.savedTransparent = undefined;
+        child.userData.savedDepthWrite  = undefined;
+      }
+      child.material.needsUpdate = true;
+    });
+  });
+
+  // Filter windows and doors for this wall
+  const wallWindows = windows.filter(w => w.wall === wallId);
+  const wallDoors = doors.filter(d => d.wall === wallId);
+
+  if (wallWindows.length === 0 && wallDoors.length === 0) {
     // Simple solid wall
     return (
-      <mesh position={[cx, WALL_HEIGHT / 2, cz]} rotation={[0, angle, 0]} receiveShadow castShadow>
-        <boxGeometry args={[WALL_THICK, WALL_HEIGHT, len]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
+      <group ref={groupRef} position={[cx, 0, cz]} rotation={[0, angle, 0]}>
+        <mesh position={[0, WALL_HEIGHT / 2, 0]} receiveShadow castShadow>
+          <boxGeometry args={[WALL_THICK, WALL_HEIGHT, len]} />
+          <meshStandardMaterial color={color} />
+        </mesh>
+      </group>
     );
   }
 
-  // Wall with window holes: build wall segments around windows
-  // Sort windows by position along the wall
-  const sorted = [...wallWindows].sort((a, b) => a.position - b.position);
+  // Combine windows and doors into openings
+  const openings = [
+    ...wallWindows.map(w => ({ ...w, type: 'window' })),
+    ...wallDoors.map(d => ({ ...d, type: 'door', sillHeight: 0 })) // doors start at floor
+  ].sort((a, b) => a.position - b.position);
 
   const segments = [];
   const glassElements = [];
   const sunlightElements = [];
 
-  sorted.forEach((win, i) => {
-    const winCenter = win.position * len;         // distance along wall
-    const winHalfW = Math.min(win.width, len * 0.8) / 2;
-    const winBottom = win.sillHeight;
-    const winTop = Math.min(win.sillHeight + win.height, WALL_HEIGHT - 0.1);
-    const winH = winTop - winBottom;
+  openings.forEach((opening, i) => {
+    const openingCenter = opening.position * len;
+    const openingHalfW = Math.min(opening.width, len * 0.8) / 2;
+    const openingBottom = opening.sillHeight || 0;
+    const openingTop = Math.min(openingBottom + opening.height, WALL_HEIGHT - 0.1);
+    const openingH = openingTop - openingBottom;
 
-    // Left of window hole  
-    const winStart = winCenter - winHalfW;
-    const winEnd = winCenter + winHalfW;
-
-    // Wall segment BELOW window
-    if (winBottom > 0.05) {
+    // Wall segment BELOW opening (for windows only, doors start at floor)
+    if (openingBottom > 0.05) {
       segments.push(
-        <mesh key={`below-${i}`} position={[0, winBottom / 2, winCenter - len / 2]} receiveShadow castShadow>
-          <boxGeometry args={[WALL_THICK, winBottom, winHalfW * 2]} />
+        <mesh key={`below-${i}`} position={[0, openingBottom / 2, openingCenter - len / 2]} receiveShadow castShadow>
+          <boxGeometry args={[WALL_THICK, openingBottom, openingHalfW * 2]} />
           <meshStandardMaterial color={color} />
         </mesh>
       );
     }
-    // Wall segment ABOVE window
-    const aboveH = WALL_HEIGHT - winTop;
+    
+    // Wall segment ABOVE opening
+    const aboveH = WALL_HEIGHT - openingTop;
     if (aboveH > 0.05) {
       segments.push(
-        <mesh key={`above-${i}`} position={[0, winTop + aboveH / 2, winCenter - len / 2]} receiveShadow castShadow>
-          <boxGeometry args={[WALL_THICK, aboveH, winHalfW * 2]} />
+        <mesh key={`above-${i}`} position={[0, openingTop + aboveH / 2, openingCenter - len / 2]} receiveShadow castShadow>
+          <boxGeometry args={[WALL_THICK, aboveH, openingHalfW * 2]} />
           <meshStandardMaterial color={color} />
         </mesh>
       );
     }
 
-    // Glass pane
-    glassElements.push(
-      <mesh key={`glass-${i}`} position={[0, winBottom + winH / 2, winCenter - len / 2]} receiveShadow>
-        <boxGeometry args={[WALL_THICK * 0.3, winH, winHalfW * 2]} />
-        <meshPhysicalMaterial
-          color="#b3d9ff"
-          transparent
-          opacity={0.25}
-          roughness={0.05}
-          metalness={0.1}
-          transmission={0.8}
-          thickness={0.05}
-        />
-      </mesh>
-    );
+    if (opening.type === 'window') {
+      // Glass pane
+      glassElements.push(
+        <mesh key={`glass-${i}`} position={[0, openingBottom + openingH / 2, openingCenter - len / 2]} receiveShadow>
+          <boxGeometry args={[WALL_THICK * 0.3, openingH, openingHalfW * 2]} />
+          <meshPhysicalMaterial
+            color="#b3d9ff"
+            transparent
+            opacity={0.25}
+            roughness={0.05}
+            metalness={0.1}
+            transmission={0.8}
+            thickness={0.05}
+          />
+        </mesh>
+      );
 
-    // Window frame (thin border)
-    const frameThick = 0.06;
-    const frameColor = '#555555';
-    // Horizontal top & bottom bars
-    glassElements.push(
-      <mesh key={`frame-t-${i}`} position={[0, winTop, winCenter - len / 2]}>
-        <boxGeometry args={[WALL_THICK + 0.02, frameThick, winHalfW * 2 + frameThick]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
-    glassElements.push(
-      <mesh key={`frame-b-${i}`} position={[0, winBottom, winCenter - len / 2]}>
-        <boxGeometry args={[WALL_THICK + 0.02, frameThick, winHalfW * 2 + frameThick]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
-    // Vertical left & right bars
-    glassElements.push(
-      <mesh key={`frame-l-${i}`} position={[0, winBottom + winH / 2, winCenter - len / 2 - winHalfW]}>
-        <boxGeometry args={[WALL_THICK + 0.02, winH, frameThick]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
-    glassElements.push(
-      <mesh key={`frame-r-${i}`} position={[0, winBottom + winH / 2, winCenter - len / 2 + winHalfW]}>
-        <boxGeometry args={[WALL_THICK + 0.02, winH, frameThick]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
-    // Center cross-bar
-    glassElements.push(
-      <mesh key={`frame-cx-${i}`} position={[0, winBottom + winH / 2, winCenter - len / 2]}>
-        <boxGeometry args={[WALL_THICK + 0.02, frameThick, winHalfW * 2]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
-    glassElements.push(
-      <mesh key={`frame-cy-${i}`} position={[0, winBottom + winH / 2, winCenter - len / 2]}>
-        <boxGeometry args={[WALL_THICK + 0.02, winH, frameThick]} />
-        <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
-      </mesh>
-    );
+      // Window frame
+      const frameThick = 0.06;
+      const frameColor = '#555555';
+      // Horizontal top & bottom bars
+      glassElements.push(
+        <mesh key={`frame-t-${i}`} position={[0, openingTop, openingCenter - len / 2]}>
+          <boxGeometry args={[WALL_THICK + 0.02, frameThick, openingHalfW * 2 + frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
+      glassElements.push(
+        <mesh key={`frame-b-${i}`} position={[0, openingBottom, openingCenter - len / 2]}>
+          <boxGeometry args={[WALL_THICK + 0.02, frameThick, openingHalfW * 2 + frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
+      // Vertical left & right bars
+      glassElements.push(
+        <mesh key={`frame-l-${i}`} position={[0, openingBottom + openingH / 2, openingCenter - len / 2 - openingHalfW]}>
+          <boxGeometry args={[WALL_THICK + 0.02, openingH, frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
+      glassElements.push(
+        <mesh key={`frame-r-${i}`} position={[0, openingBottom + openingH / 2, openingCenter - len / 2 + openingHalfW]}>
+          <boxGeometry args={[WALL_THICK + 0.02, openingH, frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
+      // Center cross-bars
+      glassElements.push(
+        <mesh key={`frame-cx-${i}`} position={[0, openingBottom + openingH / 2, openingCenter - len / 2]}>
+          <boxGeometry args={[WALL_THICK + 0.02, frameThick, openingHalfW * 2]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
+      glassElements.push(
+        <mesh key={`frame-cy-${i}`} position={[0, openingBottom + openingH / 2, openingCenter - len / 2]}>
+          <boxGeometry args={[WALL_THICK + 0.02, openingH, frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.5} roughness={0.3} />
+        </mesh>
+      );
 
-    // Sunlight beam (volumetric light cone coming through window)
-    // Rendered as a transparent slanted mesh on the floor
-    const sunBeamLength = Math.max(3, winH * 2.5);  // how far light projects
-    const sunBeamWidth = winHalfW * 2;
-    sunlightElements.push(
-      <mesh
-        key={`sunbeam-${i}`}
-        position={[WALL_THICK / 2 + sunBeamLength / 2, 0.02, winCenter - len / 2]}
-        rotation={[- Math.PI / 2, 0, 0]}
-        receiveShadow={false}
-      >
-        <planeGeometry args={[sunBeamLength, sunBeamWidth]} />
-        <meshBasicMaterial
-          color="#fff8e1"
-          transparent
-          opacity={0.12}
-          side={THREE.DoubleSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    );
+      // Sunlight beam for windows
+      const sunBeamLength = Math.max(3, openingH * 2.5);
+      const sunBeamWidth = openingHalfW * 2;
+      sunlightElements.push(
+        <mesh
+          key={`sunbeam-${i}`}
+          position={[WALL_THICK / 2 + sunBeamLength / 2, 0.02, openingCenter - len / 2]}
+          rotation={[- Math.PI / 2, 0, 0]}
+          receiveShadow={false}
+        >
+          <planeGeometry args={[sunBeamLength, sunBeamWidth]} />
+          <meshBasicMaterial
+            color="#fff8e1"
+            transparent
+            opacity={0.12}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      );
+    } else if (opening.type === 'door') {
+      const frameThick = 0.08;
+      const frameColor = '#654321';
+      const doorColor = '#8B4513';
+
+      // Door panel
+      glassElements.push(
+        <mesh key={`door-panel-${i}`} position={[0, openingH / 2, openingCenter - len / 2]} receiveShadow castShadow>
+          <boxGeometry args={[WALL_THICK * 0.5, openingH - 0.1, openingHalfW * 2 - 0.08]} />
+          <meshStandardMaterial color={doorColor} metalness={0.1} roughness={0.7} />
+        </mesh>
+      );
+
+      // Door frame - top, left, right
+      glassElements.push(
+        <mesh key={`door-frame-t-${i}`} position={[0, openingTop, openingCenter - len / 2]}>
+          <boxGeometry args={[WALL_THICK + 0.02, frameThick, openingHalfW * 2 + frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.2} roughness={0.6} />
+        </mesh>
+      );
+      glassElements.push(
+        <mesh key={`door-frame-l-${i}`} position={[0, openingH / 2, openingCenter - len / 2 - openingHalfW]}>
+          <boxGeometry args={[WALL_THICK + 0.02, openingH, frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.2} roughness={0.6} />
+        </mesh>
+      );
+      glassElements.push(
+        <mesh key={`door-frame-r-${i}`} position={[0, openingH / 2, openingCenter - len / 2 + openingHalfW]}>
+          <boxGeometry args={[WALL_THICK + 0.02, openingH, frameThick]} />
+          <meshStandardMaterial color={frameColor} metalness={0.2} roughness={0.6} />
+        </mesh>
+      );
+
+      // Door handle
+      glassElements.push(
+        <mesh
+          key={`door-handle-${i}`}
+          position={[WALL_THICK * 0.35, openingH * 0.45, openingCenter - len / 2 + openingHalfW * 0.7]}
+          rotation={[0, 0, Math.PI / 2]}
+        >
+          <cylinderGeometry args={[0.025, 0.025, 0.15]} />
+          <meshStandardMaterial color="#C0C0C0" metalness={0.9} roughness={0.2} />
+        </mesh>
+      );
+    }
   });
 
-  // Build left/right solid wall sections (parts of the wall where there are no windows)
-  // Full-height left & right wall pieces bounding the window openings
+  // Build left/right solid wall sections (parts of the wall where there are no openings)
   const wallParts = [];
   let cursor = 0;
-  sorted.forEach((win, i) => {
-    const winCenter = win.position * len;
-    const winHalfW = Math.min(win.width, len * 0.8) / 2;
-    const winStart = winCenter - winHalfW;
-    const winEnd = winCenter + winHalfW;
+  openings.forEach((opening, i) => {
+    const openingCenter = opening.position * len;
+    const openingHalfW = Math.min(opening.width, len * 0.8) / 2;
+    const openingStart = openingCenter - openingHalfW;
+    const openingEnd = openingCenter + openingHalfW;
 
-    // Segment from cursor to winStart
-    const segLen = winStart - cursor;
+    // Segment from cursor to opening start
+    const segLen = openingStart - cursor;
     if (segLen > 0.01) {
       const segCenter = cursor + segLen / 2;
       wallParts.push(
@@ -192,9 +284,9 @@ function Wall({ from, to, color, wallId, windows = [] }) {
         </mesh>
       );
     }
-    cursor = winEnd;
+    cursor = openingEnd;
   });
-  // Remaining wall after last window
+  // Remaining wall after last opening
   const remaining = len - cursor;
   if (remaining > 0.01) {
     wallParts.push(
@@ -206,7 +298,7 @@ function Wall({ from, to, color, wallId, windows = [] }) {
   }
 
   return (
-    <group position={[cx, 0, cz]} rotation={[0, angle, 0]}>
+    <group ref={groupRef} position={[cx, 0, cz]} rotation={[0, angle, 0]}>
       {wallParts}
       {segments}
       {glassElements}
@@ -290,6 +382,7 @@ function getShapeGeometry(shape, w, d) {
           { from: [-hs, -hs], to: [hs, -hs], id: 'back' },
           { from: [-hs, hs], to: [-hs, -hs], id: 'left' },
           { from: [hs, -hs], to: [hs, hs], id: 'right' },
+          { from: [hs, hs], to: [-hs, hs], id: 'front' },
         ],
       };
     }
@@ -308,6 +401,7 @@ function getShapeGeometry(shape, w, d) {
           { from: [hw, -hd], to: [hw, splitZ], id: 'right' },
           { from: [hw, splitZ], to: [splitX, splitZ], id: 'l-inner-h' },
           { from: [splitX, splitZ], to: [splitX, hd], id: 'l-inner-v' },
+          { from: [splitX, hd], to: [-hw, hd], id: 'front' },
           { from: [-hw, hd], to: [-hw, -hd], id: 'left' },
         ],
       };
@@ -328,6 +422,7 @@ function getShapeGeometry(shape, w, d) {
           { from: [hw, -hd], to: [hw, barZ], id: 'right' },
           { from: [hw, barZ], to: [stemHW, barZ], id: 't-step-r' },
           { from: [stemHW, barZ], to: [stemHW, hd], id: 't-stem-r' },
+          { from: [stemHW, hd], to: [-stemHW, hd], id: 'front' },
           { from: [-stemHW, hd], to: [-stemHW, barZ], id: 't-stem-l' },
           { from: [-stemHW, barZ], to: [-hw, barZ], id: 't-step-l' },
           { from: [-hw, barZ], to: [-hw, -hd], id: 'left' },
@@ -347,12 +442,13 @@ function getShapeGeometry(shape, w, d) {
           { cx: hw - armW / 2, cz: (-hd + innerZ) / 2, w: armW, d: innerZ + hd },
         ],
         walls: [
-          { from: [-hw, -hd], to: [-hw + armW, -hd], id: 'back' },
+          { from: [-hw, -hd], to: [-hw + armW, -hd], id: 'u-back-l' },
           { from: [-hw + armW, -hd], to: [-hw + armW, innerZ], id: 'u-inner-l' },
           { from: [-hw + armW, innerZ], to: [hw - armW, innerZ], id: 'u-inner-b' },
           { from: [hw - armW, innerZ], to: [hw - armW, -hd], id: 'u-inner-r' },
           { from: [hw - armW, -hd], to: [hw, -hd], id: 'u-back-r' },
           { from: [hw, -hd], to: [hw, hd], id: 'right' },
+          { from: [hw, hd], to: [-hw, hd], id: 'front' },
           { from: [-hw, hd], to: [-hw, -hd], id: 'left' },
         ],
       };
@@ -374,6 +470,7 @@ function getShapeGeometry(shape, w, d) {
           { from: [-hw, -hd], to: [hw, -hd], id: 'back' },    // back
           { from: [-hw, hd], to: [-hw, -hd], id: 'left' },     // left
           { from: [hw, -hd], to: [hw, hd], id: 'right' },    // right
+          { from: [hw, hd], to: [-hw, hd], id: 'front' },   // front (transparent)
         ],
       };
   }
@@ -382,7 +479,7 @@ function getShapeGeometry(shape, w, d) {
 /* ════════════════════════════════════════════
    Room Component
    ════════════════════════════════════════════ */
-export default function Room({ width, depth, wallColor, floorColor, floorType = 'solid', shape = 'rectangle', windows = [] }) {
+export default function Room({ width, depth, wallColor, floorColor, floorType = 'solid', shape = 'rectangle', windows = [], doors = [] }) {
   const { floors, walls } = useMemo(
     () => getShapeGeometry(shape, width, depth),
     [shape, width, depth]
@@ -395,7 +492,7 @@ export default function Room({ width, depth, wallColor, floorColor, floorType = 
         <FloorTile key={`floor-${shape}-${floorType}-${i}`} cx={f.cx} cz={f.cz} w={f.w} d={f.d} color={floorColor} floorType={floorType} />
       ))}
 
-      {/* Walls (with optional window cutouts) */}
+      {/* Walls (with optional window/door cutouts) */}
       {walls.map((seg, i) => (
         <Wall
           key={`wall-${shape}-${i}`}
@@ -404,6 +501,7 @@ export default function Room({ width, depth, wallColor, floorColor, floorType = 
           color={wallColor}
           wallId={seg.id}
           windows={windows}
+          doors={doors}
         />
       ))}
 
