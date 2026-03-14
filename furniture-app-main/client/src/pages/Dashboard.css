@@ -1,7 +1,4 @@
-/* ============================================================
-   DASHBOARD — Modern & Professional UI
-   Color tokens are inherited from index.css (:root variables)
-   ============================================================ */
+
 
 /* ── Root layout ──────────────────────────────────────────── */
 .db-root {
@@ -76,6 +73,8 @@
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 /* Left section */
@@ -160,11 +159,6 @@
   line-height: 1.4;
 }
 
-/* Center section */
-.db-header-center {
-  flex-shrink: 0;
-}
-
 /* ── MODE TOGGLE ──────────────────────────────────────────── */
 .db-mode-toggle {
   display: flex;
@@ -241,6 +235,7 @@
   flex: 1;
   justify-content: flex-end;
   min-width: 0;
+  overflow: hidden;
 }
 
 /* Selected item badge */
@@ -717,7 +712,7 @@
 }
 
 /* ── Responsive: hide hints on small viewport ─────────────── */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .db-shortcut-hints {
     display: none;
   }
@@ -729,7 +724,9 @@
   .db-brand-sep {
     display: none;
   }
+}
 
+@media (max-width: 900px) {
   .db-username {
     display: none;
   }
@@ -743,6 +740,20 @@
   }
 
   .db-stat--muted {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .db-mode-btn span {
+    display: none;
+  }
+
+  .db-mode-btn {
+    padding: 0 10px;
+  }
+
+  .db-selected-badge span:last-child {
     display: none;
   }
 }
