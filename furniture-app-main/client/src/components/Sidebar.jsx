@@ -474,44 +474,11 @@ export default function Sidebar({
 
 
             {/* Add window buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
-              {['back', 'left', 'right', 'front'].map(wall => (
-                <button
-                  key={wall}
-                  onClick={() => addWindow(wall)}
-                  style={S.addWindowBtn}
-                  aria-label={`Add window to ${wall} wall`}
-                >
-                  {Icons.windowIcon}
-                  <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Window list */}
-            {windows.map((win, idx) => (
-              <div key={win.id} style={S.windowCard}>
-                <div style={S.windowCardHeader}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ color: '#60a5fa', display: 'flex' }}>{Icons.windowIcon}</span>
-                    <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
-                      {win.wall} Wall #{idx + 1}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => deleteWindow(win.id)}
-                    style={S.windowDeleteBtn}
-                    aria-label="Remove window"
-                  >
-                    {Icons.trash}
-                  </button>
-
-            {/* Add window buttons – 2×2 grid covering all four walls */}
             {(() => {
               const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
               return (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
-                  {['back', 'left', 'right'].map(wall => {
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                  {['back', 'left', 'right', 'front'].map(wall => {
                     const wc = WALL_COLORS[wall];
                     const count = windows.filter(w => w.wall === wall).length;
                     return (
@@ -531,7 +498,6 @@ export default function Sidebar({
                       </button>
                     );
                   })}
-
                 </div>
               );
             })()}
@@ -612,10 +578,8 @@ export default function Sidebar({
                     </div>
                   </div>
                 </div>
-
-              </div>
-            ))
-            }
+              );
+            })}
 
             {/* ── Doors ── */}
             <SectionHeader title="Doors" badge={`${doors.length}`} />
@@ -679,11 +643,7 @@ export default function Sidebar({
                   </div>
                 </div>
               </div>
-            ))
-            }
-
-              );
-            })}
+            ))}
 
           </div>
         )}
