@@ -104,7 +104,11 @@ export default function Dashboard() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const handleLogout = () => { localStorage.removeItem('user'); navigate('/login'); };
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('onboardingCompleted');
+    navigate('/login');
+  };
 
   const addItem = (type) => {
     const DEFAULTS = {
