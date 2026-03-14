@@ -3,21 +3,42 @@ import { Grid, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 /* ── Floor texture images (directly imported for Vite resolution) ── */
-import plankDiff  from '../assets/textures/plank_flooring_04_diff_1k.jpg';
-import plankNor   from '../assets/textures/plank_flooring_04_nor_gl_1k.jpg';
-import plankArm   from '../assets/textures/plank_flooring_04_arm_1k.jpg';
-import cartDiff   from '../assets/textures/grey_cartago_03_diff_1k.jpg';
-import cartNor    from '../assets/textures/grey_cartago_03_nor_gl_1k.jpg';
-import cartArm    from '../assets/textures/grey_cartago_03_arm_1k.jpg';
-import graniteDiff from '../assets/textures/granite_tile_diff_1k.jpg';
-import graniteNor  from '../assets/textures/granite_tile_nor_gl_1k.jpg';
-import graniteArm  from '../assets/textures/granite_tile_arm_1k.jpg';
+import plankDiff  from '../assets/Floor/plank_flooring_04/textures/plank_flooring_04_diff_1k.jpg';
+import plankNor   from '../assets/Floor/plank_flooring_04/textures/plank_flooring_04_nor_gl_1k.jpg';
+import plankArm   from '../assets/Floor/plank_flooring_04/textures/plank_flooring_04_arm_1k.jpg';
+import cartDiff   from '../assets/Floor/grey_cartago_03/textures/grey_cartago_03_diff_1k.jpg';
+import cartNor    from '../assets/Floor/grey_cartago_03/textures/grey_cartago_03_nor_gl_1k.jpg';
+import cartArm    from '../assets/Floor/grey_cartago_03/textures/grey_cartago_03_arm_1k.jpg';
+import graniteDiff from '../assets/Floor/granite_tile/textures/granite_tile_diff_1k.jpg';
+import graniteNor  from '../assets/Floor/granite_tile/textures/granite_tile_nor_gl_1k.jpg';
+import graniteArm  from '../assets/Floor/granite_tile/textures/granite_tile_arm_1k.jpg';
+/* ── New floor textures ── */
+import gravelDiff from '../assets/Floor/gravel_concrete_03_2k.gltf/textures/gravel_concrete_03_diff_2k.jpg';
+import gravelNor  from '../assets/Floor/gravel_concrete_03_2k.gltf/textures/gravel_concrete_03_nor_gl_2k.jpg';
+import gravelArm  from '../assets/Floor/gravel_concrete_03_2k.gltf/textures/gravel_concrete_03_arm_2k.jpg';
+import laminateDiff from '../assets/Floor/laminate_floor_03_2k.gltf/textures/laminate_floor_03_diff_2k.jpg';
+import laminateNor  from '../assets/Floor/laminate_floor_03_2k.gltf/textures/laminate_floor_03_nor_gl_2k.jpg';
+import laminateRough from '../assets/Floor/laminate_floor_03_2k.gltf/textures/laminate_floor_03_rough_2k.jpg';
+import linoleumDiff from '../assets/Floor/old_linoleum_flooring_01_2k.gltf/textures/old_linoleum_flooring_01_diff_2k.jpg';
+import linoleumNor  from '../assets/Floor/old_linoleum_flooring_01_2k.gltf/textures/old_linoleum_flooring_01_nor_gl_2k.jpg';
+import linoleumArm  from '../assets/Floor/old_linoleum_flooring_01_2k.gltf/textures/old_linoleum_flooring_01_arm_2k.jpg';
+import pebbleDiff from '../assets/Floor/pebble_embedded_concrete_02_1k.gltf/textures/pebble_embedded_concrete_02_diff_1k.jpg';
+import pebbleNor  from '../assets/Floor/pebble_embedded_concrete_02_1k.gltf/textures/pebble_embedded_concrete_02_nor_gl_1k.jpg';
+import pebbleArm  from '../assets/Floor/pebble_embedded_concrete_02_1k.gltf/textures/pebble_embedded_concrete_02_arm_1k.jpg';
+import rubberDiff from '../assets/Floor/rubber_tiles_2k.gltf/textures/rubber_tiles_diff_2k.jpg';
+import rubberNor  from '../assets/Floor/rubber_tiles_2k.gltf/textures/rubber_tiles_nor_gl_2k.jpg';
+import rubberArm  from '../assets/Floor/rubber_tiles_2k.gltf/textures/rubber_tiles_arm_2k.jpg';
 
-/* Lookup map: floorType → { diff, nor, arm } texture paths */
+/* Lookup map: floorType → { diff, nor, arm/rough } texture paths */
 const FLOOR_TEX_MAP = {
-  plank_flooring: { diff: plankDiff,   nor: plankNor,   arm: plankArm,   roughness: 0.6,  metalness: 0.0 },
-  grey_cartago:   { diff: cartDiff,    nor: cartNor,    arm: cartArm,    roughness: 0.4,  metalness: 0.05 },
-  granite_tile:   { diff: graniteDiff, nor: graniteNor, arm: graniteArm, roughness: 0.25, metalness: 0.08 },
+  plank_flooring:    { diff: plankDiff,    nor: plankNor,    arm: plankArm,    roughness: 0.6,  metalness: 0.0 },
+  grey_cartago:      { diff: cartDiff,     nor: cartNor,     arm: cartArm,     roughness: 0.4,  metalness: 0.05 },
+  granite_tile:      { diff: graniteDiff,  nor: graniteNor,  arm: graniteArm,  roughness: 0.25, metalness: 0.08 },
+  gravel_concrete:   { diff: gravelDiff,   nor: gravelNor,   arm: gravelArm,   roughness: 0.85, metalness: 0.0 },
+  laminate_floor:    { diff: laminateDiff, nor: laminateNor, arm: null, rough: laminateRough, roughness: 0.45, metalness: 0.02 },
+  old_linoleum:      { diff: linoleumDiff, nor: linoleumNor, arm: linoleumArm, roughness: 0.7,  metalness: 0.0 },
+  pebble_concrete:   { diff: pebbleDiff,   nor: pebbleNor,   arm: pebbleArm,   roughness: 0.9,  metalness: 0.0 },
+  rubber_tiles:      { diff: rubberDiff,   nor: rubberNor,   arm: rubberArm,   roughness: 0.75, metalness: 0.05 },
 };
 
 const WALL_HEIGHT = 5;
@@ -217,12 +238,15 @@ function Wall({ from, to, color, wallId, windows = [] }) {
 
 /* ────────────────────────────────────────────
    TexturedFloorTile: renders a floor plane with
-   real PBR textures (diff + normal + ARM).
+   real PBR textures (diff + normal + ARM/rough).
    Uses useTexture for reliable Vite asset handling.
+   Handles both ARM-based and separate roughness-only maps.
    ──────────────────────────────────────────── */
-function TexturedFloorTile({ cx, cz, w, d, floorType }) {
+function TexturedFloorTile({ cx, cz, w, d, floorType, color }) {
   const texInfo = FLOOR_TEX_MAP[floorType];
-  const [diffMap, norMap, armMap] = useTexture([texInfo.diff, texInfo.nor, texInfo.arm]);
+  // For laminate, arm is null but rough is provided; load rough in place of arm
+  const armPath = texInfo.arm || texInfo.rough;
+  const [diffMap, norMap, armMap] = useTexture([texInfo.diff, texInfo.nor, armPath]);
 
   // Configure tiling & color-space once textures are ready
   useMemo(() => {
@@ -237,6 +261,9 @@ function TexturedFloorTile({ cx, cz, w, d, floorType }) {
     diffMap.colorSpace = THREE.SRGBColorSpace;
   }, [diffMap, norMap, armMap, w, d]);
 
+  // For laminate (no ARM), armMap is purely roughness — don't use as metalness
+  const hasArm = !!texInfo.arm;
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, -0.01, cz]} receiveShadow>
       <planeGeometry args={[w, d]} />
@@ -244,10 +271,11 @@ function TexturedFloorTile({ cx, cz, w, d, floorType }) {
         map={diffMap}
         normalMap={norMap}
         roughnessMap={armMap}
-        metalnessMap={armMap}
+        metalnessMap={hasArm ? armMap : undefined}
         roughness={texInfo.roughness}
         metalness={texInfo.metalness}
         envMapIntensity={0.5}
+        color={color || '#ffffff'}
       />
     </mesh>
   );
@@ -259,7 +287,7 @@ function TexturedFloorTile({ cx, cz, w, d, floorType }) {
    ──────────────────────────────────────────── */
 function FloorTile({ cx, cz, w, d, color, floorType = 'plank_flooring' }) {
   if (FLOOR_TEX_MAP[floorType]) {
-    return <TexturedFloorTile cx={cx} cz={cz} w={w} d={d} floorType={floorType} />;
+    return <TexturedFloorTile cx={cx} cz={cz} w={w} d={d} floorType={floorType} color={color} />;
   }
   // Fallback: solid color plane
   return (

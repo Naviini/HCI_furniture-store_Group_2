@@ -32,7 +32,6 @@ const TEMPLATES = [
             { id: 1003, type: 'Chair', position: [-3, 0, -1], rotation: [0, Math.PI / 2, 0], scale: [1, 1, 1], color: '#d1fae5' },
             { id: 1004, type: 'Chair', position: [3, 0, -1], rotation: [0, -Math.PI / 2, 0], scale: [1, 1, 1], color: '#d1fae5' },
             { id: 1005, type: 'Lamp', position: [-4.5, 0.5, -4], rotation: [0, 0, 0], scale: [1, 1, 1], color: '#fbbf24' },
-            { id: 1006, type: 'Cabinet', position: [4.5, 0, -4.5], rotation: [0, 0, 0], scale: [1, 1, 1], color: '#f5f5f0' },
         ],
         windows: [
             { id: 'w1', wall: 'back', position: 0.5, width: 2.5, height: 1.8, sillHeight: 0.9 },
@@ -119,7 +118,6 @@ const TEMPLATES = [
         items: [
             { id: 4001, type: 'Bed', position: [0, 0, -3], rotation: [0, 0, 0], scale: [1, 1, 1], color: '#f8fafc' },
             { id: 4002, type: 'Drawer', position: [-3.5, 0, -4.5], rotation: [0, Math.PI / 2, 0], scale: [0.9, 0.9, 0.9], color: '#fef9c3' },
-            { id: 4003, type: 'Cabinet', position: [3.5, 0, -4.5], rotation: [0, -Math.PI / 2, 0], scale: [0.9, 0.9, 0.9], color: '#fef9c3' },
             { id: 4004, type: 'Lamp', position: [-3.5, 0.5, -2.5], rotation: [0, 0, 0], scale: [0.9, 0.9, 0.9], color: '#e2e8f0' },
         ],
         windows: [
@@ -154,7 +152,6 @@ const TEMPLATES = [
             { id: 5003, type: 'Chair', position: [2.2, 0, 0], rotation: [0, -Math.PI / 2, 0], scale: [1, 1, 1], color: '#1c1917' },
             { id: 5004, type: 'Chair', position: [0, 0, 1.8], rotation: [0, Math.PI, 0], scale: [1, 1, 1], color: '#1c1917' },
             { id: 5005, type: 'Chair', position: [0, 0, -1.8], rotation: [0, 0, 0], scale: [1, 1, 1], color: '#1c1917' },
-            { id: 5006, type: 'Cabinet', position: [-4.5, 0, -3.5], rotation: [0, Math.PI / 2, 0], scale: [1, 1, 1], color: '#292524' },
             { id: 5007, type: 'Lamp', position: [0, 0.7, 0], rotation: [0, 0, 0], scale: [0.8, 0.8, 0.8], color: '#fef08a' },
         ],
         windows: [
@@ -213,8 +210,6 @@ const TEMPLATES = [
         items: [
             { id: 7001, type: 'Table', position: [0, 0, -2.5], rotation: [0, 0, 0], scale: [1.3, 1, 0.8], color: '#f5f5f0' },
             { id: 7002, type: 'Chair', position: [0, 0, -1], rotation: [0, Math.PI, 0], scale: [1, 1, 1], color: '#1e293b' },
-            { id: 7003, type: 'Cabinet', position: [-3.5, 0, -3.5], rotation: [0, Math.PI / 2, 0], scale: [1, 1, 1], color: '#f5f5f0' },
-            { id: 7004, type: 'Cabinet', position: [3.5, 0, -3.5], rotation: [0, -Math.PI / 2, 0], scale: [1, 1, 1], color: '#f5f5f0' },
             { id: 7005, type: 'Lamp', position: [1.5, 0.5, -2.5], rotation: [0, 0, 0], scale: [0.9, 0.9, 0.9], color: '#0ea5e9' },
         ],
         windows: [

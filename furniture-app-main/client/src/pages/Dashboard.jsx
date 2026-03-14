@@ -63,7 +63,7 @@ export default function Dashboard() {
 
   const [roomConfig, setRoomConfig] = useState({
     shape: 'rectangle', width: 15, depth: 15,
-    wallColor: '#e0e0e0', floorColor: '#5c3a21',
+    wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
   });
 

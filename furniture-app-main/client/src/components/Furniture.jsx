@@ -2,20 +2,65 @@ import React, { useRef, useMemo } from 'react';
 import { TransformControls, Html, Outlines, useGLTF } from '@react-three/drei';
 
 /* ── glTF model paths (from /src/assets) ── */
-import coffeeTablePath from '../assets/coffee_table_round_01_1k.gltf?url';
-import chairPath from '../assets/plastic_monobloc_chair_01_1k.gltf?url';
-import drawerPath from '../assets/vintage_wooden_drawer_01_1k.gltf?url';
+import coffeeTablePath    from '../assets/table/coffee_table_round_01_1k/coffee_table_round_01_1k.gltf?url';
+import chairPath          from '../assets/chair/plastic_monobloc_chair_01/plastic_monobloc_chair_01_1k.gltf?url';
+import drawerPath         from '../assets/Drawer/vintage_wooden_drawer_01_1k.gltf?url';
+import bed1Path           from '../assets/Bed/bed 1/scene.gltf?url';
+import poliformBedPath    from '../assets/Bed/poliform_bed/scene.gltf?url';
+import deskLampPath       from '../assets/lap and lights/desk_lamp/scene.gltf?url';
+import tvStandPath        from '../assets/Tv stand/modern_tv_entertainment_center/scene.gltf?url';
+import tvStand3Path       from '../assets/Tv stand/tv_stand_3/scene.gltf?url';
+import fileCabinetPath    from '../assets/cabinet/file_cabinets/scene.gltf?url';
+import computerChairPath  from '../assets/chair/black_computer_chair_-_mesh_back_support/scene.gltf?url';
+import loungeChairPath    from '../assets/chair/lounge_chair/scene.gltf?url';
+import titanicLampPath    from '../assets/lap and lights/titanic_lamp/scene.gltf?url';
+import modernSofaPath     from '../assets/sofa/modern__sofa/scene.gltf?url';
+import sofaPath           from '../assets/sofa/sofa/scene.gltf?url';
+import sofaChairPath      from '../assets/sofa/sofa_chair/scene.gltf?url';
+import computerTablePath  from '../assets/table/computer_table/scene.gltf?url';
+import diningSetPath      from '../assets/table/modern_dining_room_table_set/scene.gltf?url';
+import diningTablePath    from '../assets/table/simple_dining_table/scene.gltf?url';
 
 const MODEL_MAP = {
-  'Coffee Table': { path: coffeeTablePath, scale: 2.5, yOffset: 0 },
-  'Chair':        { path: chairPath,       scale: 2,   yOffset: 0 },
-  'Drawer':       { path: drawerPath,      scale: 2.5, yOffset: 0 },
+  'Coffee Table':   { path: coffeeTablePath,   scale: 2.5,  yOffset: 0 },
+  'Chair':          { path: chairPath,         scale: 2,    yOffset: 0 },
+  'Drawer':         { path: drawerPath,        scale: 2.5,  yOffset: 0 },
+  'Bed':            { path: bed1Path,          scale: 1,    yOffset: 0 },
+  'Poliform Bed':   { path: poliformBedPath,   scale: 0.02, yOffset: 0 },
+  'Desk Lamp':      { path: deskLampPath,      scale: 0.5,  yOffset: 0 },
+  'TV Stand':       { path: tvStandPath,       scale: 0.002,  yOffset: 0 },
+  'TV Stand 3':     { path: tvStand3Path,      scale: 0.02, yOffset: 0 },
+  'File Cabinet':   { path: fileCabinetPath,   scale: 0.02, yOffset: 0 },
+  'Computer Chair': { path: computerChairPath, scale: 1,    yOffset: 0 },
+  'Lounge Chair':   { path: loungeChairPath,   scale: 1,    yOffset: 0 },
+  'Titanic Lamp':   { path: titanicLampPath,   scale: 1,    yOffset: 0 },
+  'Modern Sofa':    { path: modernSofaPath,    scale: 1,    yOffset: 0 },
+  'Sofa':           { path: sofaPath,          scale: 1.8,    yOffset: 0 },
+  'Sofa Chair':     { path: sofaChairPath,     scale: 1,    yOffset: 0 },
+  'Computer Table': { path: computerTablePath, scale: 1,    yOffset: 0 },
+  'Dining Set':     { path: diningSetPath,     scale: 0.004,    yOffset: 0 },
+  'Dining Table':   { path: diningTablePath,   scale: 0.003,    yOffset: 0 },
 };
 
 /* ── Pre‑load all glTF assets so they're cached ── */
 useGLTF.preload(coffeeTablePath);
 useGLTF.preload(chairPath);
 useGLTF.preload(drawerPath);
+useGLTF.preload(bed1Path);
+useGLTF.preload(poliformBedPath);
+useGLTF.preload(deskLampPath);
+useGLTF.preload(tvStandPath);
+useGLTF.preload(tvStand3Path);
+useGLTF.preload(fileCabinetPath);
+useGLTF.preload(computerChairPath);
+useGLTF.preload(loungeChairPath);
+useGLTF.preload(titanicLampPath);
+useGLTF.preload(modernSofaPath);
+useGLTF.preload(sofaPath);
+useGLTF.preload(sofaChairPath);
+useGLTF.preload(computerTablePath);
+useGLTF.preload(diningSetPath);
+useGLTF.preload(diningTablePath);
 
 /* ── Component that renders a loaded glTF scene ── */
 function ModelMesh({ modelInfo, color, isSelected, onClick }) {
@@ -108,7 +153,7 @@ export default function Furniture({
         )}
 
         {/* Light source for Lamps */}
-        {type === 'Lamp' && (
+        {(type === 'Lamp' || type === 'Desk Lamp' || type === 'Titanic Lamp') && (
           <pointLight position={[0, 0.5, 0]} intensity={2} distance={8} color="#ffddaa" castShadow />
         )}
 

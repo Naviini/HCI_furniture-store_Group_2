@@ -10,14 +10,35 @@ const TABS = {
 };
 
 const FURNITURE_ITEMS = [
-  { name: 'Coffee Table', icon: '☕', desc: 'LACK – Round coffee table', model: true, category: 'Tables', material: 'Wood', color: 'Brown', price: 49.99 },
-  { name: 'Chair', icon: '💺', desc: 'TEODORES – Monobloc chair', model: true, category: 'Seating', material: 'Plastic', color: 'White', price: 29.99 },
-  { name: 'Drawer', icon: '🗄️', desc: 'HEMNES – Vintage drawer', model: true, category: 'Storage', material: 'Wood', color: 'Walnut', price: 149.99 },
-  { name: 'Table', icon: '🔲', desc: 'MELLTORP – Dining table', category: 'Tables', material: 'Wood', color: 'White', price: 89.99 },
-  { name: 'Bed', icon: '🛏️', desc: 'MALM – King bed frame', category: 'Bedroom', material: 'Wood', color: 'Oak', price: 299.99 },
-  { name: 'Lamp', icon: '💡', desc: 'HEKTAR – Floor lamp', category: 'Lighting', material: 'Metal', color: 'Black', price: 39.99 },
-  { name: 'Sofa', icon: '🛋️', desc: 'KIVIK – 3-seat sofa', category: 'Seating', material: 'Fabric', color: 'Grey', price: 499.99 },
-  { name: 'Cabinet', icon: '🚪', desc: 'KALLAX – Storage cabinet', category: 'Storage', material: 'Wood', color: 'White', price: 79.99 },
+  /* ── Original 3D models ── */
+  { name: 'Coffee Table',    icon: '☕', desc: 'LACK – Round coffee table',         model: true, category: 'Tables',    material: 'Wood',    color: 'Brown',  price: 49.99  },
+  { name: 'Chair',           icon: '💺', desc: 'TEODORES – Monobloc chair',          model: true, category: 'Seating',   material: 'Plastic', color: 'White',  price: 29.99  },
+  { name: 'Drawer',          icon: '🗄️', desc: 'HEMNES – Vintage wooden drawer',     model: true, category: 'Storage',   material: 'Wood',    color: 'Walnut', price: 149.99 },
+  /* ── TV Stands ── */
+  { name: 'TV Stand',        icon: '📺', desc: 'Modern TV entertainment center',     model: true, category: 'Living',    material: 'Wood',    color: 'Black',  price: 199.99 },
+  { name: 'TV Stand 3',      icon: '🖥️', desc: 'Sleek TV stand with shelf',          model: true, category: 'Living',    material: 'Wood',    color: 'Walnut', price: 149.99 },
+  /* ── Cabinets ── */
+  { name: 'File Cabinet',    icon: '🗂️', desc: 'Office file cabinet – 3 drawers',   model: true, category: 'Storage',   material: 'Metal',   color: 'Grey',   price: 89.99  },
+  /* ── Chairs ── */
+  { name: 'Computer Chair',  icon: '🖥️', desc: 'Mesh back ergonomic office chair',  model: true, category: 'Seating',   material: 'Fabric',  color: 'Black',  price: 129.99 },
+  { name: 'Lounge Chair',    icon: '🛋️', desc: 'Luxury lounge accent chair',         model: true, category: 'Seating',   material: 'Leather', color: 'Brown',  price: 259.99 },
+  /* ── Lights ── */
+  // { name: 'Ceiling Light',   icon: '💡', desc: 'Modern ceiling flush light fixture', model: false, category: 'Lighting',  material: 'Metal',   color: 'Silver', price: 79.99  },
+  { name: 'Titanic Lamp',    icon: '🔦', desc: 'Titanic-style floor lamp',           model: true, category: 'Lighting',  material: 'Metal',   color: 'Gold',   price: 59.99  },
+  { name: 'Desk Lamp',       icon: '🪔', desc: 'Modern adjustable desk lamp',        model: true, category: 'Lighting',  material: 'Metal',   color: 'Silver', price: 34.99  },
+  /* ── Sofas ── */
+  { name: 'Modern Sofa',     icon: '🛋️', desc: 'Contemporary 3-seat sofa',          model: true, category: 'Seating',   material: 'Fabric',  color: 'Grey',   price: 599.99 },
+  { name: 'Sofa',            icon: '🛋️', desc: 'Classic fabric sofa',               model: true, category: 'Seating',   material: 'Fabric',  color: 'Beige',  price: 499.99 },
+  { name: 'Sofa Chair',      icon: '💺', desc: 'Single sofa accent chair',           model: true, category: 'Seating',   material: 'Fabric',  color: 'Blue',   price: 199.99 },
+  /* ── Tables ── */
+  { name: 'Computer Table',  icon: '🖥️', desc: 'L-shaped computer/study desk',      model: true, category: 'Tables',    material: 'Wood',    color: 'Oak',    price: 179.99 },
+  { name: 'Dining Set',      icon: '🍽️', desc: 'Modern dining table with chairs',   model: true, category: 'Dining',    material: 'Wood',    color: 'Walnut', price: 799.99 },
+  { name: 'Dining Table',    icon: '🍴', desc: 'Simple wooden dining table',         model: true, category: 'Dining',    material: 'Wood',    color: 'Oak',    price: 249.99 },
+  /* ── Beds ── */
+  { name: 'Bed',             icon: '🛏️', desc: 'Classic king bed with pillows',    model: true,  category: 'Bedroom',  material: 'Fabric',  color: 'White',  price: 299.99 },
+  { name: 'Poliform Bed',    icon: '🛏️', desc: 'Poliform luxury upholstered bed',  model: true,  category: 'Bedroom',  material: 'Leather', color: 'Beige',  price: 899.99 },
+  /* ── Primitives (fallback box meshes) ── */
+  { name: 'Lamp',            icon: '💡', desc: 'HEKTAR – Floor lamp',               model: false, category: 'Lighting', material: 'Metal',   color: 'Black',  price: 39.99  },
 ];
 
 /* ── Price formatter helper ── */
@@ -442,9 +463,14 @@ export default function Sidebar({
             <SectionHeader title="Floor Type" />
             <div style={S.floorTypeGrid}>
               {[
-                { id: 'plank_flooring', label: 'Plank', icon: '🪵', desc: 'Wood planks' },
-                { id: 'grey_cartago', label: 'Cartago', icon: '⬜', desc: 'Grey stone' },
-                { id: 'granite_tile', label: 'Granite', icon: '🔲', desc: 'Granite tile' },
+                { id: 'plank_flooring',  label: 'Plank',    icon: '🪵', desc: 'Wood plank flooring' },
+                { id: 'grey_cartago',    label: 'Cartago',  icon: '⬜', desc: 'Grey cartago stone' },
+                { id: 'granite_tile',    label: 'Granite',  icon: '🔲', desc: 'Granite tile' },
+                { id: 'gravel_concrete', label: 'Gravel',   icon: '🪨', desc: 'Gravel concrete' },
+                { id: 'laminate_floor',  label: 'Laminate', icon: '🟫', desc: 'Laminate floor' },
+                { id: 'old_linoleum',    label: 'Linoleum', icon: '🟦', desc: 'Old linoleum flooring' },
+                { id: 'pebble_concrete', label: 'Pebble',   icon: '⚫', desc: 'Pebble embedded concrete' },
+                { id: 'rubber_tiles',    label: 'Rubber',   icon: '🟥', desc: 'Rubber tiles' },
               ].map(ft => (
                 <button
                   key={ft.id}
@@ -781,7 +807,7 @@ const TabButton = ({ id, label, icon, active, onClick }) => (
   </button>
 );
 
-const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) => (
+const LibraryCard = ({ name, icon, desc, category, material, price, model, onClick }) => (
   <button
     onClick={onClick}
     role="listitem"
@@ -791,9 +817,7 @@ const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) =
   >
     <div style={S.cardIconWrap}>
       <span style={S.cardIcon}>{icon}</span>
-      {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
-      {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
-      {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
+      {model && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
     </div>
     <span style={S.cardName}>{name}</span>
     <span style={S.cardDesc}>{desc}</span>
