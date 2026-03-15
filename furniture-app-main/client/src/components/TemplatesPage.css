@@ -378,8 +378,6 @@
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     font-weight: 600;
-    0%,100% { transform: translateY(0); }
-    50%      { transform: translateY(-5px); }
 }
 
 /* Tag badge */
