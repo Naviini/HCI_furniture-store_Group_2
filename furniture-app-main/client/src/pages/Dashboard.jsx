@@ -58,20 +58,25 @@ export default function Dashboard() {
   const [items, setItems] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [mode, setMode] = useState('3D');
+  const [cameraMode, setCameraMode] = useState('TPP');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const [roomConfig, setRoomConfig] = useState({
     shape: 'rectangle', width: 15, depth: 15,
-    wallColor: '#e0e0e0', floorColor: '#5c3a21',
+    wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
   });
 
   const [windows, setWindows] = useState([]);
+  const [doors, setDoors] = useState([]);
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [savedDesigns, setSavedDesigns] = useState([]);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showAdminConfirm, setShowAdminConfirm] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
   useEffect(() => {
@@ -112,9 +117,9 @@ export default function Dashboard() {
       'Coffee Table': { y: 0, color: '#888888' },
       'Chair': { y: 0, color: '#888888' },
       'Drawer': { y: 0, color: '#888888' },
-      'Lamp': { y: 0.5, color: '#ffaa00' },
+      'Lamp': { y: 0, color: '#ffaa00' },
     };
-    const def = DEFAULTS[type] || { y: 0.5, color: '#888888' };
+    const def = DEFAULTS[type] || { y: 0, color: '#888888' };
     const newItem = {
       id: Date.now(), type,
       position: [0, def.y, 0], rotation: [0, 0, 0], scale: [1, 1, 1],
@@ -151,6 +156,24 @@ export default function Dashboard() {
     showToast('Window removed', 'info');
   };
 
+  /* ── Door management ── */
+  const addDoor = (wall) => {
+    const newDoor = {
+      id: `door-${Date.now()}`, wall,
+      position: 0.5, width: 1.2, height: 2.4,
+    };
+    setDoors(prev => [...prev, newDoor]);
+    showToast(`Door added to ${wall} wall`, 'success');
+  };
+
+  const updateDoor = (id, data) =>
+    setDoors(prev => prev.map(d => d.id === id ? { ...d, ...data } : d));
+
+  const deleteDoor = (id) => {
+    setDoors(prev => prev.filter(d => d.id !== id));
+    showToast('Door removed', 'info');
+  };
+
   const handleSaveSubmit = async (designName) => {
     const thumbnail = canvasRef.current?.takeScreenshot() || '';
     setIsSaving(true);
@@ -161,7 +184,7 @@ export default function Dashboard() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user.token}`,
         },
-        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, thumbnail }),
+        body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, doors, thumbnail }),
       });
       showToast('Project saved successfully!', 'success');
       setShowSaveModal(false);
@@ -180,11 +203,17 @@ export default function Dashboard() {
       });
       const data = await res.json();
       if (data.length > 0) {
+
         const design = data[data.length - 1];
         setItems(design.items);
         if (design.roomConfig) setRoomConfig(design.roomConfig);
         if (design.windows) setWindows(design.windows);
+        if (design.doors) setDoors(design.doors);
         showToast(`Loaded: ${design.name}`, 'success');
+
+        setSavedDesigns(data);
+        setShowLoadModal(true);
+
       } else {
         showToast('No saved designs found', 'info');
       }
@@ -195,11 +224,20 @@ export default function Dashboard() {
     }
   };
 
+  const handleLoadDesign = (design) => {
+    setItems(design.items || []);
+    if (design.roomConfig) setRoomConfig(design.roomConfig);
+    if (design.windows) setWindows(design.windows);
+    setShowLoadModal(false);
+    showToast(`Loaded: ${design.name}`, 'success');
+  };
+
   /* ── Load a template ── */
   const handleSelectTemplate = (template) => {
     setItems(template.items.map(item => ({ ...item, id: Date.now() + Math.random() })));
     setRoomConfig(template.roomConfig);
     setWindows(template.windows || []);
+    setDoors(template.doors || []);
     setShowTemplates(false);
     showToast(`Loaded template: ${template.name}`, 'success');
   };
@@ -228,6 +266,10 @@ export default function Dashboard() {
         addWindow={addWindow}
         updateWindow={updateWindow}
         deleteWindow={deleteWindow}
+        doors={doors}
+        addDoor={addDoor}
+        updateDoor={updateDoor}
+        deleteDoor={deleteDoor}
         saveDesign={() => setShowSaveModal(true)}
         loadDesigns={loadDesigns}
         downloadScreenshot={() => {
@@ -299,17 +341,15 @@ export default function Dashboard() {
                 <span>Blueprint</span>
               </button>
             </div>
+            {/* Keyboard shortcut hints */}
+            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
+              <span className="db-hint"><kbd>Del</kbd> Remove</span>
+              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
+              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+            </div>
           </div>
 
           <div className="db-header-right">
-            {/* Selected item indicator */}
-            {selectedItem && (
-              <div className="db-selected-badge" aria-live="polite">
-                <span className="db-selected-dot" aria-hidden="true" />
-                <span>{selectedItem.type} selected</span>
-              </div>
-            )}
-
             {/* Quick actions */}
             {/* Templates button */}
             <button
@@ -362,7 +402,7 @@ export default function Dashboard() {
               <button
                 id="btn-admin-panel"
                 className="db-header-btn"
-                onClick={() => navigate('/admin')}
+                onClick={() => setShowAdminConfirm(true)}
                 aria-label="Go to admin panel"
                 data-tooltip="Admin Panel"
                 style={{ background: 'rgba(245,158,11,0.15)', borderColor: 'rgba(245,158,11,0.3)', color: '#fbbf24' }}
@@ -370,6 +410,14 @@ export default function Dashboard() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                 <span>Admin Panel</span>
               </button>
+            )}
+
+            {/* Selected item indicator */}
+            {selectedItem && (
+              <div className="db-selected-badge" aria-live="polite">
+                <span className="db-selected-dot" aria-hidden="true" />
+                <span>{selectedItem.type} selected</span>
+              </div>
             )}
 
             {/* User avatar */}
@@ -380,7 +428,11 @@ export default function Dashboard() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                 <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
-                {user.role === 'admin' && <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Staff</span>}
+                {user.role === 'admin' ? (
+                  <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Designer</span>
+                ) : (
+                  <span style={{ fontSize: '0.6rem', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>User</span>
+                )}
               </div>
             </div>
           </div>
@@ -396,6 +448,7 @@ export default function Dashboard() {
               setSelectedId={setSelectedId}
               updateItem={updateItem}
               windows={windows}
+              doors={doors}
             />
           ) : (
             <DesignCanvas
@@ -405,9 +458,88 @@ export default function Dashboard() {
               setSelectedId={setSelectedId}
               updateItem={updateItem}
               mode={mode}
+              cameraMode={cameraMode}
               roomConfig={roomConfig}
               windows={windows}
+              doors={doors}
             />
+          )}
+
+          {/* Camera Mode Toggle Switch (TPP/FPP) */}
+          {mode === '3D' && (
+            <div 
+              style={{
+                position: 'absolute',
+                top: '20px',
+                left: '20px',
+                zIndex: 9999,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px',
+                background: 'rgba(30, 30, 40, 0.85)',
+                borderRadius: '12px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+              }}
+            >
+              {/* TPP Button */}
+              <button
+                onClick={() => setCameraMode('TPP')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  background: cameraMode === 'TPP' ? '#6366f1' : 'transparent',
+                  color: cameraMode === 'TPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: cameraMode === 'TPP' ? 'bold' : 'normal',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.3s ease',
+                  boxShadow: cameraMode === 'TPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>TPP</span>
+              </button>
+
+              {/* FPP Button */}
+              <button
+                onClick={() => setCameraMode('FPP')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 16px',
+                  background: cameraMode === 'FPP' ? '#6366f1' : 'transparent',
+                  color: cameraMode === 'FPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: cameraMode === 'FPP' ? 'bold' : 'normal',
+                  fontSize: '13px',
+                  fontFamily: 'inherit',
+                  transition: 'all 0.3s ease',
+                  boxShadow: cameraMode === 'FPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <circle cx="12" cy="12" r="3" />
+                  <line x1="12" y1="4" x2="12" y2="6" />
+                  <line x1="12" y1="18" x2="12" y2="20" />
+                </svg>
+                <span>FPP</span>
+              </button>
+            </div>
           )}
 
           {/* Empty state overlay */}
@@ -489,6 +621,59 @@ export default function Dashboard() {
         onSubmit={handleSaveSubmit}
       />
 
+      {/* ── LOAD PREVIOUS MODAL ── */}
+      {showLoadModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}
+          onClick={() => setShowLoadModal(false)}
+          role="dialog" aria-modal="true" aria-labelledby="load-modal-title"
+        >
+          <div
+            style={{ background: 'var(--bg-panel)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', width: 420, maxWidth: '92vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: 'var(--shadow-lg)', position: 'relative', overflow: 'hidden' }}
+            onClick={e => e.stopPropagation()}
+            className="animate-slideUp"
+          >
+            {/* Header */}
+            <div style={{ padding: '22px 24px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <h3 id="load-modal-title" style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)' }}>Load Previous Project</h3>
+              <p style={{ margin: '5px 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{savedDesigns.length} saved design{savedDesigns.length !== 1 ? 's' : ''} found</p>
+              <button
+                onClick={() => setShowLoadModal(false)}
+                style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex' }}
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Design list */}
+            <div style={{ overflowY: 'auto', padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[...savedDesigns].reverse().map((design) => (
+                <button
+                  key={design._id}
+                  onClick={() => handleLoadDesign(design)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.18s', width: '100%' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e8ecf4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{design.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                      {design.items?.length ?? 0} item{design.items?.length !== 1 ? 's' : ''}
+                      {design.createdAt ? ` · ${new Date(design.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                    </div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── TEMPLATES PICKER ── */}
       {showTemplates && (
         <TemplatesPage
@@ -496,6 +681,87 @@ export default function Dashboard() {
           onSkip={() => setShowTemplates(false)}
           onClose={() => setShowTemplates(false)}
         />
+      )}
+
+      {/* ── ADMIN PANEL CONFIRM ── */}
+      {showAdminConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 2000,
+          background: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: '#111421',
+            border: '1px solid rgba(255,255,255,0.10)',
+            borderRadius: 20,
+            padding: '36px 32px',
+            width: 'min(420px, 90vw)',
+            textAlign: 'center',
+            boxShadow: '0 28px 70px rgba(0,0,0,0.55)',
+            animation: 'db-modal-in 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+          }}>
+            {/* Warning icon */}
+            <div style={{
+              width: 58, height: 58, borderRadius: '50%',
+              background: 'rgba(245,158,11,0.12)',
+              border: '2px solid rgba(245,158,11,0.30)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.6rem', margin: '0 auto 18px',
+            }}>⚠️</div>
+
+            <h3 style={{ margin: '0 0 10px', fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>
+              Leave Current Design?
+            </h3>
+            <p style={{ margin: '0 0 10px', fontSize: '0.84rem', color: '#8b93a9', lineHeight: 1.6 }}>
+              You are about to navigate to the <strong style={{ color: '#fbbf24' }}>Admin Panel</strong>.
+            </p>
+            <p style={{
+              margin: '0 0 26px', fontSize: '0.82rem', lineHeight: 1.6,
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.22)',
+              borderRadius: 10, padding: '10px 14px',
+              color: '#fca5a5',
+            }}>
+              ⚠ Any unsaved changes to your current furniture design will be <strong>lost</strong>.
+              Make sure to save before leaving.
+            </p>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowAdminConfirm(false)}
+                style={{
+                  flex: 1, padding: '10px 18px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  color: '#94a3b8', fontSize: '0.84rem', fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.10)'; e.currentTarget.style.color='#e2e8f0'; }}
+                onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color='#94a3b8'; }}
+              >
+                ← Keep Designing
+              </button>
+              <button
+                onClick={() => navigate('/admin')}
+                style={{
+                  flex: 1, padding: '10px 18px', borderRadius: 10,
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  border: 'none',
+                  color: '#fff', fontSize: '0.84rem', fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: '0 4px 14px rgba(245,158,11,0.35)',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(245,158,11,0.45)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 4px 14px rgba(245,158,11,0.35)'; }}
+              >
+                Go to Admin Panel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

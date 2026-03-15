@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import ndLogo from '../assets/LOGO/logo.jpeg';
+import coffeeTableImg from '../assets/table/coffee_table_round_01_1k/coffee table.jpg';
+import chairImg from '../assets/chair/plastic_monobloc_chair_01/Chair.jpg';
 
 const TABS = {
   LIBRARY: 'library',
@@ -10,14 +12,35 @@ const TABS = {
 };
 
 const FURNITURE_ITEMS = [
-  { name: 'Coffee Table', icon: '☕', desc: 'LACK – Round coffee table', model: true, category: 'Tables', material: 'Wood', color: 'Brown', price: 49.99 },
-  { name: 'Chair', icon: '💺', desc: 'TEODORES – Monobloc chair', model: true, category: 'Seating', material: 'Plastic', color: 'White', price: 29.99 },
-  { name: 'Drawer', icon: '🗄️', desc: 'HEMNES – Vintage drawer', model: true, category: 'Storage', material: 'Wood', color: 'Walnut', price: 149.99 },
-  { name: 'Table', icon: '🔲', desc: 'MELLTORP – Dining table', category: 'Tables', material: 'Wood', color: 'White', price: 89.99 },
-  { name: 'Bed', icon: '🛏️', desc: 'MALM – King bed frame', category: 'Bedroom', material: 'Wood', color: 'Oak', price: 299.99 },
-  { name: 'Lamp', icon: '💡', desc: 'HEKTAR – Floor lamp', category: 'Lighting', material: 'Metal', color: 'Black', price: 39.99 },
-  { name: 'Sofa', icon: '🛋️', desc: 'KIVIK – 3-seat sofa', category: 'Seating', material: 'Fabric', color: 'Grey', price: 499.99 },
-  { name: 'Cabinet', icon: '🚪', desc: 'KALLAX – Storage cabinet', category: 'Storage', material: 'Wood', color: 'White', price: 79.99 },
+  /* ── Original 3D models ── */
+  { name: 'Coffee Table',    icon: '☕', thumbnail: coffeeTableImg, desc: 'LACK – Round coffee table',         model: true, category: 'Tables',    material: 'Wood',    color: 'Brown',  price: 49.99  },
+  { name: 'Chair',           icon: '💺', thumbnail: chairImg, desc: 'TEODORES – Monobloc chair',          model: true, category: 'Seating',   material: 'Plastic', color: 'White',  price: 29.99  },
+  { name: 'Drawer',          icon: '🗄️', desc: 'HEMNES – Vintage wooden drawer',     model: true, category: 'Storage',   material: 'Wood',    color: 'Walnut', price: 149.99 },
+  /* ── TV Stands ── */
+  { name: 'TV Stand',        icon: '📺', desc: 'Modern TV entertainment center',     model: true, category: 'Living',    material: 'Wood',    color: 'Black',  price: 199.99 },
+  { name: 'TV Stand 3',      icon: '🖥️', desc: 'Sleek TV stand with shelf',          model: true, category: 'Living',    material: 'Wood',    color: 'Walnut', price: 149.99 },
+  /* ── Cabinets ── */
+  { name: 'File Cabinet',    icon: '🗂️', desc: 'Office file cabinet – 3 drawers',   model: true, category: 'Storage',   material: 'Metal',   color: 'Grey',   price: 89.99  },
+  /* ── Chairs ── */
+  { name: 'Computer Chair',  icon: '🖥️', desc: 'Mesh back ergonomic office chair',  model: true, category: 'Seating',   material: 'Fabric',  color: 'Black',  price: 129.99 },
+  { name: 'Lounge Chair',    icon: '🛋️', desc: 'Luxury lounge accent chair',         model: true, category: 'Seating',   material: 'Leather', color: 'Brown',  price: 259.99 },
+  /* ── Lights ── */
+  // { name: 'Ceiling Light',   icon: '💡', desc: 'Modern ceiling flush light fixture', model: false, category: 'Lighting',  material: 'Metal',   color: 'Silver', price: 79.99  },
+  { name: 'Titanic Lamp',    icon: '🔦', desc: 'Titanic-style floor lamp',           model: true, category: 'Lighting',  material: 'Metal',   color: 'Gold',   price: 59.99  },
+  { name: 'Desk Lamp',       icon: '🪔', desc: 'Modern adjustable desk lamp',        model: true, category: 'Lighting',  material: 'Metal',   color: 'Silver', price: 34.99  },
+  /* ── Sofas ── */
+  { name: 'Modern Sofa',     icon: '🛋️', desc: 'Contemporary 3-seat sofa',          model: true, category: 'Seating',   material: 'Fabric',  color: 'Grey',   price: 599.99 },
+  { name: 'Sofa',            icon: '🛋️', desc: 'Classic fabric sofa',               model: true, category: 'Seating',   material: 'Fabric',  color: 'Beige',  price: 499.99 },
+  { name: 'Sofa Chair',      icon: '💺', desc: 'Single sofa accent chair',           model: true, category: 'Seating',   material: 'Fabric',  color: 'Blue',   price: 199.99 },
+  /* ── Tables ── */
+  { name: 'Computer Table',  icon: '🖥️', desc: 'L-shaped computer/study desk',      model: true, category: 'Tables',    material: 'Wood',    color: 'Oak',    price: 179.99 },
+  { name: 'Dining Set',      icon: '🍽️', desc: 'Modern dining table with chairs',   model: true, category: 'Dining',    material: 'Wood',    color: 'Walnut', price: 799.99 },
+  { name: 'Dining Table',    icon: '🍴', desc: 'Simple wooden dining table',         model: true, category: 'Dining',    material: 'Wood',    color: 'Oak',    price: 249.99 },
+  /* ── Beds ── */
+  { name: 'Bed',             icon: '🛏️', desc: 'Classic king bed with pillows',    model: true,  category: 'Bedroom',  material: 'Fabric',  color: 'White',  price: 299.99 },
+  { name: 'Poliform Bed',    icon: '🛏️', desc: 'Poliform luxury upholstered bed',  model: true,  category: 'Bedroom',  material: 'Leather', color: 'Beige',  price: 899.99 },
+  /* ── Primitives (fallback box meshes) ── */
+  { name: 'Lamp',            icon: '💡', desc: 'HEKTAR – Floor lamp',               model: false, category: 'Lighting', material: 'Metal',   color: 'Black',  price: 39.99  },
 ];
 
 /* ── Price formatter helper ── */
@@ -76,6 +99,9 @@ const Icons = {
   windowIcon: (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" /></svg>
   ),
+  doorIcon: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" /><circle cx="17" cy="12" r="1" fill="currentColor" /></svg>
+  ),
   cart: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" /></svg>
   ),
@@ -96,6 +122,7 @@ export default function Sidebar({
   user, onLogout, addItem, selectedId, items, updateItem, deleteItem,
   roomConfig, setRoomConfig, saveDesign, loadDesigns, downloadScreenshot,
   windows = [], addWindow, updateWindow, deleteWindow,
+  doors = [], addDoor, updateDoor, deleteDoor,
 }) {
   const [activeTab, setActiveTab] = useState(TABS.LIBRARY);
   const [collapsed, setCollapsed] = useState(false);
@@ -189,7 +216,7 @@ export default function Sidebar({
           <div style={S.avatar} aria-hidden="true">{user.username?.charAt(0).toUpperCase()}</div>
           <div style={S.userMeta}>
             <span style={S.userName}>{user.username}</span>
-            <span style={S.userRole}>Designer</span>
+            <span style={S.userRole}>{user.role === 'admin' ? 'Designer' : 'User'}</span>
           </div>
           <div style={S.onlineDot} title="Online" />
         </div>
@@ -442,9 +469,14 @@ export default function Sidebar({
             <SectionHeader title="Floor Type" />
             <div style={S.floorTypeGrid}>
               {[
-                { id: 'plank_flooring', label: 'Plank', icon: '🪵', desc: 'Wood planks' },
-                { id: 'grey_cartago', label: 'Cartago', icon: '⬜', desc: 'Grey stone' },
-                { id: 'granite_tile', label: 'Granite', icon: '🔲', desc: 'Granite tile' },
+                { id: 'plank_flooring',  label: 'Plank',    icon: '🪵', desc: 'Wood plank flooring' },
+                { id: 'grey_cartago',    label: 'Cartago',  icon: '⬜', desc: 'Grey cartago stone' },
+                { id: 'granite_tile',    label: 'Granite',  icon: '🔲', desc: 'Granite tile' },
+                { id: 'gravel_concrete', label: 'Gravel',   icon: '🪨', desc: 'Gravel concrete' },
+                { id: 'laminate_floor',  label: 'Laminate', icon: '🟫', desc: 'Laminate floor' },
+                { id: 'old_linoleum',    label: 'Linoleum', icon: '🟦', desc: 'Old linoleum flooring' },
+                { id: 'pebble_concrete', label: 'Pebble',   icon: '⚫', desc: 'Pebble embedded concrete' },
+                { id: 'rubber_tiles',    label: 'Rubber',   icon: '🟥', desc: 'Rubber tiles' },
               ].map(ft => (
                 <button
                   key={ft.id}
@@ -465,75 +497,182 @@ export default function Sidebar({
             {/* ── Windows ── */}
             <SectionHeader title="Windows" badge={`${windows.length}`} />
             <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-              Add windows to walls. They cast natural sunlight & shadows.
+              Add windows to any wall. They admit natural light and cast shadows.
             </p>
 
+
             {/* Add window buttons */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-              {['back', 'left', 'right'].map(wall => (
+            {(() => {
+              const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                  {['back', 'left', 'right', 'front'].map(wall => {
+                    const wc = WALL_COLORS[wall];
+                    const count = windows.filter(w => w.wall === wall).length;
+                    return (
+                      <button
+                        key={wall}
+                        onClick={() => addWindow(wall)}
+                        style={{ ...S.addWindowBtn, borderColor: `${wc}55`, color: wc, background: `${wc}0d` }}
+                        aria-label={`Add window to ${wall} wall`}
+                      >
+                        {Icons.windowIcon}
+                        <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
+                        {count > 0 && (
+                          <span style={{ fontSize: '0.58rem', background: `${wc}22`, color: wc, borderRadius: 10, padding: '1px 5px', fontWeight: 700, lineHeight: 1.4 }}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            {/* Empty state */}
+            {windows.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '20px 0 8px', color: 'var(--text-muted)' }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.3, display: 'block', margin: '0 auto 8px' }}>
+                  <rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="12" y1="3" x2="12" y2="21" />
+                </svg>
+                <p style={{ fontSize: '0.72rem', margin: 0, lineHeight: 1.5 }}>No windows yet.<br />Select a wall above to add one.</p>
+              </div>
+            )}
+
+            {/* Window cards */}
+            {windows.map((win, idx) => {
+              const WALL_COLORS = { back: '#60a5fa', left: '#34d399', right: '#fb923c', front: '#a78bfa' };
+              const wc = WALL_COLORS[win.wall] || '#60a5fa';
+              return (
+                <div key={win.id} style={{ ...S.windowCard, borderColor: `${wc}30` }}>
+                  <div style={{ ...S.windowCardHeader, background: `${wc}08` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ color: wc, display: 'flex' }}>{Icons.windowIcon}</span>
+                      <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
+                        {win.wall} Wall
+                      </span>
+                      <span style={{ fontSize: '0.65rem', background: `${wc}22`, color: wc, borderRadius: 10, padding: '1px 6px', fontWeight: 700 }}>
+                        #{idx + 1}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => deleteWindow(win.id)}
+                      style={S.windowDeleteBtn}
+                      aria-label="Remove window"
+                    >
+                      {Icons.trash}
+                    </button>
+                  </div>
+                  <div style={S.windowCardBody}>
+                    <div style={S.windowField}>
+                      <label style={S.windowLabel}>Style</label>
+                      <select className="input" value={win.style || 'single'}
+                        onChange={e => updateWindow(win.id, { style: e.target.value })}
+                        style={{ width: '100%' }}>
+                        <option value="single">Single Pane</option>
+                        <option value="double">Double Pane</option>
+                        <option value="bay">Bay Window</option>
+                        <option value="arched">Arched Top</option>
+                      </select>
+                    </div>
+                    <div style={S.windowField}>
+                      <label style={S.windowLabel}>Position</label>
+                      <div style={S.sliderRow}>
+                        <input type="range" min="0.1" max="0.9" step="0.05" value={win.position}
+                          onChange={e => updateWindow(win.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                        <span style={S.sliderVal}>{Math.round(win.position * 100)}%</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ ...S.windowField, flex: 1 }}>
+                        <label style={S.windowLabel}>Width (m)</label>
+                        <input type="number" className="input" min="0.5" max="6" step="0.25" value={win.width}
+                          onChange={e => updateWindow(win.id, { width: parseFloat(e.target.value) || 1 })} />
+                      </div>
+                      <div style={{ ...S.windowField, flex: 1 }}>
+                        <label style={S.windowLabel}>Height (m)</label>
+                        <input type="number" className="input" min="0.5" max="4" step="0.25" value={win.height}
+                          onChange={e => updateWindow(win.id, { height: parseFloat(e.target.value) || 1 })} />
+                      </div>
+                    </div>
+                    <div style={{ ...S.windowField, marginBottom: 0 }}>
+                      <label style={S.windowLabel}>Sill Height (m)</label>
+                      <div style={S.sliderRow}>
+                        <input type="range" min="0.3" max="3" step="0.1" value={win.sillHeight}
+                          onChange={e => updateWindow(win.id, { sillHeight: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                        <span style={S.sliderVal}>{win.sillHeight.toFixed(1)}m</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* ── Doors ── */}
+            <SectionHeader title="Doors" badge={`${doors.length}`} />
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+              Add doors to walls for room entrances and exits.
+            </p>
+
+            {/* Add door buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+              {['back', 'left', 'right', 'front'].map(wall => (
                 <button
                   key={wall}
-                  onClick={() => addWindow(wall)}
-                  style={S.addWindowBtn}
-                  aria-label={`Add window to ${wall} wall`}
+                  onClick={() => addDoor(wall)}
+                  style={S.addDoorBtn}
+                  aria-label={`Add door to ${wall} wall`}
                 >
-                  {Icons.windowIcon}
+                  {Icons.doorIcon}
                   <span style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'capitalize' }}>{wall}</span>
                 </button>
               ))}
             </div>
 
-            {/* Window list */}
-            {windows.map((win, idx) => (
-              <div key={win.id} style={S.windowCard}>
-                <div style={S.windowCardHeader}>
+            {/* Door list */}
+            {doors.map((door, idx) => (
+              <div key={door.id} style={S.doorCard}>
+                <div style={S.doorCardHeader}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ color: '#60a5fa', display: 'flex' }}>{Icons.windowIcon}</span>
+                    <span style={{ color: '#f59e0b', display: 'flex' }}>{Icons.doorIcon}</span>
                     <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#e8ecf4', textTransform: 'capitalize' }}>
-                      {win.wall} Wall #{idx + 1}
+                      {door.wall} Wall #{idx + 1}
                     </span>
                   </div>
                   <button
-                    onClick={() => deleteWindow(win.id)}
-                    style={S.windowDeleteBtn}
-                    aria-label="Remove window"
+                    onClick={() => deleteDoor(door.id)}
+                    style={S.doorDeleteBtn}
+                    aria-label="Remove door"
                   >
                     {Icons.trash}
                   </button>
                 </div>
-                <div style={S.windowCardBody}>
-                  <div style={S.windowField}>
-                    <label style={S.windowLabel}>Position</label>
+                <div style={S.doorCardBody}>
+                  <div style={S.doorField}>
+                    <label style={S.doorLabel}>Position</label>
                     <div style={S.sliderRow}>
-                      <input type="range" min="0.1" max="0.9" step="0.05" value={win.position}
-                        onChange={e => updateWindow(win.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
-                      <span style={S.sliderVal}>{Math.round(win.position * 100)}%</span>
+                      <input type="range" min="0.1" max="0.9" step="0.05" value={door.position}
+                        onChange={e => updateDoor(door.id, { position: parseFloat(e.target.value) })} style={{ flex: 1 }} />
+                      <span style={S.sliderVal}>{Math.round(door.position * 100)}%</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <div style={{ ...S.windowField, flex: 1 }}>
-                      <label style={S.windowLabel}>Width (m)</label>
-                      <input type="number" className="input" min="0.5" max="6" step="0.25" value={win.width}
-                        onChange={e => updateWindow(win.id, { width: parseFloat(e.target.value) || 1 })} />
+                    <div style={{ ...S.doorField, flex: 1 }}>
+                      <label style={S.doorLabel}>Width (m)</label>
+                      <input type="number" className="input" min="0.6" max="2.5" step="0.1" value={door.width}
+                        onChange={e => updateDoor(door.id, { width: parseFloat(e.target.value) || 1.2 })} />
                     </div>
-                    <div style={{ ...S.windowField, flex: 1 }}>
-                      <label style={S.windowLabel}>Height (m)</label>
-                      <input type="number" className="input" min="0.5" max="4" step="0.25" value={win.height}
-                        onChange={e => updateWindow(win.id, { height: parseFloat(e.target.value) || 1 })} />
-                    </div>
-                  </div>
-                  <div style={S.windowField}>
-                    <label style={S.windowLabel}>Sill Height (m)</label>
-                    <div style={S.sliderRow}>
-                      <input type="range" min="0.3" max="3" step="0.1" value={win.sillHeight}
-                        onChange={e => updateWindow(win.id, { sillHeight: parseFloat(e.target.value) })} style={{ flex: 1 }} />
-                      <span style={S.sliderVal}>{win.sillHeight.toFixed(1)}m</span>
+                    <div style={{ ...S.doorField, flex: 1 }}>
+                      <label style={S.doorLabel}>Height (m)</label>
+                      <input type="number" className="input" min="1.8" max="3" step="0.1" value={door.height}
+                        onChange={e => updateDoor(door.id, { height: parseFloat(e.target.value) || 2.4 })} />
                     </div>
                   </div>
                 </div>
               </div>
-            ))
-            }
+            ))}
+
           </div>
         )}
 
@@ -663,27 +802,89 @@ export default function Sidebar({
         {activeTab === TABS.GLOBAL && (
           <div style={S.fadeIn}>
             <SectionHeader title="Environment" />
-            <div style={S.lightingCards}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 }}>
               {[
-                { value: 'Day', label: 'Daylight', icon: '☀️', desc: 'Bright & natural' },
-                { value: 'Golden', label: 'Golden Hour', icon: '🌅', desc: 'Warm sunset tones' },
-                { value: 'Night', label: 'Night Mode', icon: '🌙', desc: 'Soft ambient light' },
-              ].map(mode => (
-                <button
-                  key={mode.value}
-                  onClick={() => updateRoom('lightingMode', mode.value)}
-                  style={{
-                    ...S.lightingCard,
-                    ...(roomConfig.lightingMode === mode.value ? S.lightingCardActive : {}),
-                  }}
-                >
-                  <span style={{ fontSize: '1.4rem' }}>{mode.icon}</span>
-                  <div>
-                    <div style={S.lightingLabel}>{mode.label}</div>
-                    <div style={S.lightingDesc}>{mode.desc}</div>
-                  </div>
-                </button>
-              ))}
+                {
+                  value: 'Day',
+                  label: 'Daylight',
+                  icon: '☀️',
+                  desc: 'Bright & natural',
+                  gradient: 'linear-gradient(160deg, #1d4ed8 0%, #3b82f6 55%, #93c5fd 100%)',
+                  accent: '#60a5fa',
+                  glow: 'rgba(96,165,250,0.4)',
+                },
+                {
+                  value: 'Golden',
+                  label: 'Golden',
+                  icon: '🌅',
+                  desc: 'Warm sunset',
+                  gradient: 'linear-gradient(160deg, #92400e 0%, #d97706 50%, #fbbf24 100%)',
+                  accent: '#fb923c',
+                  glow: 'rgba(251,146,60,0.4)',
+                },
+                {
+                  value: 'Night',
+                  label: 'Night',
+                  icon: '🌙',
+                  desc: 'Soft ambient',
+                  gradient: 'linear-gradient(160deg, #0f0a1e 0%, #1e1b4b 55%, #4c1d95 100%)',
+                  accent: '#a78bfa',
+                  glow: 'rgba(167,139,250,0.4)',
+                },
+              ].map(mode => {
+                const isActive = roomConfig.lightingMode === mode.value;
+                return (
+                  <button
+                    key={mode.value}
+                    onClick={() => updateRoom('lightingMode', mode.value)}
+                    aria-label={`${mode.label} environment mode`}
+                    aria-pressed={isActive}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      padding: 0, gap: 0,
+                      borderRadius: 12,
+                      border: isActive ? `2px solid ${mode.accent}` : '2px solid rgba(255,255,255,0.07)',
+                      background: 'rgba(255,255,255,0.02)',
+                      cursor: 'pointer',
+                      transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+                      fontFamily: 'inherit',
+                      overflow: 'hidden',
+                      boxShadow: isActive ? `0 0 18px ${mode.glow}, inset 0 0 0 1px ${mode.accent}22` : 'none',
+                      transform: isActive ? 'translateY(-1px)' : 'none',
+                    }}
+                  >
+                    {/* Sky preview */}
+                    <div style={{
+                      width: '100%', height: 54,
+                      background: mode.gradient,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '1.6rem',
+                      position: 'relative',
+                    }}>
+                      {mode.icon}
+                      {isActive && (
+                        <span style={{
+                          position: 'absolute', top: 5, right: 6,
+                          width: 7, height: 7, borderRadius: '50%',
+                          background: mode.accent,
+                          boxShadow: `0 0 8px ${mode.accent}`,
+                        }} />
+                      )}
+                    </div>
+                    {/* Label */}
+                    <div style={{ padding: '7px 4px 8px', textAlign: 'center', width: '100%' }}>
+                      <div style={{
+                        fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.2,
+                        color: isActive ? mode.accent : '#e8ecf4',
+                      }}>{mode.label}</div>
+                      <div style={{
+                        fontSize: '0.54rem', color: 'var(--text-muted)',
+                        marginTop: 2, lineHeight: 1.3,
+                      }}>{mode.desc}</div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
             <SectionHeader title="Project Actions" />
@@ -781,7 +982,7 @@ const TabButton = ({ id, label, icon, active, onClick }) => (
   </button>
 );
 
-const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) => (
+const LibraryCard = ({ name, icon, thumbnail, desc, category, material, price, model, onClick }) => (
   <button
     onClick={onClick}
     role="listitem"
@@ -794,11 +995,26 @@ const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) =
       {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
       {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
       {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
+    {/* ── Image / preview area ── */}
+    <div style={thumbnail ? S.cardImgWrap : S.cardEmojiWrap}>
+      {thumbnail
+        ? <img src={thumbnail} alt={name} style={S.cardImg} />
+        : <span style={S.cardEmojiLarge}>{icon}</span>
+      }
+      {model && (
+        <span style={S.badge3d}>3D</span>
+      )}
     </div>
-    <span style={S.cardName}>{name}</span>
-    <span style={S.cardDesc}>{desc}</span>
-    <span style={S.cardMaterial}>{material}</span>
-    <span style={S.cardPrice}>{formatPrice(price)}</span>
+
+    {/* ── Text content ── */}
+    <div style={S.cardContent}>
+      <span style={S.cardName}>{name}</span>
+      <span style={S.cardDesc}>{desc}</span>
+      <div style={S.cardFooter}>
+        <span style={S.cardPrice}>{formatPrice(price)}</span>
+        <span style={S.cardMaterial}>{material}</span>
+      </div>
+    </div>
   </button>
 );
 
@@ -1014,55 +1230,82 @@ const S = {
 
   /* Library grid */
   libraryGrid: {
-    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
+    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
   },
   libraryCard: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 12,
-    padding: '14px 10px 12px',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    borderRadius: 14,
+    padding: 0,
+    display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 0,
     cursor: 'pointer',
     transition: 'all 0.2s cubic-bezier(.4,0,.2,1)',
     color: '#e8ecf4',
     fontFamily: 'inherit',
     position: 'relative',
     overflow: 'hidden',
+    textAlign: 'left',
   },
-  cardIconWrap: {
+  /* image area for items WITH a thumbnail */
+  cardImgWrap: {
     position: 'relative',
-    width: 44, height: 44,
+    width: '100%', height: 120,
+    background: '#f0ede8',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'rgba(236,72,153,0.08)',
     borderRadius: 12,
     marginBottom: 2,
+    overflow: 'hidden',
+    flexShrink: 0,
   },
-  cardIcon: {
-    fontSize: '1.3rem',
+  cardImg: {
+    width: '100%', height: '100%', objectFit: 'cover',
+  },
+  /* preview area for items WITHOUT a thumbnail (emoji) */
+  cardEmojiWrap: {
+    position: 'relative',
+    width: '100%', height: 100,
+    background: 'linear-gradient(135deg, rgba(30,32,50,0.9), rgba(50,40,80,0.7))',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  cardEmojiLarge: {
+    fontSize: '2.4rem',
+    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
   },
   badge3d: {
-    position: 'absolute', top: -3, right: -6,
+    position: 'absolute', top: 6, right: 6,
     fontSize: '0.48rem', fontWeight: 700,
     background: 'linear-gradient(135deg, #ec4899, #9333ea)',
     color: 'white',
-    padding: '1px 5px',
+    padding: '2px 6px',
     borderRadius: 5,
     letterSpacing: '0.3px',
   },
+  /* text content below the image */
+  cardContent: {
+    padding: '9px 10px 10px',
+    display: 'flex', flexDirection: 'column', gap: 3,
+  },
   cardName: {
-    fontSize: '0.78rem', fontWeight: 600,
+    fontSize: '0.78rem', fontWeight: 700, color: '#f0f4ff',
+    lineHeight: 1.25,
   },
   cardDesc: {
-    fontSize: '0.58rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3,
+    fontSize: '0.62rem', color: 'rgba(180,185,210,0.70)', lineHeight: 1.35,
+  },
+  cardFooter: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 4,
   },
   cardMaterial: {
-    fontSize: '0.55rem', color: 'rgba(129,140,248,0.6)', fontWeight: 500, letterSpacing: '0.3px',
+    fontSize: '0.58rem', color: 'rgba(129,140,248,0.75)', fontWeight: 500,
+    letterSpacing: '0.2px',
   },
   cardPrice: {
-    fontSize: '0.88rem', fontWeight: 800, color: '#fbbf24',
-    marginTop: 2,
+    fontSize: '0.85rem', fontWeight: 800, color: '#fbbf24',
     fontFamily: "'Inter', system-ui, sans-serif",
-    textShadow: '0 0 12px rgba(251,191,36,0.2)',
   },
 
   /* Properties panel */
@@ -1367,6 +1610,52 @@ const S = {
     marginBottom: 8,
   },
   windowLabel: {
+    display: 'block', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)',
+    textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: 4,
+  },
+
+  /* Door controls */
+  addDoorBtn: {
+    flex: 1,
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    padding: '10px 6px',
+    borderRadius: 10,
+    border: '1.5px dashed rgba(245,158,11,0.3)',
+    background: 'rgba(245,158,11,0.05)',
+    color: '#f59e0b',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+  },
+  doorCard: {
+    marginBottom: 10,
+    borderRadius: 10,
+    border: '1px solid rgba(245,158,11,0.15)',
+    background: 'rgba(245,158,11,0.04)',
+    overflow: 'hidden',
+  },
+  doorCardHeader: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '8px 10px',
+    borderBottom: '1px solid rgba(245,158,11,0.1)',
+  },
+  doorCardBody: {
+    padding: '10px',
+  },
+  doorDeleteBtn: {
+    width: 28, height: 28,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'rgba(239,68,68,0.08)',
+    border: '1px solid rgba(239,68,68,0.15)',
+    borderRadius: 6,
+    color: 'var(--danger)',
+    cursor: 'pointer',
+    transition: 'all 0.15s',
+  },
+  doorField: {
+    marginBottom: 8,
+  },
+  doorLabel: {
     display: 'block', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)',
     textTransform: 'uppercase', letterSpacing: '0.3px', marginBottom: 4,
   },

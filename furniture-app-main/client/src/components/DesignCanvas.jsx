@@ -14,13 +14,18 @@ const LIGHT_CONFIG = {
 };
 
 const DesignCanvas = forwardRef(({ 
-  items, selectedId, setSelectedId, updateItem, mode, roomConfig, windows = []
+  items, selectedId, setSelectedId, updateItem, mode, cameraMode = 'TPP', roomConfig, windows = [], doors = []
 }, ref) => {
   const canvasRef = useRef();
   
   // State to track if we are currently dragging an object
   // When dragging, we disable the camera orbit to prevent dizziness
   const [isDragging, setIsDragging] = useState(false);
+
+  // Camera position based on mode
+  const cameraPosition = cameraMode === 'FPP' 
+    ? [0, 1.6, 5]  // First-person: eye level, inside the room
+    : [10, 10, 10]; // Third-person: bird's eye view
 
   useImperativeHandle(ref, () => ({
     takeScreenshot: () => canvasRef.current.toDataURL('image/jpeg', 0.8)
@@ -30,9 +35,10 @@ const DesignCanvas = forwardRef(({
 
   return (
     <Canvas
+      key={cameraMode}
       shadows
       dpr={[1, 2]}
-      camera={{ position: [10, 10, 10], fov: 50 }}
+      camera={{ position: cameraPosition, fov: cameraMode === 'FPP' ? 75 : 50 }}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
       ref={canvasRef}
       onPointerMissed={() => {
@@ -68,6 +74,7 @@ const DesignCanvas = forwardRef(({
           floorType={roomConfig.floorType}
           shape={roomConfig.shape}
           windows={windows}
+          doors={doors}
         />
         
         <Grid 
@@ -87,7 +94,9 @@ const DesignCanvas = forwardRef(({
           onSelect={setSelectedId}
           onChange={updateItem}
           mode={mode}
-          setIsDragging={setIsDragging} // Pass this down
+          setIsDragging={setIsDragging}
+          roomConfig={roomConfig}
+          allItems={items}
         />
       ))}
 

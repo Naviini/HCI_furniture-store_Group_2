@@ -73,7 +73,7 @@ const ITEM_COLORS = {
 /* ════════════════════════════════════════════
    BlueprintView Component
    ════════════════════════════════════════════ */
-export default function BlueprintView({ roomConfig, items, selectedId, setSelectedId, updateItem, windows = [] }) {
+export default function BlueprintView({ roomConfig, items, selectedId, setSelectedId, updateItem, windows = [], doors = [] }) {
   const containerRef = useRef(null);
   const [dragging, setDragging] = useState(null); // { id, offsetX, offsetZ }
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
@@ -255,6 +255,7 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
           if (win.wall === 'back')  { wallFrom = [-hw, -hd]; wallTo = [hw, -hd]; }
           else if (win.wall === 'left')  { wallFrom = [-hw, hd]; wallTo = [-hw, -hd]; }
           else if (win.wall === 'right') { wallFrom = [hw, -hd]; wallTo = [hw, hd]; }
+          else if (win.wall === 'front') { wallFrom = [hw, hd]; wallTo = [-hw, hd]; }
           else return null;
 
           const wdx = wallTo[0] - wallFrom[0];
@@ -298,6 +299,56 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
                   />
                 );
               })}
+            </g>
+          );
+        })}
+
+        {/* Doors on 2D blueprint */}
+        {doors.map((door) => {
+          // Determine wall endpoints for placement
+          let wallFrom, wallTo;
+          if (door.wall === 'back')  { wallFrom = [-hw, -hd]; wallTo = [hw, -hd]; }
+          else if (door.wall === 'left')  { wallFrom = [-hw, hd]; wallTo = [-hw, -hd]; }
+          else if (door.wall === 'right') { wallFrom = [hw, -hd]; wallTo = [hw, hd]; }
+          else if (door.wall === 'front') { wallFrom = [hw, hd]; wallTo = [-hw, hd]; }
+          else return null;
+
+          const wdx = wallTo[0] - wallFrom[0];
+          const wdz = wallTo[1] - wallFrom[1];
+          const wlen = Math.sqrt(wdx * wdx + wdz * wdz);
+          const t = door.position;
+          // Center of door on the wall
+          const dcx = wallFrom[0] + wdx * t;
+          const dcz = wallFrom[1] + wdz * t;
+          // Door half-width along wall direction
+          const dhalf = Math.min(door.width, wlen * 0.8) / 2;
+          const udx = wdx / wlen;
+          const udz = wdz / wlen;
+          const x1 = toSvgX(dcx - udx * dhalf);
+          const y1 = toSvgY(dcz - udz * dhalf);
+          const x2 = toSvgX(dcx + udx * dhalf);
+          const y2 = toSvgY(dcz + udz * dhalf);
+
+          // Door arc for swing visualization
+          const arcRadius = dhalf * scale;
+          const centerX = x1;
+          const centerY = y1;
+
+          return (
+            <g key={door.id}>
+              {/* Door gap (orange line) */}
+              <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#f59e0b" strokeWidth={8} strokeLinecap="round" />
+              <line x1={x1} y1={y1} x2={x2} y2={y2}
+                stroke="#fbbf24" strokeWidth={3} strokeLinecap="round" />
+              {/* Door swing arc */}
+              <path
+                d={`M ${x1} ${y1} Q ${centerX + arcRadius * 0.7} ${centerY - arcRadius * 0.7} ${x1 + arcRadius} ${y1}`}
+                fill="none"
+                stroke="rgba(245,158,11,0.3)"
+                strokeWidth={1.5}
+                strokeDasharray="4 2"
+              />
             </g>
           );
         })}
