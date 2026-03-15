@@ -70,14 +70,22 @@ function Wall({ from, to, color, wallId, windows = [], doors = [] }) {
   useFrame(({ camera }) => {
     const group = groupRef.current;
     if (!group) return;
-    // Determine which single outer wall the camera currently faces
     const camAngle = Math.atan2(camera.position.x, camera.position.z);
-    let facingWall;
-    if      (camAngle >= -Math.PI / 4 && camAngle <  Math.PI / 4)       facingWall = 'front';
-    else if (camAngle >=  Math.PI / 4 && camAngle <  3 * Math.PI / 4)   facingWall = 'right';
-    else if (camAngle >= -3 * Math.PI / 4 && camAngle < -Math.PI / 4)   facingWall = 'left';
-    else                                                                   facingWall = 'back';
-    const shouldBeTransparent = (wallId === facingWall);
+    const CORNER = Math.PI / 6; // 30° zone around each corner — make both adjacent walls transparent
+
+    const transparentSet = new Set();
+    if      (camAngle >= -Math.PI / 4 && camAngle <  Math.PI / 4)       transparentSet.add('front');
+    else if (camAngle >=  Math.PI / 4 && camAngle <  3 * Math.PI / 4)   transparentSet.add('right');
+    else if (camAngle >= -3 * Math.PI / 4 && camAngle < -Math.PI / 4)   transparentSet.add('left');
+    else                                                                   transparentSet.add('back');
+
+    // Near each corner boundary, also make the adjacent wall transparent
+    if (Math.abs(camAngle - Math.PI / 4) < CORNER)      { transparentSet.add('front'); transparentSet.add('right'); }
+    if (Math.abs(camAngle - 3 * Math.PI / 4) < CORNER)  { transparentSet.add('right'); transparentSet.add('back'); }
+    if (Math.abs(camAngle + Math.PI / 4) < CORNER)      { transparentSet.add('front'); transparentSet.add('left'); }
+    if (Math.abs(camAngle + 3 * Math.PI / 4) < CORNER)  { transparentSet.add('left');  transparentSet.add('back'); }
+
+    const shouldBeTransparent = transparentSet.has(wallId);
     if (shouldBeTransparent === stateRef.current.isTransparent) return;
     stateRef.current.isTransparent = shouldBeTransparent;
     group.traverse(child => {
@@ -280,6 +288,24 @@ function Wall({ from, to, color, wallId, windows = [], doors = [] }) {
         >
           <cylinderGeometry args={[0.025, 0.025, 0.15]} />
           <meshStandardMaterial color="#C0C0C0" metalness={0.9} roughness={0.2} />
+        </mesh>
+      );
+
+      // Shadow/darkness behind the door opening
+      glassElements.push(
+        <mesh
+          key={`door-shadow-${i}`}
+          position={[-WALL_THICK * 0.3, openingH / 2, openingCenter - len / 2]}
+          receiveShadow
+        >
+          <boxGeometry args={[WALL_THICK * 0.1, openingH - 0.1, openingHalfW * 2 - 0.08]} />
+          <meshBasicMaterial
+            color="#000000"
+            transparent
+            opacity={0.6}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
         </mesh>
       );
     }

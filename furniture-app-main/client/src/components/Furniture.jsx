@@ -23,7 +23,7 @@ import diningSetPath      from '../assets/table/modern_dining_room_table_set/sce
 import diningTablePath    from '../assets/table/simple_dining_table/scene.gltf?url';
 
 /* Lamps that can be placed on top of other furniture (Y > 0) */
-const TABLE_LAMP_TYPES = ['Desk Lamp', 'Titanic Lamp'];
+const TABLE_LAMP_TYPES = ['Lamp', 'Desk Lamp', 'Titanic Lamp'];
 const WALL_HEIGHT = 5; // must match Room.jsx WALL_HEIGHT
 
 const MODEL_MAP = {
@@ -36,10 +36,10 @@ const MODEL_MAP = {
   'TV Stand':       { path: tvStandPath,       scale: 0.002,  yOffset: 0 },
   'TV Stand 3':     { path: tvStand3Path,      scale: 0.02, yOffset: 0 },
   'File Cabinet':   { path: fileCabinetPath,   scale: 0.02, yOffset: 0 },
-  'Computer Chair': { path: computerChairPath, scale: 1,    yOffset: 0 },
-  'Lounge Chair':   { path: loungeChairPath,   scale: 1,    yOffset: 0 },
+  'Computer Chair': { path: computerChairPath, scale: 1.8,    yOffset: 0 },
+  'Lounge Chair':   { path: loungeChairPath,   scale: 1.8,    yOffset: 0 },
   'Titanic Lamp':   { path: titanicLampPath,   scale: 1,    yOffset: 0 },
-  'Modern Sofa':    { path: modernSofaPath,    scale: 1,    yOffset: 0 },
+  'Modern Sofa':    { path: modernSofaPath,    scale: 1.8,    yOffset: 0 },
   'Sofa':           { path: sofaPath,          scale: 1.8,    yOffset: 0 },
   'Sofa Chair':     { path: sofaChairPath,     scale: 1,    yOffset: 0 },
   'Computer Table': { path: computerTablePath, scale: 1,    yOffset: 0 },
@@ -116,7 +116,7 @@ function PrimitiveMesh({ type, color, isSelected, onClick }) {
 }
 
 export default function Furniture({
-  data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig
+  data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig, windows = [], doors = [], allItems = []
 }) {
   const { id, type, position, rotation, scale, color } = data;
   const meshRef = useRef();
@@ -130,13 +130,102 @@ export default function Furniture({
   const hw = roomConfig && roomConfig.shape !== 'open' ? roomConfig.width / 2 : Infinity;
   const hd = roomConfig && roomConfig.shape !== 'open' ? roomConfig.depth / 2 : Infinity;
 
+  // Approximate furniture bounding box size (radius from center)
+  const getFurnitureRadius = (itemType, itemScale) => {
+    const baseRadius = {
+      'Sofa': 1.5, 'Bed': 1.8, 'Table': 1.0, 'Coffee Table': 0.8,
+      'Chair': 0.5, 'Drawer': 0.6, 'Cabinet': 0.6, 'Lamp': 0.3,
+      'Desk Lamp': 0.3, 'Titanic Lamp': 0.3, 'TV Stand': 1.0,
+      'Computer Table': 1.0, 'Dining Set': 1.5, 'Dining Table': 1.2,
+      'Modern Sofa': 1.5, 'Sofa Chair': 0.8, 'Lounge Chair': 0.6,
+      'Computer Chair': 0.5, 'File Cabinet': 0.5, 'Poliform Bed': 1.8
+    };
+    const base = baseRadius[itemType] || 0.6;
+    const avgScale = (itemScale[0] + itemScale[2]) / 2;
+    return base * avgScale;
+  };
+
+  // Check if position would intersect with door/window openings
+  const isInDoorOrWindow = (pos, radius) => {
+    const checkOpening = (opening, wallPos, isVertical) => {
+      const openingHalfW = opening.width / 2;
+      const openingCenter = wallPos.center + (opening.position - 0.5) * wallPos.len;
+
+      if (isVertical) {
+        // Vertical wall (left/right)
+        if (Math.abs(pos.x - wallPos.coord) < radius + 0.3 &&
+            pos.z > openingCenter - openingHalfW - radius &&
+            pos.z < openingCenter + openingHalfW + radius) {
+          return true;
+        }
+      } else {
+        // Horizontal wall (front/back)
+        if (Math.abs(pos.z - wallPos.coord) < radius + 0.3 &&
+            pos.x > openingCenter - openingHalfW - radius &&
+            pos.x < openingCenter + openingHalfW + radius) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    const wallPositions = [
+      { id: 'front', coord: hd, center: 0, len: hw * 2, isVertical: false },
+      { id: 'back', coord: -hd, center: 0, len: hw * 2, isVertical: false },
+      { id: 'left', coord: -hw, center: 0, len: hd * 2, isVertical: true },
+      { id: 'right', coord: hw, center: 0, len: hd * 2, isVertical: true }
+    ];
+
+    for (const wall of wallPositions) {
+      const wallDoors = doors.filter(d => d.wall === wall.id);
+      const wallWindows = windows.filter(w => w.wall === wall.id);
+
+      for (const door of wallDoors) {
+        if (checkOpening(door, wall, wall.isVertical)) return true;
+      }
+      for (const window of wallWindows) {
+        if (checkOpening(window, wall, wall.isVertical)) return true;
+      }
+    }
+    return false;
+  };
+
+  // Check collision with other furniture
+  const collidesWithOther = (pos, radius) => {
+    for (const other of allItems) {
+      if (other.id === id) continue; // Skip self
+      const otherRadius = getFurnitureRadius(other.type, other.scale);
+      const dx = pos.x - other.position[0];
+      const dz = pos.z - other.position[2];
+      const dist = Math.sqrt(dx * dx + dz * dz);
+      if (dist < radius + otherRadius) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   // Returns a clamped {x,y,z} from a Vector3-like object.
   // Regular furniture is always forced to the floor (y=0).
   // Table lamps may rest on top of other furniture (0 <= y <= WALL_HEIGHT).
   const clampPosition = (pos) => {
-    const x = isFinite(hw) ? Math.max(-hw, Math.min(hw, pos.x)) : pos.x;
-    const z = isFinite(hd) ? Math.max(-hd, Math.min(hd, pos.z)) : pos.z;
+    let x = isFinite(hw) ? Math.max(-hw + 0.3, Math.min(hw - 0.3, pos.x)) : pos.x;
+    let z = isFinite(hd) ? Math.max(-hd + 0.3, Math.min(hd - 0.3, pos.z)) : pos.z;
     const y = isLamp ? Math.max(0, Math.min(WALL_HEIGHT, pos.y)) : 0;
+
+    const radius = getFurnitureRadius(type, scale);
+
+    // Prevent placement in door/window openings
+    if (isInDoorOrWindow({ x, y, z }, radius)) {
+      // Try to push away from opening
+      return { x: position[0], y, z: position[2] }; // Stay at previous position
+    }
+
+    // Prevent overlap with other furniture
+    if (collidesWithOther({ x, y, z }, radius)) {
+      return { x: position[0], y, z: position[2] }; // Stay at previous position
+    }
+
     return { x, y, z };
   };
 

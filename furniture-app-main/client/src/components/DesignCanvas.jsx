@@ -96,6 +96,9 @@ const DesignCanvas = forwardRef(({
           mode={mode}
           setIsDragging={setIsDragging}
           roomConfig={roomConfig}
+          windows={windows}
+          doors={doors}
+          allItems={items}
         />
       ))}
 
