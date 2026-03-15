@@ -22,6 +22,10 @@ import computerTablePath  from '../assets/table/computer_table/scene.gltf?url';
 import diningSetPath      from '../assets/table/modern_dining_room_table_set/scene.gltf?url';
 import diningTablePath    from '../assets/table/simple_dining_table/scene.gltf?url';
 
+/* Lamps that can be placed on top of other furniture (Y > 0) */
+const TABLE_LAMP_TYPES = ['Desk Lamp', 'Titanic Lamp'];
+const WALL_HEIGHT = 5; // must match Room.jsx WALL_HEIGHT
+
 const MODEL_MAP = {
   'Coffee Table':   { path: coffeeTablePath,   scale: 2.5,  yOffset: 0 },
   'Chair':          { path: chairPath,         scale: 2,    yOffset: 0 },
@@ -111,8 +115,8 @@ function PrimitiveMesh({ type, color, isSelected, onClick }) {
   );
 }
 
-export default function Furniture({ 
-  data, isSelected, onSelect, onChange, mode, setIsDragging 
+export default function Furniture({
+  data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig
 }) {
   const { id, type, position, rotation, scale, color } = data;
   const meshRef = useRef();
@@ -120,15 +124,35 @@ export default function Furniture({
   const modelInfo = MODEL_MAP[type];
   const isEditable = isSelected;
 
+  const isLamp = TABLE_LAMP_TYPES.includes(type);
+
+  // Room boundary limits (half-extents centred at 0,0)
+  const hw = roomConfig && roomConfig.shape !== 'open' ? roomConfig.width / 2 : Infinity;
+  const hd = roomConfig && roomConfig.shape !== 'open' ? roomConfig.depth / 2 : Infinity;
+
+  // Returns a clamped {x,y,z} from a Vector3-like object.
+  // Regular furniture is always forced to the floor (y=0).
+  // Table lamps may rest on top of other furniture (0 <= y <= WALL_HEIGHT).
+  const clampPosition = (pos) => {
+    const x = isFinite(hw) ? Math.max(-hw, Math.min(hw, pos.x)) : pos.x;
+    const z = isFinite(hd) ? Math.max(-hd, Math.min(hd, pos.z)) : pos.z;
+    const y = isLamp ? Math.max(0, Math.min(WALL_HEIGHT, pos.y)) : 0;
+    return { x, y, z };
+  };
+
   const handleClick = (e) => {
     e.stopPropagation();
     onSelect(id);
   };
 
-  // Clamp Y every frame so furniture never sinks below the floor (Y = 0)
+  // Enforce boundaries every frame
   useFrame(() => {
-    if (meshRef.current && meshRef.current.position.y < 0) {
-      meshRef.current.position.y = 0;
+    if (meshRef.current) {
+      const p = meshRef.current.position;
+      const c = clampPosition(p);
+      if (p.x !== c.x || p.y !== c.y || p.z !== c.z) {
+        p.set(c.x, c.y, c.z);
+      }
     }
   });
 
@@ -143,8 +167,9 @@ export default function Furniture({
           onMouseUp={() => {
             if (setIsDragging) setIsDragging(false);
             if (meshRef.current) {
-              // Clamp Y to floor level before saving
-              if (meshRef.current.position.y < 0) meshRef.current.position.y = 0;
+              const p = meshRef.current.position;
+              const c = clampPosition(p);
+              p.set(c.x, c.y, c.z);
               onChange(id, {
                 position: meshRef.current.position.toArray(),
                 rotation: meshRef.current.rotation.toArray(),
