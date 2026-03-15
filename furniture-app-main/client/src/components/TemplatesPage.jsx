@@ -4,7 +4,7 @@ import bgImage from '../assets/background images/modern_living_rooms_with_the_ri
 
 /* ─────────────────────────────────────────────
    PRE-DESIGNED ROOM TEMPLATES
-   Each template defines: roomConfig + items + windows
+   Each template defines: roomConfig + items + windows + doors
 ───────────────────────────────────────────── */
 const TEMPLATES = [
     /* ── LIVING ROOM ── */
@@ -37,6 +37,9 @@ const TEMPLATES = [
         windows: [
             { id: 'w1', wall: 'back', position: 0.5, width: 2.5, height: 1.8, sillHeight: 0.9 },
         ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.8, width: 1.0, height: 2.1 },
+        ],
     },
     {
         id: 'living-modern',
@@ -64,6 +67,9 @@ const TEMPLATES = [
         windows: [
             { id: 'w1', wall: 'back', position: 0.35, width: 3, height: 2.2, sillHeight: 0.8 },
             { id: 'w2', wall: 'left', position: 0.5, width: 2, height: 1.8, sillHeight: 1 },
+        ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.7, width: 1.0, height: 2.1 },
         ],
     },
 
@@ -98,6 +104,9 @@ const TEMPLATES = [
         windows: [
             { id: 'w1', wall: 'back', position: 0.5, width: 1.8, height: 1.4, sillHeight: 1.0 },
         ],
+        doors: [
+            { id: 'd1', wall: 'right', position: 0.8, width: 1.0, height: 2.1 },
+        ],
     },
     {
         id: 'bedroom-scandinavian',
@@ -124,6 +133,9 @@ const TEMPLATES = [
         windows: [
             { id: 'w1', wall: 'back', position: 0.4, width: 2.2, height: 1.6, sillHeight: 0.9 },
             { id: 'w2', wall: 'right', position: 0.5, width: 1.5, height: 1.4, sillHeight: 1.0 },
+        ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.8, width: 1.0, height: 2.1 },
         ],
     },
 
@@ -159,6 +171,9 @@ const TEMPLATES = [
             { id: 'w1', wall: 'back', position: 0.3, width: 1.6, height: 1.4, sillHeight: 1.0 },
             { id: 'w2', wall: 'back', position: 0.7, width: 1.6, height: 1.4, sillHeight: 1.0 },
         ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.8, width: 1.0, height: 2.1 },
+        ],
     },
     {
         id: 'dining-casual',
@@ -185,6 +200,9 @@ const TEMPLATES = [
         ],
         windows: [
             { id: 'w1', wall: 'back', position: 0.5, width: 2, height: 1.5, sillHeight: 0.8 },
+        ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.8, width: 1.0, height: 2.1 },
         ],
     },
 
@@ -215,6 +233,9 @@ const TEMPLATES = [
         ],
         windows: [
             { id: 'w1', wall: 'back', position: 0.5, width: 1.8, height: 1.6, sillHeight: 0.9 },
+        ],
+        doors: [
+            { id: 'd1', wall: 'right', position: 0.8, width: 1.0, height: 2.1 },
         ],
     },
 
@@ -250,6 +271,9 @@ const TEMPLATES = [
         windows: [
             { id: 'w1', wall: 'back', position: 0.25, width: 1.5, height: 1.4, sillHeight: 0.9 },
             { id: 'w2', wall: 'back', position: 0.75, width: 1.5, height: 1.4, sillHeight: 0.9 },
+        ],
+        doors: [
+            { id: 'd1', wall: 'front', position: 0.5, width: 1.0, height: 2.1 },
         ],
     },
 ];
@@ -384,6 +408,10 @@ export default function TemplatesPage({ onSelectTemplate, onSkip, onClose }) {
                                         <div className="tp-detail">
                                             <span>🪟</span>
                                             <span>{template.windows.length} window{template.windows.length !== 1 ? 's' : ''}</span>
+                                        </div>
+                                        <div className="tp-detail">
+                                            <span>🚪</span>
+                                            <span>{(template.doors || []).length} door{(template.doors || []).length !== 1 ? 's' : ''}</span>
                                         </div>
                                         <div className="tp-detail">
                                             <span>
