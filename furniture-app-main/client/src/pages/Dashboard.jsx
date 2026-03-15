@@ -75,6 +75,7 @@ export default function Dashboard() {
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showAdminConfirm, setShowAdminConfirm] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
   useEffect(() => {
@@ -383,7 +384,7 @@ export default function Dashboard() {
               <button
                 id="btn-admin-panel"
                 className="db-header-btn"
-                onClick={() => navigate('/admin')}
+                onClick={() => setShowAdminConfirm(true)}
                 aria-label="Go to admin panel"
                 data-tooltip="Admin Panel"
                 style={{ background: 'rgba(245,158,11,0.15)', borderColor: 'rgba(245,158,11,0.3)', color: '#fbbf24' }}
@@ -662,6 +663,87 @@ export default function Dashboard() {
           onSkip={() => setShowTemplates(false)}
           onClose={() => setShowTemplates(false)}
         />
+      )}
+
+      {/* ── ADMIN PANEL CONFIRM ── */}
+      {showAdminConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 2000,
+          background: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: '#111421',
+            border: '1px solid rgba(255,255,255,0.10)',
+            borderRadius: 20,
+            padding: '36px 32px',
+            width: 'min(420px, 90vw)',
+            textAlign: 'center',
+            boxShadow: '0 28px 70px rgba(0,0,0,0.55)',
+            animation: 'db-modal-in 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+          }}>
+            {/* Warning icon */}
+            <div style={{
+              width: 58, height: 58, borderRadius: '50%',
+              background: 'rgba(245,158,11,0.12)',
+              border: '2px solid rgba(245,158,11,0.30)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.6rem', margin: '0 auto 18px',
+            }}>⚠️</div>
+
+            <h3 style={{ margin: '0 0 10px', fontSize: '1.1rem', fontWeight: 800, color: '#fff' }}>
+              Leave Current Design?
+            </h3>
+            <p style={{ margin: '0 0 10px', fontSize: '0.84rem', color: '#8b93a9', lineHeight: 1.6 }}>
+              You are about to navigate to the <strong style={{ color: '#fbbf24' }}>Admin Panel</strong>.
+            </p>
+            <p style={{
+              margin: '0 0 26px', fontSize: '0.82rem', lineHeight: 1.6,
+              background: 'rgba(239,68,68,0.08)',
+              border: '1px solid rgba(239,68,68,0.22)',
+              borderRadius: 10, padding: '10px 14px',
+              color: '#fca5a5',
+            }}>
+              ⚠ Any unsaved changes to your current furniture design will be <strong>lost</strong>.
+              Make sure to save before leaving.
+            </p>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowAdminConfirm(false)}
+                style={{
+                  flex: 1, padding: '10px 18px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.10)',
+                  color: '#94a3b8', fontSize: '0.84rem', fontWeight: 600,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.10)'; e.currentTarget.style.color='#e2e8f0'; }}
+                onMouseLeave={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color='#94a3b8'; }}
+              >
+                ← Keep Designing
+              </button>
+              <button
+                onClick={() => navigate('/admin')}
+                style={{
+                  flex: 1, padding: '10px 18px', borderRadius: 10,
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  border: 'none',
+                  color: '#fff', fontSize: '0.84rem', fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                  boxShadow: '0 4px 14px rgba(245,158,11,0.35)',
+                  transition: 'all 0.18s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-1px)'; e.currentTarget.style.boxShadow='0 6px 20px rgba(245,158,11,0.45)'; }}
+                onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 4px 14px rgba(245,158,11,0.35)'; }}
+              >
+                Go to Admin Panel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
