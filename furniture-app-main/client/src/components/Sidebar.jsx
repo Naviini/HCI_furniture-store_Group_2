@@ -173,9 +173,9 @@ export default function Sidebar({
       <header style={S.header}>
         <div style={S.headerRow}>
           <div style={S.brand}>
-            <img src={ndLogo} alt="ND Furniture" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
+            <img src={ndLogo} alt="ND furniture" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
             <div>
-              <div style={S.brandTitle}>ND Furniture</div>
+              <div style={S.brandTitle}>ND furniture</div>
               <div style={S.brandSub}>Design Studio</div>
             </div>
           </div>
@@ -649,7 +649,7 @@ export default function Sidebar({
                   <div style={S.savingsBadge}>
                     <span style={{ fontSize: '1rem' }}>🏷️</span>
                     <div>
-                      <div style={S.savingsTitle}>ND Furniture Member Price</div>
+                      <div style={S.savingsTitle}>ND furniture Member Price</div>
                       <div style={S.savingsDesc}>Save an extra 5% when you sign up for ND Family</div>
                     </div>
                   </div>
@@ -791,9 +791,9 @@ const LibraryCard = ({ name, icon, desc, category, material, price, onClick }) =
   >
     <div style={S.cardIconWrap}>
       <span style={S.cardIcon}>{icon}</span>
-      {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
-      {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
-      {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
+      {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
+      {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
+      {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
     </div>
     <span style={S.cardName}>{name}</span>
     <span style={S.cardDesc}>{desc}</span>
@@ -810,11 +810,11 @@ const S = {
   sidebar: {
     width: 310,
     height: '100%',
-    background: 'linear-gradient(180deg, rgba(20,24,32,0.97) 0%, rgba(16,19,28,0.99) 100%)',
-    borderRight: '1px solid rgba(255,255,255,0.06)',
+    background: 'linear-gradient(180deg, rgba(14,16,30,0.96) 0%, rgba(10,12,24,0.99) 100%)',
+    borderRight: '1px solid rgba(255,255,255,0.1)',
     display: 'flex',
     flexDirection: 'column',
-    backdropFilter: 'blur(20px)',
+    backdropFilter: 'blur(22px)',
     transition: 'width 0.3s cubic-bezier(.4,0,.2,1)',
   },
 
@@ -822,8 +822,8 @@ const S = {
   rail: {
     width: 56,
     height: '100%',
-    background: 'linear-gradient(180deg, rgba(20,24,32,0.97) 0%, rgba(16,19,28,0.99) 100%)',
-    borderRight: '1px solid rgba(255,255,255,0.06)',
+    background: 'linear-gradient(180deg, rgba(14,16,30,0.96) 0%, rgba(10,12,24,0.99) 100%)',
+    borderRight: '1px solid rgba(255,255,255,0.1)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -854,8 +854,8 @@ const S = {
     transition: 'all 0.2s',
   },
   railIconActive: {
-    background: 'rgba(99,102,241,0.12)',
-    border: '1px solid rgba(99,102,241,0.25)',
+    background: 'rgba(236,72,153,0.12)',
+    border: '1px solid rgba(236,72,153,0.25)',
     color: 'var(--accent)',
   },
 
@@ -872,7 +872,7 @@ const S = {
   brandIcon: {
     width: 36, height: 36,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))',
+    background: 'linear-gradient(135deg, rgba(236,72,153,0.26), rgba(147,51,234,0.22))',
     borderRadius: 10,
     color: 'var(--accent)',
   },
@@ -904,7 +904,7 @@ const S = {
   avatar: {
     width: 34, height: 34,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
     borderRadius: 10,
     fontSize: '0.82rem', fontWeight: 700, color: 'white',
     flexShrink: 0,
@@ -949,7 +949,7 @@ const S = {
   },
   tabActive: {
     color: 'var(--accent)',
-    background: 'rgba(99,102,241,0.06)',
+    background: 'rgba(236,72,153,0.06)',
   },
   tabLabel: {
     fontSize: '0.6rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px',
@@ -980,8 +980,8 @@ const S = {
   },
   sectionBadge: {
     fontSize: '0.6rem', fontWeight: 600,
-    background: 'rgba(99,102,241,0.12)',
-    color: '#818cf8',
+    background: 'rgba(236,72,153,0.12)',
+    color: '#f472b6',
     padding: '2px 8px',
     borderRadius: 8,
   },
@@ -1033,7 +1033,7 @@ const S = {
     position: 'relative',
     width: 44, height: 44,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(99,102,241,0.08)',
+    background: 'rgba(236,72,153,0.08)',
     borderRadius: 12,
     marginBottom: 2,
   },
@@ -1043,7 +1043,7 @@ const S = {
   badge3d: {
     position: 'absolute', top: -3, right: -6,
     fontSize: '0.48rem', fontWeight: 700,
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    background: 'linear-gradient(135deg, #ec4899, #9333ea)',
     color: 'white',
     padding: '1px 5px',
     borderRadius: 5,
@@ -1080,7 +1080,7 @@ const S = {
   propIcon: {
     width: 38, height: 38,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(99,102,241,0.1)',
+    background: 'rgba(236,72,153,0.1)',
     borderRadius: 10,
     fontSize: '1.2rem',
   },
@@ -1139,7 +1139,7 @@ const S = {
     display: 'flex', alignItems: 'center', gap: 10,
   },
   sliderVal: {
-    fontSize: '0.72rem', fontWeight: 600, color: '#818cf8',
+    fontSize: '0.72rem', fontWeight: 600, color: '#f472b6',
     minWidth: 36, textAlign: 'right',
     fontFamily: "'SF Mono','Fira Code',monospace",
   },
@@ -1164,10 +1164,10 @@ const S = {
   tip: {
     display: 'flex', alignItems: 'flex-start', gap: 8,
     marginTop: 18, padding: '10px 14px',
-    background: 'rgba(99,102,241,0.06)',
+    background: 'rgba(236,72,153,0.06)',
     borderRadius: 10,
-    border: '1px solid rgba(99,102,241,0.1)',
-    fontSize: '0.72rem', color: '#818cf8',
+    border: '1px solid rgba(236,72,153,0.1)',
+    fontSize: '0.72rem', color: '#f472b6',
     lineHeight: 1.5, textAlign: 'left',
   },
   tipIcon: {
@@ -1190,8 +1190,8 @@ const S = {
     fontFamily: 'inherit',
   },
   floorTypeBtnActive: {
-    border: '1.5px solid rgba(99,102,241,0.5)',
-    background: 'rgba(99,102,241,0.1)',
+    border: '1.5px solid rgba(236,72,153,0.5)',
+    background: 'rgba(236,72,153,0.1)',
     color: 'var(--accent)',
   },
   floorTypeLabel: {
@@ -1214,8 +1214,8 @@ const S = {
     fontFamily: 'inherit',
   },
   shapeBtnActive: {
-    border: '1.5px solid rgba(99,102,241,0.5)',
-    background: 'rgba(99,102,241,0.1)',
+    border: '1.5px solid rgba(236,72,153,0.5)',
+    background: 'rgba(236,72,153,0.1)',
     color: 'var(--accent)',
   },
   shapeLabel: {
@@ -1242,8 +1242,8 @@ const S = {
     textAlign: 'left',
   },
   lightingCardActive: {
-    border: '1.5px solid rgba(99,102,241,0.45)',
-    background: 'rgba(99,102,241,0.08)',
+    border: '1.5px solid rgba(236,72,153,0.45)',
+    background: 'rgba(236,72,153,0.08)',
   },
   lightingLabel: {
     fontSize: '0.8rem', fontWeight: 600, color: '#e8ecf4',
@@ -1272,9 +1272,9 @@ const S = {
     textAlign: 'left',
   },
   actionBtnPrimary: {
-    background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))',
-    border: '1px solid rgba(99,102,241,0.3)',
-    color: '#c7d2fe',
+    background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(139,92,246,0.15))',
+    border: '1px solid rgba(236,72,153,0.3)',
+    color: '#fbcfe8',
     fontWeight: 600,
   },
 
@@ -1407,7 +1407,7 @@ const S = {
     fontSize: '0.65rem', fontWeight: 500, color: 'var(--text-muted)',
   },
   materialValue: {
-    fontSize: '0.68rem', fontWeight: 600, color: '#c7d2fe',
+    fontSize: '0.68rem', fontWeight: 600, color: '#fbcfe8',
   },
   materialSep: {
     fontSize: '0.6rem', color: 'rgba(255,255,255,0.15)',
@@ -1431,7 +1431,7 @@ const S = {
   cartItemIcon: {
     width: 36, height: 36,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(99,102,241,0.1)',
+    background: 'rgba(236,72,153,0.1)',
     borderRadius: 10,
     fontSize: '1.1rem',
     flexShrink: 0,
@@ -1477,9 +1477,9 @@ const S = {
   priceSummaryHeader: {
     display: 'flex', alignItems: 'center', gap: 8,
     padding: '12px 14px',
-    background: 'rgba(99,102,241,0.06)',
+    background: 'rgba(236,72,153,0.06)',
     borderBottom: '1px solid rgba(255,255,255,0.05)',
-    fontSize: '0.78rem', fontWeight: 700, color: '#a5b4fc',
+    fontSize: '0.78rem', fontWeight: 700, color: '#f9a8d4',
     textTransform: 'uppercase', letterSpacing: '0.4px',
   },
   priceLine: {
@@ -1545,3 +1545,4 @@ const S = {
     transition: 'all 0.2s',
   },
 };
+

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 import './AdminDashboard.css';
 
 /* ─── Sub-components ─── */
@@ -158,9 +159,9 @@ export default function AdminDashboard() {
             {/* ── SIDEBAR ── */}
             <aside className="adm-sidebar">
                 <div className="adm-sidebar-brand">
-                    <div className="adm-sidebar-logo">🛡</div>
+                    <img className="adm-sidebar-logo" src={ndLogo} alt="ND furniture" />
                     <div>
-                        <div className="adm-sidebar-title">ND Furniture</div>
+                        <div className="adm-sidebar-title">ND furniture</div>
                         <div className="adm-sidebar-subtitle">Admin Panel</div>
                     </div>
                 </div>
@@ -338,7 +339,7 @@ export default function AdminDashboard() {
                             <div className="adm-session-icon">🖥️</div>
                             <h2 className="adm-session-title">In-Store Customer Demo</h2>
                             <p className="adm-session-desc">
-                                As a member of ND Furniture customer service staff, you can open the full 3D design
+                                As a member of ND furniture customer service staff, you can open the full 3D design
                                 canvas and hand control to a customer physically present in the store. The customer
                                 will be able to explore furniture, configure their room, and visualise their purchase
                                 in real time.
@@ -407,3 +408,4 @@ export default function AdminDashboard() {
         </div>
     );
 }
+

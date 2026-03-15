@@ -4,6 +4,7 @@ import IntroPage from './pages/IntroPage';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import PlannerHome from './pages/PlannerHome';
 import Onboarding from './components/Onboarding';
 import { ThemeProvider } from './components/ThemeContext';
 
@@ -18,7 +19,7 @@ function AdminRoute({ children }) {
   const stored = localStorage.getItem('user');
   if (!stored) return <Navigate to="/login" replace />;
   const user = JSON.parse(stored);
-  return user.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+  return user.role === 'admin' ? children : <Navigate to="/home" replace />;
 }
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<IntroPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/home" element={<PrivateRoute><PlannerHome /></PrivateRoute>} />
         <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
         <Route
           path="/dashboard"
