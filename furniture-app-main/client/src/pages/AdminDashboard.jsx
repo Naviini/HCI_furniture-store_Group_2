@@ -355,6 +355,7 @@ export default function AdminDashboard() {
                             >
                                 🚀 Launch Customer Session
                             </button>
+                        </div>
                         <div className="adm-session-hero">
                             <div className="adm-session-hero-left">
                                 <div className="adm-session-badge">● In-Store Demo Tool</div>

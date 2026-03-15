@@ -995,6 +995,7 @@ const LibraryCard = ({ name, icon, thumbnail, desc, category, material, price, m
       {category === 'Tables' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
       {category === 'Seating' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
       {category === 'Storage' && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #ec4899, #9333ea)' }}>3D</span>}
+    </div>
     {/* ── Image / preview area ── */}
     <div style={thumbnail ? S.cardImgWrap : S.cardEmojiWrap}>
       {thumbnail
@@ -1250,7 +1251,6 @@ const S = {
   cardImgWrap: {
     position: 'relative',
     width: '100%', height: 120,
-    background: '#f0ede8',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: 'rgba(236,72,153,0.08)',
     borderRadius: 12,
