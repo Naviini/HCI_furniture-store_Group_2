@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import ndLogo from '../assets/LOGO/logo.jpeg';
+import coffeeTableImg from '../assets/table/coffee_table_round_01_1k/coffee table.jpg';
+import chairImg from '../assets/chair/plastic_monobloc_chair_01/Chair.jpg';
 
 const TABS = {
   LIBRARY: 'library',
@@ -11,8 +13,8 @@ const TABS = {
 
 const FURNITURE_ITEMS = [
   /* ── Original 3D models ── */
-  { name: 'Coffee Table',    icon: '☕', desc: 'LACK – Round coffee table',         model: true, category: 'Tables',    material: 'Wood',    color: 'Brown',  price: 49.99  },
-  { name: 'Chair',           icon: '💺', desc: 'TEODORES – Monobloc chair',          model: true, category: 'Seating',   material: 'Plastic', color: 'White',  price: 29.99  },
+  { name: 'Coffee Table',    icon: '☕', thumbnail: coffeeTableImg, desc: 'LACK – Round coffee table',         model: true, category: 'Tables',    material: 'Wood',    color: 'Brown',  price: 49.99  },
+  { name: 'Chair',           icon: '💺', thumbnail: chairImg, desc: 'TEODORES – Monobloc chair',          model: true, category: 'Seating',   material: 'Plastic', color: 'White',  price: 29.99  },
   { name: 'Drawer',          icon: '🗄️', desc: 'HEMNES – Vintage wooden drawer',     model: true, category: 'Storage',   material: 'Wood',    color: 'Walnut', price: 149.99 },
   /* ── TV Stands ── */
   { name: 'TV Stand',        icon: '📺', desc: 'Modern TV entertainment center',     model: true, category: 'Living',    material: 'Wood',    color: 'Black',  price: 199.99 },
@@ -980,7 +982,7 @@ const TabButton = ({ id, label, icon, active, onClick }) => (
   </button>
 );
 
-const LibraryCard = ({ name, icon, desc, category, material, price, model, onClick }) => (
+const LibraryCard = ({ name, icon, thumbnail, desc, category, material, price, model, onClick }) => (
   <button
     onClick={onClick}
     role="listitem"
@@ -988,14 +990,26 @@ const LibraryCard = ({ name, icon, desc, category, material, price, model, onCli
     className="sidebar-library-card"
     style={S.libraryCard}
   >
-    <div style={S.cardIconWrap}>
-      <span style={S.cardIcon}>{icon}</span>
-      {model && <span style={{ ...S.badge3d, background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>3D</span>}
+    {/* ── Image / preview area ── */}
+    <div style={thumbnail ? S.cardImgWrap : S.cardEmojiWrap}>
+      {thumbnail
+        ? <img src={thumbnail} alt={name} style={S.cardImg} />
+        : <span style={S.cardEmojiLarge}>{icon}</span>
+      }
+      {model && (
+        <span style={S.badge3d}>3D</span>
+      )}
     </div>
-    <span style={S.cardName}>{name}</span>
-    <span style={S.cardDesc}>{desc}</span>
-    <span style={S.cardMaterial}>{material}</span>
-    <span style={S.cardPrice}>{formatPrice(price)}</span>
+
+    {/* ── Text content ── */}
+    <div style={S.cardContent}>
+      <span style={S.cardName}>{name}</span>
+      <span style={S.cardDesc}>{desc}</span>
+      <div style={S.cardFooter}>
+        <span style={S.cardPrice}>{formatPrice(price)}</span>
+        <span style={S.cardMaterial}>{material}</span>
+      </div>
+    </div>
   </button>
 );
 
@@ -1211,55 +1225,79 @@ const S = {
 
   /* Library grid */
   libraryGrid: {
-    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
+    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
   },
   libraryCard: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 12,
-    padding: '14px 10px 12px',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.09)',
+    borderRadius: 14,
+    padding: 0,
+    display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 0,
     cursor: 'pointer',
     transition: 'all 0.2s cubic-bezier(.4,0,.2,1)',
     color: '#e8ecf4',
     fontFamily: 'inherit',
     position: 'relative',
     overflow: 'hidden',
+    textAlign: 'left',
   },
-  cardIconWrap: {
+  /* image area for items WITH a thumbnail */
+  cardImgWrap: {
     position: 'relative',
-    width: 44, height: 44,
+    width: '100%', height: 120,
+    background: '#f0ede8',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(99,102,241,0.08)',
-    borderRadius: 12,
-    marginBottom: 2,
+    overflow: 'hidden',
+    flexShrink: 0,
   },
-  cardIcon: {
-    fontSize: '1.3rem',
+  cardImg: {
+    width: '100%', height: '100%', objectFit: 'cover',
+  },
+  /* preview area for items WITHOUT a thumbnail (emoji) */
+  cardEmojiWrap: {
+    position: 'relative',
+    width: '100%', height: 100,
+    background: 'linear-gradient(135deg, rgba(30,32,50,0.9), rgba(50,40,80,0.7))',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+  cardEmojiLarge: {
+    fontSize: '2.4rem',
+    filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))',
   },
   badge3d: {
-    position: 'absolute', top: -3, right: -6,
+    position: 'absolute', top: 6, right: 6,
     fontSize: '0.48rem', fontWeight: 700,
     background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
     color: 'white',
-    padding: '1px 5px',
+    padding: '2px 6px',
     borderRadius: 5,
     letterSpacing: '0.3px',
   },
+  /* text content below the image */
+  cardContent: {
+    padding: '9px 10px 10px',
+    display: 'flex', flexDirection: 'column', gap: 3,
+  },
   cardName: {
-    fontSize: '0.78rem', fontWeight: 600,
+    fontSize: '0.78rem', fontWeight: 700, color: '#f0f4ff',
+    lineHeight: 1.25,
   },
   cardDesc: {
-    fontSize: '0.58rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3,
+    fontSize: '0.62rem', color: 'rgba(180,185,210,0.70)', lineHeight: 1.35,
+  },
+  cardFooter: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    marginTop: 4,
   },
   cardMaterial: {
-    fontSize: '0.55rem', color: 'rgba(129,140,248,0.6)', fontWeight: 500, letterSpacing: '0.3px',
+    fontSize: '0.58rem', color: 'rgba(129,140,248,0.75)', fontWeight: 500,
+    letterSpacing: '0.2px',
   },
   cardPrice: {
-    fontSize: '0.88rem', fontWeight: 800, color: '#fbbf24',
-    marginTop: 2,
+    fontSize: '0.85rem', fontWeight: 800, color: '#fbbf24',
     fontFamily: "'Inter', system-ui, sans-serif",
-    textShadow: '0 0 12px rgba(251,191,36,0.2)',
   },
 
   /* Properties panel */

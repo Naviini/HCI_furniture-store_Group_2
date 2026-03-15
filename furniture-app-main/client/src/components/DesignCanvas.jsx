@@ -94,7 +94,8 @@ const DesignCanvas = forwardRef(({
           onSelect={setSelectedId}
           onChange={updateItem}
           mode={mode}
-          setIsDragging={setIsDragging} // Pass this down
+          setIsDragging={setIsDragging}
+          roomConfig={roomConfig}
         />
       ))}
 

@@ -115,9 +115,9 @@ export default function Dashboard() {
       'Coffee Table': { y: 0, color: '#888888' },
       'Chair': { y: 0, color: '#888888' },
       'Drawer': { y: 0, color: '#888888' },
-      'Lamp': { y: 0.5, color: '#ffaa00' },
+      'Lamp': { y: 0, color: '#ffaa00' },
     };
-    const def = DEFAULTS[type] || { y: 0.5, color: '#888888' };
+    const def = DEFAULTS[type] || { y: 0, color: '#888888' };
     const newItem = {
       id: Date.now(), type,
       position: [0, def.y, 0], rotation: [0, 0, 0], scale: [1, 1, 1],
