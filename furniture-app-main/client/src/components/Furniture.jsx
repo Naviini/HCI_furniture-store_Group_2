@@ -25,6 +25,31 @@ import diningTablePath    from '../assets/table/simple_dining_table/scene.gltf?u
 /* Lamps that can be placed on top of other furniture (Y > 0) */
 const TABLE_LAMP_TYPES = ['Desk Lamp', 'Titanic Lamp'];
 const WALL_HEIGHT = 5; // must match Room.jsx WALL_HEIGHT
+const WALL_INNER  = 0.1; // half of WALL_THICK (0.2) — inner face offset
+
+/* Approximate XZ footprint radius (metres) per furniture type.
+   Used for wall collision margin and inter-item overlap prevention. */
+const FURNITURE_RADIUS = {
+  'Coffee Table':   0.7,
+  'Chair':          0.4,
+  'Drawer':         0.4,
+  'Bed':            1.1,
+  'Poliform Bed':   1.2,
+  'Desk Lamp':      0.15,
+  'TV Stand':       1.0,
+  'TV Stand 3':     0.8,
+  'File Cabinet':   0.4,
+  'Computer Chair': 0.4,
+  'Lounge Chair':   0.6,
+  'Titanic Lamp':   0.25,
+  'Modern Sofa':    1.2,
+  'Sofa':           1.1,
+  'Sofa Chair':     0.6,
+  'Computer Table': 0.8,
+  'Dining Set':     1.3,
+  'Dining Table':   1.0,
+};
+const DEFAULT_RADIUS = 0.5;
 
 const MODEL_MAP = {
   'Coffee Table':   { path: coffeeTablePath,   scale: 2.5,  yOffset: 0 },
@@ -116,7 +141,7 @@ function PrimitiveMesh({ type, color, isSelected, onClick }) {
 }
 
 export default function Furniture({
-  data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig
+  data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig, allItems = []
 }) {
   const { id, type, position, rotation, scale, color } = data;
   const meshRef = useRef();
@@ -125,19 +150,39 @@ export default function Furniture({
   const isEditable = isSelected;
 
   const isLamp = TABLE_LAMP_TYPES.includes(type);
+  const radius = FURNITURE_RADIUS[type] ?? DEFAULT_RADIUS;
 
   // Room boundary limits (half-extents centred at 0,0)
   const hw = roomConfig && roomConfig.shape !== 'open' ? roomConfig.width / 2 : Infinity;
   const hd = roomConfig && roomConfig.shape !== 'open' ? roomConfig.depth / 2 : Infinity;
 
-  // Returns a clamped {x,y,z} from a Vector3-like object.
-  // Regular furniture is always forced to the floor (y=0).
-  // Table lamps may rest on top of other furniture (0 <= y <= WALL_HEIGHT).
+  // Clamp position inside room walls, keeping a margin = wall inner face + item radius
   const clampPosition = (pos) => {
-    const x = isFinite(hw) ? Math.max(-hw, Math.min(hw, pos.x)) : pos.x;
-    const z = isFinite(hd) ? Math.max(-hd, Math.min(hd, pos.z)) : pos.z;
+    const margin = WALL_INNER + radius;
+    const x = isFinite(hw) ? Math.max(-hw + margin, Math.min(hw - margin, pos.x)) : pos.x;
+    const z = isFinite(hd) ? Math.max(-hd + margin, Math.min(hd - margin, pos.z)) : pos.z;
     const y = isLamp ? Math.max(0, Math.min(WALL_HEIGHT, pos.y)) : 0;
     return { x, y, z };
+  };
+
+  // Push this item away from any overlapping items
+  const resolveOverlap = (pos) => {
+    let x = pos.x;
+    let z = pos.z;
+    for (const other of allItems) {
+      if (other.id === id) continue;
+      const otherRadius = FURNITURE_RADIUS[other.type] ?? DEFAULT_RADIUS;
+      const minDist = radius + otherRadius;
+      const dx = x - other.position[0];
+      const dz = z - other.position[2];
+      const dist = Math.sqrt(dx * dx + dz * dz);
+      if (dist < minDist && dist > 0.001) {
+        const push = (minDist - dist) / dist;
+        x += dx * push;
+        z += dz * push;
+      }
+    }
+    return { x, y: pos.y, z };
   };
 
   const handleClick = (e) => {
@@ -168,7 +213,9 @@ export default function Furniture({
             if (setIsDragging) setIsDragging(false);
             if (meshRef.current) {
               const p = meshRef.current.position;
-              const c = clampPosition(p);
+              let c = clampPosition(p);
+              c = resolveOverlap(c);
+              c = clampPosition(c); // re-clamp in case overlap push hit a wall
               p.set(c.x, c.y, c.z);
               onChange(id, {
                 position: meshRef.current.position.toArray(),
