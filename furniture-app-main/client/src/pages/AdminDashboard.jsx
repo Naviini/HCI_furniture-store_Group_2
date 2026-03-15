@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 import './AdminDashboard.css';
 
 /* ─── Stat Card ─── */
@@ -158,9 +159,10 @@ export default function AdminDashboard() {
             {/* ══ SIDEBAR ══ */}
             <aside className="adm-sidebar">
                 <div className="adm-sidebar-brand">
+                    <img className="adm-sidebar-logo" src={ndLogo} alt="ND furniture" />
                     <div className="adm-sidebar-logo">🛡️</div>
                     <div>
-                        <div className="adm-sidebar-title">ND Furniture</div>
+                        <div className="adm-sidebar-title">ND furniture</div>
                         <div className="adm-sidebar-subtitle">Admin Panel</div>
                     </div>
                 </div>
@@ -331,6 +333,28 @@ export default function AdminDashboard() {
                 {/* ══ TAB: CUSTOMER SESSION ══ */}
                 {activeTab === 'session' && (
                     <div className="adm-session-panel">
+                        <div className="adm-session-card">
+                            <div className="adm-session-icon">🖥️</div>
+                            <h2 className="adm-session-title">In-Store Customer Demo</h2>
+                            <p className="adm-session-desc">
+                                As a member of ND furniture customer service staff, you can open the full 3D design
+                                canvas and hand control to a customer physically present in the store. The customer
+                                will be able to explore furniture, configure their room, and visualise their purchase
+                                in real time.
+                            </p>
+                            <ul className="adm-session-features">
+                                <li>✔ Full 3D furniture placement</li>
+                                <li>✔ Blueprint / floor-plan view</li>
+                                <li>✔ Room dimensions & finishing options</li>
+                                <li>✔ Screenshot &amp; save to your staff account</li>
+                            </ul>
+                            <button
+                                className="adm-btn adm-btn--primary adm-btn--lg"
+                                onClick={() => setShowSession(true)}
+                                id="admin-launch-session"
+                            >
+                                🚀 Launch Customer Session
+                            </button>
                         <div className="adm-session-hero">
                             <div className="adm-session-hero-left">
                                 <div className="adm-session-badge">● In-Store Demo Tool</div>
@@ -422,3 +446,4 @@ export default function AdminDashboard() {
         </div>
     );
 }
+

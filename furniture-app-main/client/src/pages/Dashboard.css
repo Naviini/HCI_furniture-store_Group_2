@@ -2,11 +2,17 @@
 
 /* ── Root layout ──────────────────────────────────────────── */
 .db-root {
+  --accent: #ec4899;
+  --accent-hover: #f472b6;
+  --accent-glow: rgba(236, 72, 153, 0.26);
   display: flex;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background: var(--bg-dark);
+  background:
+    radial-gradient(65% 50% at 5% 12%, rgba(147, 51, 234, 0.2), transparent 65%),
+    radial-gradient(55% 40% at 95% 8%, rgba(236, 72, 153, 0.2), transparent 65%),
+    #090b15;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -16,7 +22,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background: #080b12;
+  background: linear-gradient(180deg, rgba(11, 12, 24, 0.98) 0%, rgba(8, 9, 18, 0.98) 100%);
   overflow: hidden;
 }
 
@@ -33,7 +39,7 @@
 .db-orb-1 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
   top: -160px;
   right: -160px;
   animation: orbDrift 18s ease-in-out infinite alternate;
@@ -42,7 +48,7 @@
 .db-orb-2 {
   width: 380px;
   height: 380px;
-  background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+  background: radial-gradient(circle, #9333ea 0%, transparent 70%);
   bottom: -120px;
   left: -80px;
   animation: orbDrift 22s ease-in-out infinite alternate-reverse;
@@ -68,9 +74,11 @@
   gap: 12px;
   height: 52px;
   padding: 0 16px;
-  background: rgba(14, 17, 26, 0.92);
+  background: rgba(12, 13, 26, 0.84);
   backdrop-filter: blur(20px) saturate(1.5);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 24px rgba(0, 0, 0, 0.42), 0 0 32px rgba(147, 51, 234, 0.12);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
   overflow: hidden;
@@ -94,16 +102,26 @@
   flex-shrink: 0;
 }
 
+.db-brand-logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.18);
+  flex-shrink: 0;
+}
+
 .db-brand-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
   border-radius: 8px;
   color: white;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.4);
   flex-shrink: 0;
 }
 
@@ -212,10 +230,10 @@
 
 .db-mode-btn--active {
   color: #fff;
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
   box-shadow:
-    0 2px 14px rgba(99, 102, 241, 0.4),
-    0 0 0 1px rgba(99, 102, 241, 0.2),
+    0 2px 14px rgba(236, 72, 153, 0.4),
+    0 0 0 1px rgba(236, 72, 153, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
@@ -244,12 +262,12 @@
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(236, 72, 153, 0.12);
+  border: 1px solid rgba(236, 72, 153, 0.25);
   border-radius: 20px;
   font-size: 0.73rem;
   font-weight: 500;
-  color: #a5b4fc;
+  color: #f9a8d4;
   animation: fadeIn 0.2s ease-out;
   white-space: nowrap;
 }
@@ -258,7 +276,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #818cf8;
+  background: #f472b6;
   box-shadow: 0 0 6px rgba(129, 140, 248, 0.8);
   animation: pulse 1.6s ease-in-out infinite;
 }
@@ -296,16 +314,16 @@
 }
 
 .db-header-btn--save {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
+  border-color: rgba(236, 72, 153, 0.3);
+  color: #f9a8d4;
 }
 
 .db-header-btn--save:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(124, 58, 237, 0.25) 100%);
-  border-color: rgba(99, 102, 241, 0.5);
-  color: #c7d2fe;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(124, 58, 237, 0.25) 100%);
+  border-color: rgba(236, 72, 153, 0.5);
+  color: #fbcfe8;
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.25);
 }
 
 /* User chip */
@@ -330,7 +348,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
   color: white;
   font-size: 0.72rem;
   font-weight: 700;
@@ -338,7 +356,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
 }
 
 .db-username {
@@ -422,10 +440,10 @@
   width: 80px;
   height: 80px;
   border-radius: 24px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.15);
-  color: rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 40px rgba(99, 102, 241, 0.08);
+  background: rgba(236, 72, 153, 0.08);
+  border: 1px solid rgba(236, 72, 153, 0.15);
+  color: rgba(236, 72, 153, 0.5);
+  box-shadow: 0 0 40px rgba(236, 72, 153, 0.08);
 }
 
 .db-empty-title {
@@ -454,10 +472,10 @@
   justify-content: space-between;
   height: 28px;
   padding: 0 14px;
-  background: rgba(10, 13, 20, 0.88);
+  background: rgba(8, 10, 19, 0.84);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 0.68rem;
   color: var(--text-muted);
   flex-shrink: 0;
@@ -586,16 +604,16 @@
   gap: 14px;
   padding: 18px 28px;
   background: rgba(20, 24, 36, 0.95);
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(236, 72, 153, 0.28);
   border-radius: 14px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.05);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(236, 72, 153, 0.08), 0 0 28px rgba(147, 51, 234, 0.12);
 }
 
 .db-loading-spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(99, 102, 241, 0.2);
-  border-top-color: #6366f1;
+  border: 2px solid rgba(236, 72, 153, 0.2);
+  border-top-color: #ec4899;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }

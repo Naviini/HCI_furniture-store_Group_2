@@ -5,6 +5,7 @@ import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
 import CustomModal from '../components/CustomModal';
 import TemplatesPage from '../components/TemplatesPage';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 import './Dashboard.css';
 
 /* ── Toast Notification (HCI: Visibility of system status) ── */
@@ -290,6 +291,23 @@ export default function Dashboard() {
         {/* ── TOP HEADER BAR ── */}
         <header className="db-header" role="banner">
           <div className="db-header-left">
+            {/* Logo / Brand */}
+            <div className="db-brand">
+              <img className="db-brand-logo" src={ndLogo} alt="ND furniture" />
+              <span className="db-brand-name">ND furniture</span>
+              <span className="db-brand-sep" aria-hidden="true" />
+              <span className="db-brand-sub">Design Studio</span>
+            </div>
+
+            {/* Keyboard shortcut hint */}
+            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
+              <span className="db-hint"><kbd>Del</kbd> Remove</span>
+              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
+              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+            </div>
+          </div>
+
+          <div className="db-header-center">
             {/* ── View Mode Toggle ── */}
             <div className="db-mode-toggle" role="toolbar" aria-label="View mode selector">
               <button
