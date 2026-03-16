@@ -1,0 +1,11 @@
+Model Information:
+* title:	Floor Lamp
+* source:	https://sketchfab.com/3d-models/floor-lamp-61bdf5230e5f44b3b5ea53d95f2ab872
+* author:	Agha.Najam (https://sketchfab.com/Agha.Najam)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Floor Lamp" (https://sketchfab.com/3d-models/floor-lamp-61bdf5230e5f44b3b5ea53d95f2ab872) by Agha.Najam (https://sketchfab.com/Agha.Najam) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

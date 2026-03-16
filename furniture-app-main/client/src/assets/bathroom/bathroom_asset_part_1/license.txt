@@ -1,0 +1,11 @@
+Model Information:
+* title:	Bathroom asset part 1
+* source:	https://sketchfab.com/3d-models/bathroom-asset-part-1-74b1b1395c1342b48b3ec93b199136ce
+* author:	SofiaWolfie (https://sketchfab.com/SofiaWolfie)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Bathroom asset part 1" (https://sketchfab.com/3d-models/bathroom-asset-part-1-74b1b1395c1342b48b3ec93b199136ce) by SofiaWolfie (https://sketchfab.com/SofiaWolfie) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

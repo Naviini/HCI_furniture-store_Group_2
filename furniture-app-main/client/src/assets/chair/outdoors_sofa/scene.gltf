@@ -1,0 +1,526 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 48418,
+      "max": [
+        4.502933979034424,
+        1.101500391960144,
+        4.5890727043151855
+      ],
+      "min": [
+        -0.568976879119873,
+        -0.6167385578155518,
+        -0.10841590166091919
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 581016,
+      "componentType": 5126,
+      "count": 48418,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.9999998211860657,
+        -0.9999988079071045,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 48418,
+      "max": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -0.9999998807907104,
+        -1.0,
+        -1.0,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 48418,
+      "max": [
+        1.0,
+        0.9999999403953552
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 249000,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1162032,
+      "componentType": 5126,
+      "count": 59194,
+      "max": [
+        7.178183078765869,
+        0.8453024625778198,
+        17.70064353942871
+      ],
+      "min": [
+        -2.890207290649414,
+        -0.1933685690164566,
+        -17.317615509033203
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 1872360,
+      "componentType": 5126,
+      "count": 59194,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 387344,
+      "componentType": 5126,
+      "count": 59194,
+      "max": [
+        1.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 996000,
+      "componentType": 5125,
+      "count": 203508,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 2582688,
+      "componentType": 5126,
+      "count": 122,
+      "max": [
+        2.405182361602783,
+        0.5933162569999695,
+        0.0
+      ],
+      "min": [
+        -2.8209757804870605,
+        -4.648831844329834,
+        -0.0868208035826683
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 2584152,
+      "componentType": 5126,
+      "count": 122,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 860896,
+      "componentType": 5126,
+      "count": 122,
+      "max": [
+        1.0,
+        1.0
+      ],
+      "min": [
+        0.0,
+        0.0
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 1810032,
+      "componentType": 5125,
+      "count": 192,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Stars_001 (https://sketchfab.com/Stars_001)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/outdoors-sofa-788d99c8fdfa4384b83a18817e889bef",
+      "title": "Outdoors Sofa"
+    },
+    "generator": "Sketchfab-15.10.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 1810800,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 861872,
+      "byteOffset": 1810800,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 2585616,
+      "byteOffset": 2672672,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 774688,
+      "byteOffset": 5258288,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 6032976,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/Coushins_baseColor.png"
+    },
+    {
+      "uri": "textures/Coushins_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/Coushins_normal.png"
+    },
+    {
+      "uri": "textures/plywood_4k_baseColor.png"
+    },
+    {
+      "uri": "textures/plywood_4k_metallicRoughness.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "name": "Coushins",
+      "normalTexture": {
+        "index": 2
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "plywood_4k",
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 3
+        },
+        "metallicFactor": 0.0,
+        "metallicRoughnessTexture": {
+          "index": 4
+        }
+      }
+    },
+    {
+      "doubleSided": true,
+      "name": "Stand",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          0.00901804,
+          0.00901804,
+          0.00901804,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.998602473062852
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "Cushions_Coushins_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Wood_plywood_4k_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TEXCOORD_0": 7
+          },
+          "indices": 8,
+          "material": 1,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Stand_Stand_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 10,
+            "POSITION": 9,
+            "TEXCOORD_0": 11
+          },
+          "indices": 12,
+          "material": 2,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        0.0,
+        0.0,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "2bfad2f16be9448694a042a9a8cdbac1.fbx"
+    },
+    {
+      "children": [
+        3,
+        5,
+        7
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        -106.0021286010682,
+        -9.267000747506393e-06,
+        3.453987879419403e-05,
+        0.0,
+        3.7688676254136136e-06,
+        -43.11081695556624,
+        5.14091346423456e-07,
+        0.0,
+        3.737155532917458e-05,
+        1.367697425044869e-06,
+        114.69248199462281,
+        0.0,
+        201.61636352539063,
+        59.06523513793945,
+        -272.73248291015625,
+        1.0
+      ],
+      "name": "Cushions"
+    },
+    {
+      "mesh": 0,
+      "name": "Cushions_Coushins_0"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        -53.93391418456624,
+        -6.604999537161686e-15,
+        2.100264163209226e-05,
+        0.0,
+        -1.3006760262008203e-12,
+        75.86634826660149,
+        -3.3162234162690045e-06,
+        0.0,
+        -6.152348757980338e-06,
+        -6.905952156649497e-07,
+        -15.798976898192153,
+        0.0,
+        104.43968963623047,
+        13.554234504699707,
+        -12.818288803100586,
+        1.0
+      ],
+      "name": "Wood"
+    },
+    {
+      "mesh": 1,
+      "name": "Wood_plywood_4k_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        100.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -1.629206793918314e-05,
+        -99.99999999999868,
+        0.0,
+        0.0,
+        99.99999999999868,
+        -1.629206793918314e-05,
+        0.0,
+        13.492173194885254,
+        7.423046112060547,
+        -220.66004943847656,
+        1.0
+      ],
+      "name": "Stand"
+    },
+    {
+      "mesh": 2,
+      "name": "Stand_Stand_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    },
+    {
+      "sampler": 0,
+      "source": 3
+    },
+    {
+      "sampler": 0,
+      "source": 4
+    }
+  ]
+}
