@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TemplatesPage.css';
 import bgImage from '../assets/background images/modern_living_rooms_with_the_right_furniture.webp';
 
@@ -254,7 +254,7 @@ const TEMPLATES = [
     },
 ];
 
-const CATEGORIES = ['All', 'Living Room', 'Bedroom', 'Dining', 'Workspace', 'Studio'];
+const CATEGORIES = ['All', 'Living Room', 'Bedroom', 'Dining', 'Workspace', 'Studio', 'Custom'];
 
 const CAT_META = {
     'All': { icon: '🏠', color: '#6366f1' },
@@ -263,22 +263,58 @@ const CAT_META = {
     'Dining': { icon: '🍽️', color: '#f59e0b' },
     'Workspace': { icon: '💻', color: '#0ea5e9' },
     'Studio': { icon: '🏡', color: '#7c3aed' },
+    'Custom': { icon: '⭐', color: '#22c55e' },
 };
 
 /* ══════════════════════════════════════════════
    TEMPLATES PAGE COMPONENT
 ══════════════════════════════════════════════ */
-export default function TemplatesPage({ onSelectTemplate, onSkip, onClose }) {
+export default function TemplatesPage({ onSelectTemplate, onSkip, onClose, user }) {
     const [activeCategory, setActiveCategory] = useState('All');
     const [hoveredId, setHoveredId] = useState(null);
     const [selectedId, setSelectedId] = useState(null);
+    const [userTemplates, setUserTemplates] = useState([]);
+    const [allTemplates, setAllTemplates] = useState(TEMPLATES);
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Fetch user templates on component mount
+    useEffect(() => {
+        const fetchUserTemplates = async () => {
+            if (!user?._id) return;
+
+            setIsLoading(true);
+            try {
+                const response = await fetch(`http://localhost:5000/api/templates/${user._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setUserTemplates(data.allTemplates || []);
+
+                    // Combine hardcoded templates with user templates
+                    setAllTemplates([...TEMPLATES, ...(data.allTemplates || [])]);
+                }
+            } catch (error) {
+                console.error('Failed to load user templates:', error);
+                // Continue with hardcoded templates only
+                setAllTemplates(TEMPLATES);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchUserTemplates();
+    }, [user]);
 
     const filtered = activeCategory === 'All'
-        ? TEMPLATES
-        : TEMPLATES.filter(t => t.category === activeCategory);
+        ? allTemplates
+        : allTemplates.filter(t => t.category === activeCategory);
 
     const handleSelect = (template) => {
-        setSelectedId(template.id);
+        setSelectedId(template.id || template._id);
         // Short delay for visual feedback, then invoke callback
         setTimeout(() => onSelectTemplate(template), 320);
     };
@@ -321,87 +357,118 @@ export default function TemplatesPage({ onSelectTemplate, onSkip, onClose }) {
                 </nav>
 
                 {/* ── Template grid ── */}
-                <div className="tp-grid" role="list">
-                    {filtered.map(template => {
-                        const isHovered = hoveredId === template.id;
-                        const isSelected = selectedId === template.id;
-                        return (
-                            <button
-                                key={template.id}
-                                className={`tp-card ${isSelected ? 'tp-card--selected' : ''}`}
-                                role="listitem"
-                                aria-label={`Load ${template.name} template`}
-                                onMouseEnter={() => setHoveredId(template.id)}
-                                onMouseLeave={() => setHoveredId(null)}
-                                onClick={() => handleSelect(template)}
-                            >
-                                {/* Preview area */}
-                                <div className="tp-card-preview" style={{ background: template.gradient }}>
-                                    <div className="tp-card-emoji">{template.emoji}</div>
+                {isLoading ? (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '40px',
+                        color: '#8b93a9',
+                        fontSize: '0.9rem'
+                    }}>
+                        Loading templates...
+                    </div>
+                ) : (
+                    <div className="tp-grid" role="list">
+                        {filtered.map(template => {
+                            const templateId = template.id || template._id;
+                            const isHovered = hoveredId === templateId;
+                            const isSelected = selectedId === templateId;
+                            return (
+                                <button
+                                    key={templateId}
+                                    className={`tp-card ${isSelected ? 'tp-card--selected' : ''}`}
+                                    role="listitem"
+                                    aria-label={`Load ${template.name} template`}
+                                    onMouseEnter={() => setHoveredId(templateId)}
+                                    onMouseLeave={() => setHoveredId(null)}
+                                    onClick={() => handleSelect(template)}
+                                >
+                                    {/* Preview area */}
+                                    <div className="tp-card-preview" style={{ background: template.gradient }}>
+                                        <div className="tp-card-emoji">{template.emoji}</div>
 
-                                    {/* Mini furniture icons */}
-                                    <div className="tp-card-mini-items">
-                                        {template.previewItems.map((icon, i) => (
-                                            <span key={i} className="tp-mini-item"
-                                                style={{ animationDelay: `${i * 0.08}s` }}>
-                                                {icon}
+                                        {/* Mini furniture icons */}
+                                        <div className="tp-card-mini-items">
+                                            {template.previewItems.map((icon, i) => (
+                                                <span key={i} className="tp-mini-item"
+                                                    style={{ animationDelay: `${i * 0.08}s` }}>
+                                                    {icon}
+                                                </span>
+                                            ))}
+                                        </div>
+
+                                        {/* Tag badge */}
+                                        {template.tag && (
+                                            <div className="tp-card-tag" style={{ background: template.tagColor }}>
+                                                {template.tag}
+                                            </div>
+                                        )}
+
+                                        {/* User template badge */}
+                                        {template._id && (
+                                            <div className="tp-card-user-badge" style={{
+                                                position: 'absolute',
+                                                top: '8px',
+                                                left: '8px',
+                                                background: '#22c55e',
+                                                color: 'white',
+                                                fontSize: '0.6rem',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px',
+                                                fontWeight: '600'
+                                            }}>
+                                                YOUR TEMPLATE
+                                            </div>
+                                        )}
+
+                                        {/* Selected check */}
+                                        {isSelected && <div className="tp-card-check">✓</div>}
+                                    </div>
+
+                                    {/* Card body */}
+                                    <div className="tp-card-body">
+                                        <div className="tp-card-header-row">
+                                            <span className="tp-card-category">{template.category}</span>
+                                            <span className="tp-card-shape">
+                                                {template.roomConfig.shape.replace(/-/g, ' ')}
                                             </span>
-                                        ))}
-                                    </div>
-
-                                    {/* Tag badge */}
-                                    {template.tag && (
-                                        <div className="tp-card-tag" style={{ background: template.tagColor }}>
-                                            {template.tag}
                                         </div>
-                                    )}
+                                        <h3 className="tp-card-name">{template.name}</h3>
+                                        <p className="tp-card-desc">{template.description || template.desc}</p>
 
-                                    {/* Selected check */}
-                                    {isSelected && <div className="tp-card-check">✓</div>}
-                                </div>
+                                        {/* Detail grid */}
+                                        <div className="tp-card-details">
+                                            <div className="tp-detail">
+                                                <span>📐</span>
+                                                <span>{template.roomConfig.width}×{template.roomConfig.depth} m</span>
+                                            </div>
+                                            <div className="tp-detail">
+                                                <span>🪑</span>
+                                                <span>{template.items.length} items</span>
+                                            </div>
+                                            <div className="tp-detail">
+                                                <span>🪟</span>
+                                                <span>{(template.windows || []).length} window{(template.windows || []).length !== 1 ? 's' : ''}</span>
+                                            </div>
+                                            <div className="tp-detail">
+                                                <span>
+                                                    {template.roomConfig.lightingMode === 'Day' ? '☀️' :
+                                                        template.roomConfig.lightingMode === 'Golden' ? '🌅' : '🌙'}
+                                                </span>
+                                                <span>{template.roomConfig.lightingMode}</span>
+                                            </div>
+                                        </div>
 
-                                {/* Card body */}
-                                <div className="tp-card-body">
-                                    <div className="tp-card-header-row">
-                                        <span className="tp-card-category">{template.category}</span>
-                                        <span className="tp-card-shape">
-                                            {template.roomConfig.shape.replace(/-/g, ' ')}
-                                        </span>
-                                    </div>
-                                    <h3 className="tp-card-name">{template.name}</h3>
-                                    <p className="tp-card-desc">{template.desc}</p>
-
-                                    {/* Detail grid */}
-                                    <div className="tp-card-details">
-                                        <div className="tp-detail">
-                                            <span>📐</span>
-                                            <span>{template.roomConfig.width}×{template.roomConfig.depth} m</span>
-                                        </div>
-                                        <div className="tp-detail">
-                                            <span>🪑</span>
-                                            <span>{template.items.length} items</span>
-                                        </div>
-                                        <div className="tp-detail">
-                                            <span>🪟</span>
-                                            <span>{template.windows.length} window{template.windows.length !== 1 ? 's' : ''}</span>
-                                        </div>
-                                        <div className="tp-detail">
-                                            <span>
-                                                {template.roomConfig.lightingMode === 'Day' ? '☀️' :
-                                                    template.roomConfig.lightingMode === 'Golden' ? '🌅' : '🌙'}
-                                            </span>
-                                            <span>{template.roomConfig.lightingMode}</span>
+                                        <div className="tp-card-cta">
+                                            {isSelected ? '⏳ Loading…' : 'Use Template →'}
                                         </div>
                                     </div>
-
-                                    <div className="tp-card-cta">
-                                        {isSelected ? '⏳ Loading…' : 'Use Template →'}
-                                    </div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* ── Footer ── */}
                 <footer className="tp-footer">

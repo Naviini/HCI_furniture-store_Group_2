@@ -1,6 +1,7 @@
 import React, { useRef, useMemo } from 'react';
 import { TransformControls, Html, Outlines, useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
 /* ── glTF model paths (from /src/assets) ── */
 import coffeeTablePath    from '../assets/table/coffee_table_round_01_1k/coffee_table_round_01_1k.gltf?url';
@@ -68,7 +69,7 @@ useGLTF.preload(diningSetPath);
 useGLTF.preload(diningTablePath);
 
 /* ── Component that renders a loaded glTF scene ── */
-function ModelMesh({ modelInfo, color, isSelected, onClick }) {
+function ModelMesh({ modelInfo, color, brightness = 1, roughness, metalness, isSelected, onClick }) {
   const { scene } = useGLTF(modelInfo.path);
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
@@ -76,15 +77,23 @@ function ModelMesh({ modelInfo, color, isSelected, onClick }) {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
-        // Optionally tint by multiplying the existing material
+        child.material = child.material.clone();
         if (color && color !== '#888888') {
-          child.material = child.material.clone();
           child.material.color.set(color);
         }
+        if (roughness !== undefined) child.material.roughness = roughness;
+        if (metalness !== undefined) child.material.metalness = metalness;
+        /* ── Shading: darken or brighten via multiplier / emissive ── */
+        if (brightness < 1) {
+          child.material.color.multiplyScalar(Math.max(0.05, brightness));
+        }
+        child.material.emissiveIntensity = brightness > 1 ? (brightness - 1) * 0.45 : 0;
+        if (!child.material.emissive) child.material.emissive = new THREE.Color(0, 0, 0);
+        if (brightness > 1) child.material.emissive.set('#ffffff');
       }
     });
     return clone;
-  }, [scene, color]);
+  }, [scene, color, brightness, roughness, metalness]);
 
   return (
     <group onClick={onClick} scale={modelInfo.scale}>
@@ -94,7 +103,12 @@ function ModelMesh({ modelInfo, color, isSelected, onClick }) {
 }
 
 /* ── Fallback primitive geometry for items without a glTF model ── */
-function PrimitiveMesh({ type, color, isSelected, onClick }) {
+function PrimitiveMesh({ type, color, brightness = 1, roughness, metalness, isSelected, onClick }) {
+  const shadedColor = useMemo(() => {
+    if (brightness >= 1) return color;
+    return '#' + new THREE.Color(color).multiplyScalar(Math.max(0.05, brightness)).getHexString();
+  }, [color, brightness]);
+
   const getGeometry = () => {
     switch (type) {
       case 'Table': return <boxGeometry args={[1.5, 0.1, 1]} />;
@@ -109,7 +123,13 @@ function PrimitiveMesh({ type, color, isSelected, onClick }) {
   return (
     <mesh onClick={onClick} castShadow receiveShadow>
       {getGeometry()}
-      <meshStandardMaterial color={color} roughness={0.3} metalness={0.1} />
+      <meshStandardMaterial
+        color={shadedColor}
+        roughness={roughness ?? 0.3}
+        metalness={metalness ?? 0.1}
+        emissive="#ffffff"
+        emissiveIntensity={brightness > 1 ? (brightness - 1) * 0.45 : 0}
+      />
       {isSelected && <Outlines thickness={2} color="#3b82f6" />}
     </mesh>
   );
@@ -118,7 +138,7 @@ function PrimitiveMesh({ type, color, isSelected, onClick }) {
 export default function Furniture({
   data, isSelected, onSelect, onChange, mode, setIsDragging, roomConfig
 }) {
-  const { id, type, position, rotation, scale, color } = data;
+  const { id, type, position, rotation, scale, color, roughness, metalness, brightness = 1 } = data;
   const meshRef = useRef();
   const controlsRef = useRef();
   const modelInfo = MODEL_MAP[type];
@@ -182,9 +202,9 @@ export default function Furniture({
 
       <group ref={meshRef} position={position} rotation={rotation} scale={scale}>
         {modelInfo ? (
-          <ModelMesh modelInfo={modelInfo} color={color} isSelected={isSelected} onClick={handleClick} />
+          <ModelMesh modelInfo={modelInfo} color={color} brightness={brightness} roughness={roughness} metalness={metalness} isSelected={isSelected} onClick={handleClick} />
         ) : (
-          <PrimitiveMesh type={type} color={color} isSelected={isSelected} onClick={handleClick} />
+          <PrimitiveMesh type={type} color={color} brightness={brightness} roughness={roughness} metalness={metalness} isSelected={isSelected} onClick={handleClick} />
         )}
 
         {/* Light source for Lamps */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DesignCanvas from '../components/DesignCanvas';
@@ -55,6 +55,45 @@ export default function Dashboard() {
 
   const [user, setUser] = useState(null);
   const [items, setItems] = useState([]);
+  /* ── Undo / Redo history (NF: Error Prevention & Recovery) ── */
+  const histRef = useRef({ stack: [[]], idx: 0 });
+  const [histVer, setHistVer] = useState(0); // incremented to force re-render of canUndo/canRedo
+
+  const pushHistory = useCallback((newItems) => {
+    const h = histRef.current;
+    const newStack = [...h.stack.slice(0, h.idx + 1), newItems];
+    histRef.current = { stack: newStack, idx: newStack.length - 1 };
+    setItems(newItems);
+    setHistVer(v => v + 1);
+  }, []);
+
+  /* Reset history entirely when loading a template or saved design */
+  const resetHistory = useCallback((newItems) => {
+    histRef.current = { stack: [newItems], idx: 0 };
+    setItems(newItems);
+    setHistVer(v => v + 1);
+  }, []);
+
+  const undo = useCallback(() => {
+    const h = histRef.current;
+    if (h.idx <= 0) return;
+    const newIdx = h.idx - 1;
+    histRef.current = { ...h, idx: newIdx };
+    setItems(h.stack[newIdx]);
+    setSelectedId(null);
+    setHistVer(v => v + 1);
+    setToast('↩ Undo'); setToastType('info'); setTimeout(() => setToast(null), 2000);
+  }, []);
+
+  const redo = useCallback(() => {
+    const h = histRef.current;
+    if (h.idx >= h.stack.length - 1) return;
+    const newIdx = h.idx + 1;
+    histRef.current = { ...h, idx: newIdx };
+    setItems(h.stack[newIdx]);
+    setHistVer(v => v + 1);
+    setToast('↪ Redo'); setToastType('info'); setTimeout(() => setToast(null), 2000);
+  }, []);
   const [selectedId, setSelectedId] = useState(null);
   const [mode, setMode] = useState('3D');
   const [cameraMode, setCameraMode] = useState('TPP');
@@ -65,6 +104,7 @@ export default function Dashboard() {
     shape: 'rectangle', width: 15, depth: 15,
     wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
+    ambientIntensity: null, sunIntensity: null,
   });
 
   const [windows, setWindows] = useState([]);
@@ -75,7 +115,9 @@ export default function Dashboard() {
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
+  const [projectName, setProjectName] = useState('Untitled Project');
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
   useEffect(() => {
@@ -85,10 +127,12 @@ export default function Dashboard() {
       }
       if (e.key === 'Escape') setSelectedId(null);
       if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); setShowSaveModal(true); }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); undo(); }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, items]);
+  }, [selectedId, items, undo, redo]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -122,20 +166,25 @@ export default function Dashboard() {
     const newItem = {
       id: Date.now(), type,
       position: [0, def.y, 0], rotation: [0, 0, 0], scale: [1, 1, 1],
-      color: def.color,
+      color: def.color, brightness: 1,
     };
-    setItems(prev => [...prev, newItem]);
+    pushHistory([...histRef.current.stack[histRef.current.idx], newItem]);
     setSelectedId(newItem.id);
     showToast(`${type} added to canvas`, 'success');
   };
 
-  const updateItem = (id, data) => setItems(prev => prev.map(i => i.id === id ? { ...i, ...data } : i));
+  const updateItem = useCallback((id, data) => {
+    const current = histRef.current.stack[histRef.current.idx];
+    const next = current.map(i => i.id === id ? { ...i, ...data } : i);
+    pushHistory(next);
+  }, [pushHistory]);
 
-  const deleteItem = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id));
+  const deleteItem = useCallback((id) => {
+    const current = histRef.current.stack[histRef.current.idx];
+    pushHistory(current.filter(i => i.id !== id));
     setSelectedId(null);
     showToast('Item removed', 'info');
-  };
+  }, [pushHistory]);
 
   /* ── Window management ── */
   const addWindow = (wall) => {
@@ -186,12 +235,78 @@ export default function Dashboard() {
         body: JSON.stringify({ userId: user._id, name: designName, items, roomConfig, windows, doors, thumbnail }),
       });
       showToast('Project saved successfully!', 'success');
+      setProjectName(designName);
       setShowSaveModal(false);
     } catch {
       showToast('Failed to save. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  /* ── Save as Template function ── */
+  const handleSaveTemplateSubmit = async ({ name, description, category, emoji, tag, isPublic }) => {
+    if (!items.length) {
+      showToast('Cannot save empty design as template', 'warning');
+      return;
+    }
+
+    const thumbnail = canvasRef.current?.takeScreenshot() || '';
+    setIsSaving(true);
+    try {
+      // Generate preview items from current furniture
+      const previewItems = items.slice(0, 4).map(item => {
+        switch (item.type) {
+          case 'Sofa': return '🛋️';
+          case 'Coffee Table': return '☕';
+          case 'Chair': return '💺';
+          case 'Bed': return '🛏️';
+          case 'Lamp': return '💡';
+          case 'Drawer': return '🗄️';
+          case 'Table': return '🔲';
+          case 'Cabinet': return '📦';
+          default: return '📦';
+        }
+      });
+
+      const templateData = {
+        userId: user._id,
+        name,
+        description,
+        category: category || 'Custom',
+        emoji: emoji || '⭐',
+        tag: tag || 'Custom',
+        tagColor: '#22c55e',
+        gradient: 'linear-gradient(135deg, #059669 0%, #047857 40%, #065f46 100%)',
+        previewItems,
+        items,
+        roomConfig,
+        windows: windows || [],
+        doors: doors || [],
+        thumbnail,
+        isPublic: isPublic || false
+      };
+
+      await fetch('http://localhost:5000/api/templates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        },
+        body: JSON.stringify(templateData),
+      });
+
+      showToast('Template saved successfully!', 'success');
+      setShowTemplateModal(false);
+    } catch {
+      showToast('Failed to save template. Please try again.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const saveAsTemplate = () => {
+    setShowTemplateModal(true);
   };
 
   const loadDesigns = async () => {
@@ -204,7 +319,7 @@ export default function Dashboard() {
       if (data.length > 0) {
 
         const design = data[data.length - 1];
-        setItems(design.items);
+        resetHistory(design.items || []);
         if (design.roomConfig) setRoomConfig(design.roomConfig);
         if (design.windows) setWindows(design.windows);
         if (design.doors) setDoors(design.doors);
@@ -224,19 +339,43 @@ export default function Dashboard() {
   };
 
   const handleLoadDesign = (design) => {
-    setItems(design.items || []);
+    // Use resetHistory to properly initialize undo/redo state
+    resetHistory(design.items || []);
     if (design.roomConfig) setRoomConfig(design.roomConfig);
     if (design.windows) setWindows(design.windows);
+    if (design.doors) setDoors(design.doors);
+    setProjectName(design.name);
     setShowLoadModal(false);
     showToast(`Loaded: ${design.name}`, 'success');
   };
 
+  const handleDeleteDesign = async (e, designId) => {
+    e.stopPropagation();
+    try {
+      await fetch(`http://localhost:5000/api/designs/${designId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${user.token}` },
+      });
+      setSavedDesigns(prev => prev.filter(d => d._id !== designId));
+      showToast('Design deleted', 'info');
+    } catch {
+      showToast('Failed to delete design', 'error');
+    }
+  };
+
   /* ── Load a template ── */
   const handleSelectTemplate = (template) => {
-    setItems(template.items.map(item => ({ ...item, id: Date.now() + Math.random() })));
+    // Use resetHistory to properly initialize undo/redo state
+    const itemsWithNewIds = template.items.map(item => ({
+      ...item,
+      id: Date.now() + Math.random() * 1000
+    }));
+    resetHistory(itemsWithNewIds);
+
     setRoomConfig(template.roomConfig);
     setWindows(template.windows || []);
     setDoors(template.doors || []);
+    setProjectName(template.name);
     setShowTemplates(false);
     showToast(`Loaded template: ${template.name}`, 'success');
   };
@@ -278,6 +417,11 @@ export default function Dashboard() {
           link.click();
           showToast('Screenshot downloaded!', 'success');
         }}
+        saveAsTemplate={saveAsTemplate}
+        undo={undo}
+        redo={redo}
+        canUndo={histRef.current.idx > 0}
+        canRedo={histRef.current.idx < histRef.current.stack.length - 1}
       />
 
       {/* ── MAIN CANVAS AREA ── */}
@@ -289,8 +433,9 @@ export default function Dashboard() {
 
         {/* ── TOP HEADER BAR ── */}
         <header className="db-header" role="banner">
+
+          {/* ── LEFT: View Mode Toggle ── */}
           <div className="db-header-left">
-            {/* ── View Mode Toggle ── */}
             <div className="db-mode-toggle" role="toolbar" aria-label="View mode selector">
               <button
                 id="btn-3d-view"
@@ -299,7 +444,7 @@ export default function Dashboard() {
                 aria-pressed={mode === '3D'}
                 aria-label="Switch to 3D view"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M12 2L2 7l10 5 10-5-10-5z" />
                   <path d="M2 17l10 5 10-5" />
                   <path d="M2 12l10 5 10-5" />
@@ -313,7 +458,7 @@ export default function Dashboard() {
                 aria-pressed={mode === '2D'}
                 aria-label="Switch to 2D Blueprint view"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <rect x="3" y="3" width="18" height="18" rx="2" />
                   <line x1="3" y1="9" x2="21" y2="9" />
                   <line x1="3" y1="15" x2="21" y2="15" />
@@ -323,98 +468,134 @@ export default function Dashboard() {
                 <span>Blueprint</span>
               </button>
             </div>
-            {/* Keyboard shortcut hints */}
-            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
-              <span className="db-hint"><kbd>Del</kbd> Remove</span>
-              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
-              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
-            </div>
           </div>
 
-          <div className="db-header-right">
-            {/* Quick actions */}
-            {/* Templates button */}
-            <button
-              id="btn-templates"
-              className="db-header-btn"
-              onClick={() => setShowTemplates(true)}
-              aria-label="Browse room templates"
-              data-tooltip="Templates"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-              <span>Templates</span>
-            </button>
-
-            <button
-              className="db-header-btn db-header-btn--save"
-              onClick={() => setShowSaveModal(true)}
-              aria-label="Save design (Ctrl+S)"
-              data-tooltip="Save (Ctrl+S)"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                <polyline points="17 21 17 13 7 13 7 21" />
-                <polyline points="7 3 7 8 15 8" />
+          {/* ── CENTER: Project name + selected item ── */}
+          <div className="db-header-center">
+            <div className="db-project-title" aria-label={`Current project: ${projectName}`}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
               </svg>
-              <span>Save</span>
-            </button>
-
-            <button
-              id="btn-screenshot-header"
-              className="db-header-btn"
-              onClick={() => {
-                const link = document.createElement('a');
-                link.download = `design-${Date.now()}.jpg`;
-                link.href = canvasRef.current.takeScreenshot();
-                link.click();
-                showToast('Screenshot downloaded!', 'success');
-              }}
-              aria-label="Download screenshot"
-              data-tooltip="Screenshot"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
-              <span>Capture</span>
-            </button>
-
-            {/* Admin panel shortcut (only visible to admin users) */}
-            {user.role === 'admin' && (
-              <button
-                id="btn-admin-panel"
-                className="db-header-btn"
-                onClick={() => setShowAdminConfirm(true)}
-                aria-label="Go to admin panel"
-                data-tooltip="Admin Panel"
-                style={{ background: 'rgba(245,158,11,0.15)', borderColor: 'rgba(245,158,11,0.3)', color: '#fbbf24' }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                <span>Admin Panel</span>
-              </button>
-            )}
-
-            {/* Selected item indicator */}
+              <span>{projectName}</span>
+            </div>
             {selectedItem && (
               <div className="db-selected-badge" aria-live="polite">
                 <span className="db-selected-dot" aria-hidden="true" />
                 <span>{selectedItem.type} selected</span>
               </div>
             )}
+          </div>
 
-            {/* User avatar */}
-            <div className="db-user-chip" aria-label={`Logged in as ${user.username || user.email}`} data-tooltip={user.username || user.email}>
+          {/* ── RIGHT: Shortcuts + Actions + User ── */}
+          <div className="db-header-right">
+
+            {/* Keyboard shortcut hints */}
+            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
+              <span className="db-hint"><kbd>Del</kbd> Remove</span>
+              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
+              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+            </div>
+
+            <span className="db-header-divider" aria-hidden="true" />
+
+            {/* Action buttons group */}
+            <div className="db-header-actions" role="toolbar" aria-label="Project actions">
+              <button
+                id="btn-templates"
+                className="db-header-btn"
+                onClick={() => setShowTemplates(true)}
+                aria-label="Browse room templates"
+                title="Templates"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
+                </svg>
+                <span>Templates</span>
+              </button>
+
+              <button
+                id="btn-load-header"
+                className="db-header-btn"
+                onClick={loadDesigns}
+                aria-label="Load saved project"
+                title="Load project"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>Load</span>
+              </button>
+
+              <button
+                id="btn-save-header"
+                className="db-header-btn db-header-btn--save"
+                onClick={() => setShowSaveModal(true)}
+                aria-label="Save design (Ctrl+S)"
+                title="Save (Ctrl+S)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                <span>Save</span>
+              </button>
+
+              <button
+                id="btn-screenshot-header"
+                className="db-header-btn"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.download = `design-${Date.now()}.jpg`;
+                  link.href = canvasRef.current.takeScreenshot();
+                  link.click();
+                  showToast('Screenshot downloaded!', 'success');
+                }}
+                aria-label="Download screenshot"
+                title="Capture screenshot"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+                <span>Capture</span>
+              </button>
+            </div>
+
+            {/* Admin panel button */}
+            {user.role === 'admin' && (
+              <>
+                <span className="db-header-divider" aria-hidden="true" />
+                <button
+                  id="btn-admin-panel"
+                  className="db-header-btn db-header-btn--admin"
+                  onClick={() => setShowAdminConfirm(true)}
+                  aria-label="Go to admin panel"
+                  title="Admin Panel"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  <span>Admin</span>
+                </button>
+              </>
+            )}
+
+            <span className="db-header-divider" aria-hidden="true" />
+
+            {/* User chip */}
+            <div className="db-user-chip" aria-label={`Logged in as ${user.username || user.email}`} title={user.username || user.email}>
               <div className="db-avatar" aria-hidden="true"
-                style={user.role === 'admin' ? { background: 'rgba(245,158,11,0.18)', color: '#fbbf24' } : {}}>
+                style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}>
                 {(user.username || user.email || 'U')[0].toUpperCase()}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <div className="db-user-info">
                 <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
-                {user.role === 'admin' ? (
-                  <span style={{ fontSize: '0.6rem', color: '#fbbf24', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>Designer</span>
-                ) : (
-                  <span style={{ fontSize: '0.6rem', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>User</span>
-                )}
+                <span className={`db-role-badge ${user.role === 'admin' ? 'db-role-badge--admin' : 'db-role-badge--user'}`}>
+                  {user.role === 'admin' ? 'Admin' : 'User'}
+                </span>
               </div>
             </div>
           </div>
@@ -603,6 +784,130 @@ export default function Dashboard() {
         onSubmit={handleSaveSubmit}
       />
 
+      {/* ── SAVE AS TEMPLATE MODAL ── */}
+      {showTemplateModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}
+          onClick={() => setShowTemplateModal(false)}
+          role="dialog" aria-modal="true" aria-labelledby="template-modal-title"
+        >
+          <div
+            style={{ background: '#111421', border: '1px solid rgba(255,255,255,0.10)', borderRadius: 20, width: 420, maxWidth: '92vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 28px 70px rgba(0,0,0,0.55)', position: 'relative', overflow: 'hidden' }}
+            onClick={e => e.stopPropagation()}
+            className="animate-slideUp"
+          >
+            {/* Header */}
+            <div style={{ padding: '24px 28px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <h3 id="template-modal-title" style={{ margin: '0 0 6px', fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>Save as Template</h3>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#8b93a9', lineHeight: 1.5 }}>Create a reusable template from your current design</p>
+              <button
+                onClick={() => setShowTemplateModal(false)}
+                style={{ position: 'absolute', top: 16, right: 16, background: 'transparent', border: 'none', color: '#8b93a9', cursor: 'pointer', padding: 4, borderRadius: 6, display: 'flex' }}
+                aria-label="Close"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            {/* Form */}
+            <form
+              style={{ padding: '20px 28px 28px' }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                handleSaveTemplateSubmit({
+                  name: formData.get('name'),
+                  description: formData.get('description'),
+                  category: formData.get('category'),
+                  emoji: formData.get('emoji'),
+                  tag: formData.get('tag'),
+                  isPublic: formData.get('isPublic') === 'on'
+                });
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>Template Name *</label>
+                  <input
+                    name="name"
+                    required
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit' }}
+                    placeholder="My Custom Room"
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>Description</label>
+                  <textarea
+                    name="description"
+                    rows="2"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit', resize: 'none' }}
+                    placeholder="Brief description of this room template"
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>Category</label>
+                    <select
+                      name="category"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit' }}
+                    >
+                      <option value="Custom">Custom</option>
+                      <option value="Living Room">Living Room</option>
+                      <option value="Bedroom">Bedroom</option>
+                      <option value="Dining">Dining</option>
+                      <option value="Workspace">Workspace</option>
+                      <option value="Studio">Studio</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>Emoji</label>
+                    <input
+                      name="emoji"
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit' }}
+                      placeholder="⭐"
+                      defaultValue="⭐"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#e2e8f0', marginBottom: 6 }}>Tag (optional)</label>
+                  <input
+                    name="tag"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.9rem', fontFamily: 'inherit' }}
+                    placeholder="Custom"
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+                  <input type="checkbox" name="isPublic" id="isPublic" style={{ width: 16, height: 16 }} />
+                  <label htmlFor="isPublic" style={{ fontSize: '0.85rem', color: '#e2e8f0', cursor: 'pointer' }}>Make this template public (others can use it)</label>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowTemplateModal(false)}
+                  style={{ padding: '10px 18px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.18s' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  style={{ padding: '10px 18px', borderRadius: 10, background: 'linear-gradient(135deg, #22c55e, #059669)', border: 'none', color: '#fff', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(34,197,94,0.35)', transition: 'all 0.18s', opacity: isSaving ? 0.6 : 1 }}
+                >
+                  {isSaving ? 'Saving...' : 'Save Template'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ── LOAD PREVIOUS MODAL ── */}
       {showLoadModal && (
         <div
@@ -631,25 +936,44 @@ export default function Dashboard() {
             {/* Design list */}
             <div style={{ overflowY: 'auto', padding: '12px 16px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[...savedDesigns].reverse().map((design) => (
-                <button
+                <div
                   key={design._id}
-                  onClick={() => handleLoadDesign(design)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', transition: 'all 0.18s', width: '100%' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, overflow: 'hidden', transition: 'all 0.18s' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
                 >
-                  <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e8ecf4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{design.name}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>
-                      {design.items?.length ?? 0} item{design.items?.length !== 1 ? 's' : ''}
-                      {design.createdAt ? ` · ${new Date(design.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                  {/* Load area */}
+                  <button
+                    onClick={() => handleLoadDesign(design)}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', minWidth: 0 }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     </div>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e8ecf4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{design.name}</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: 2 }}>
+                        {design.items?.length ?? 0} item{design.items?.length !== 1 ? 's' : ''}
+                        {design.createdAt ? ` · ${new Date(design.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+                      </div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2"><path d="M9 18l6-6-6-6"/></svg>
+                  </button>
+                  {/* Delete button */}
+                  <button
+                    onClick={(e) => handleDeleteDesign(e, design._id)}
+                    title="Delete this design"
+                    style={{ flexShrink: 0, width: 36, height: 36, margin: '0 10px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', borderRadius: 8, color: '#ef4444', cursor: 'pointer', transition: 'all 0.15s' }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.4)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.18)'; }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4h6v2"/>
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -662,6 +986,7 @@ export default function Dashboard() {
           onSelectTemplate={handleSelectTemplate}
           onSkip={() => setShowTemplates(false)}
           onClose={() => setShowTemplates(false)}
+          user={user}
         />
       )}
 
