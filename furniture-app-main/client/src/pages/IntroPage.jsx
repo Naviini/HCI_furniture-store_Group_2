@@ -5,112 +5,123 @@ import './IntroPage.css';
 
 /* ─── Data ───────────────────────────────────────────────── */
 const ROOMS = [
-  {
-    id: 'bedroom', label: 'Bedroom', size: '12–25 m²', color: '#8b5cf6',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 7v11a1 1 0 001 1h16a1 1 0 001-1V7" /><path d="M21 10H3" />
-        <path d="M7 10V7a2 2 0 012-2h6a2 2 0 012 2v3" /><path d="M5 19v1" /><path d="M19 19v1" />
-      </svg>
-    ),
-  },
-  {
-    id: 'living', label: 'Living Room', size: '15–40 m²', color: '#6366f1',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M5 11V7a2 2 0 012-2h10a2 2 0 012 2v4" /><path d="M3 11h18v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5z" />
-        <path d="M5 18v2" /><path d="M19 18v2" />
-      </svg>
-    ),
-  },
-  {
-    id: 'dining', label: 'Dining Room', size: '10–20 m²', color: '#ec4899',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 5v14" /><path d="M5 8h14" /><path d="M7 8v11" /><path d="M17 8v11" /><path d="M7 19h10" />
-      </svg>
-    ),
-  },
-  {
-    id: 'office', label: 'Home Office', size: '8–15 m²', color: '#14b8a6',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="4" width="20" height="12" rx="2" /><path d="M6 20h12" /><path d="M12 16v4" />
-      </svg>
-    ),
-  },
-  {
-    id: 'kids', label: "Children's", size: '10–18 m²', color: '#f59e0b',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4" /><path d="M6 20v-2a4 4 0 018 0" /><path d="M17 13l2 2-2 2" />
-      </svg>
-    ),
-  },
-  {
-    id: 'outdoor', label: 'Outdoor', size: '20+ m²', color: '#22c55e',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 3v1" /><path d="M18.36 5.64l-.71.71" /><path d="M21 12h-1" />
-        <path d="M18.36 18.36l-.71-.71" /><path d="M12 20v1" />
-        <path d="M5.64 18.36l.71-.71" /><path d="M3 12h1" /><path d="M5.64 5.64l.71.71" />
-        <circle cx="12" cy="12" r="4" />
-      </svg>
-    ),
-  },
-];
+    {
+      id: 'bedroom', label: 'Bedroom', size: '12�25 m�', color: '#8b5cf6',
+      photo: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Modern bedroom interior with soft lighting',
+    },
+    {
+      id: 'living', label: 'Living Room', size: '15�40 m�', color: '#6366f1',
+      photo: 'https://images.unsplash.com/photo-1615874694520-474822394e73?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Contemporary living room with neutral tones',
+    },
+    {
+      id: 'dining', label: 'Dining Room', size: '10�20 m�', color: '#ec4899',
+      photo: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Elegant dining room with warm wooden textures',
+    },
+    {
+      id: 'bathroom', label: 'Bathroom', size: '5�10 m�', color: '#0ea5e9',
+      photo: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Clean and modern bathroom design',
+    },
+    {
+      id: 'office', label: 'Home Office', size: '8�15 m�', color: '#14b8a6',
+      photo: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Minimal home office workspace with desk and chair',
+    },
+    {
+      id: 'kitchen', label: 'Kitchen', size: '10�25 m�', color: '#f43f5e',
+      photo: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Modern kitchen interior design',
+    },
+    {
+      id: 'kids', label: "Kids Room", size: '10�18 m�', color: '#f59e0b',
+      photo: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Kids playroom with colorful furniture and decor',
+    },
+    {
+      id: 'outdoor', label: 'Outdoor', size: '20+ m�', color: '#22c55e',
+      photo: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=900&q=80',
+      photoAlt: 'Outdoor patio area with lounge seating and greenery',
+    },
+  ];
 
 const GALLERY = [
   {
     title: 'Calm Scandinavian Bedroom', room: 'Bedroom', area: '21 m²', style: 'Scandinavian',
-    gradient: 'linear-gradient(135deg, #312e8133 0%, #4c1d9533 100%)', accentColor: '#8b5cf6', icon: '🛏️'
-  },
-  {
-    title: 'Modern Playful Workspace', room: 'Office', area: '23 m²', style: 'Modern',
-    gradient: 'linear-gradient(135deg, #06402133 0%, #06474733 100%)', accentColor: '#14b8a6', icon: '🖥️'
-  },
-  {
-    title: 'Contemporary Living Lounge', room: 'Living', area: '16 m²', style: 'Contemporary',
-    gradient: 'linear-gradient(135deg, #83177733 0%, #4338ca33 100%)', accentColor: '#ec4899', icon: '🛋️'
-  },
-  {
-    title: 'Cozy Family Dining', room: 'Dining', area: '18 m²', style: 'Classic',
-    gradient: 'linear-gradient(135deg, #312e8133 0%, #6d28d933 100%)', accentColor: '#6366f1', icon: '🍽️'
-  },
-  {
-    title: 'Bright Kids Playroom', room: "Children's", area: '20 m²', style: 'Playful',
-    gradient: 'linear-gradient(135deg, #78350f33 0%, #92400e33 100%)', accentColor: '#f59e0b', icon: '🧸'
-  },
-  {
-    title: 'Natural Outdoor Terrace', room: 'Outdoor', area: '30 m²', style: 'Natural',
-    gradient: 'linear-gradient(135deg, #14532d33 0%, #16652633 100%)', accentColor: '#22c55e', icon: '🌿'
-  },
-];
+      gradient: 'linear-gradient(135deg, #312e8133 0%, #4c1d9533 100%)', accentColor: '#8b5cf6', 
+      photo: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      title: 'Modern Playful Workspace', room: 'Office', area: '23 m²', style: 'Modern',
+      gradient: 'linear-gradient(135deg, #06402133 0%, #06474733 100%)', accentColor: '#14b8a6', 
+      photo: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      title: 'Contemporary Living Lounge', room: 'Living', area: '16 m²', style: 'Contemporary',
+      gradient: 'linear-gradient(135deg, #83177733 0%, #4338ca33 100%)', accentColor: '#ec4899', 
+      photo: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      title: 'Cozy Family Dining', room: 'Dining', area: '18 m²', style: 'Classic',
+      gradient: 'linear-gradient(135deg, #312e8133 0%, #6d28d933 100%)', accentColor: '#6366f1', 
+      photo: 'https://images.unsplash.com/photo-1604578762246-41134e37f9cc?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      title: 'Bright Kids Playroom', room: "Children's", area: '20 m²', style: 'Playful',
+      gradient: 'linear-gradient(135deg, #78350f33 0%, #92400e33 100%)', accentColor: '#f59e0b', 
+      photo: 'https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?q=80&w=800&auto=format&fit=crop'
+    },
+    {
+      title: 'Natural Outdoor Terrace', room: 'Outdoor', area: '30 m²', style: 'Natural',
+      gradient: 'linear-gradient(135deg, #14532d33 0%, #16652633 100%)', accentColor: '#22c55e',
+      photo: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=800&auto=format&fit=crop'
+    }
+  ];
 
-const TOOLS = [
+  const TOOLS = [
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 3v18" /></svg>,
-    title: 'Room Builder', desc: 'Set exact room dimensions, wall colors, and floor materials. Build any room shape to match real spaces.'
+    title: 'Room Builder',
+    desc: 'Set exact room dimensions, wall colors, and floor materials. Build any room shape to match real spaces.',
+    photo: 'https://images.unsplash.com/photo-1616137466211-f939a420be84?q=80&w=1400&auto=format&fit=crop',
+    tint: '#ec4899',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>,
-    title: '3D Visualization', desc: 'Real-time Three.js rendering with day, golden hour, and night lighting presets for stunning previews.'
+    title: '3D Visualization',
+    desc: 'Real-time Three.js rendering with day, golden hour, and night lighting presets for stunning previews.',
+    photo: 'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?q=80&w=1400&auto=format&fit=crop',
+    tint: '#8b5cf6',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="13.5" cy="6.5" r="2.5" /><path d="M17 17.5c2.38-1.3 3-3.7 3-5.5a6 6 0 00-12 0c0 1.8.62 4.2 3 5.5" /><path d="M8.5 14L4 20h16l-4.5-6" /></svg>,
-    title: 'Furniture Library', desc: 'Tables, chairs, sofas, beds, lamps, and shelves. Place and customize with one click.'
+    title: 'Furniture Library',
+    desc: 'Tables, chairs, sofas, beds, lamps, and shelves. Place and customize with one click.',
+    photo: 'https://images.unsplash.com/photo-1617104678098-de229db51175?q=80&w=1400&auto=format&fit=crop',
+    tint: '#14b8a6',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.27 5.82 22 7 14.14l-5-4.87 6.91-1.01z" /></svg>,
-    title: 'Customize Everything', desc: 'Color, position, rotation, and scale. Full transform controls for every object in 3D space.'
+    title: 'Customize Everything',
+    desc: 'Color, position, rotation, and scale. Full transform controls for every object in 3D space.',
+    photo: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    tint: '#f97316',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14,2 14,8 20,8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>,
-    title: 'Save & Load Designs', desc: 'Cloud-based storage powered by MongoDB. Pick up right where you left off, from any device.'
+    title: 'Save & Load Designs',
+    desc: 'Cloud-based storage powered by MongoDB. Pick up right where you left off, from any device.',
+    photo: 'https://images.unsplash.com/photo-1618221469555-7f3ad97540d6?q=80&w=1400&auto=format&fit=crop',
+    tint: '#3b82f6',
   },
   {
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" /><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" /></svg>,
-    title: '2D Blueprint View', desc: 'Switch to top-down bird\'s-eye view for precise furniture placement and measurements.'
+    title: '2D Blueprint View',
+    desc: 'Switch to top-down bird\'s-eye view for precise furniture placement and measurements.',
+    photo: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=1400&auto=format&fit=crop',
+    tint: '#22c55e',
   },
 ];
 
@@ -126,6 +137,25 @@ const STEPS = [
   {
     num: '03', label: 'Step 3', title: 'Visualize & save', desc: 'View in 3D with realistic lighting. Save to cloud or capture a high-quality screenshot.',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+  },
+];
+
+const LIVE_BACKGROUNDS = [
+  {
+    id: 'sunlit-lounge',
+    url: 'https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=2200&q=80',
+  },
+  {
+    id: 'warm-bedroom',
+    url: 'https://images.unsplash.com/photo-1617098474202-0d0d7f60f9dc?auto=format&fit=crop&w=2200&q=80',
+  },
+  {
+    id: 'designer-kitchen',
+    url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=2200&q=80',
+  },
+  {
+    id: 'soft-office',
+    url: 'https://images.unsplash.com/photo-1497215842964-222b430dc094?auto=format&fit=crop&w=2200&q=80',
   },
 ];
 
@@ -148,7 +178,14 @@ function useReveal() {
 export default function IntroPage() {
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
+  const [isLightMode, setIsLightMode] = useState(() => {
+    const storedTheme = localStorage.getItem('app-theme') || localStorage.getItem('intro-theme');
+    return storedTheme === 'light';
+  });
+  const [activeBgIndex, setActiveBgIndex] = useState(0);
   const [hoveredRoom, setHoveredRoom] = useState(null);
+  const [failedRoomPhotos, setFailedRoomPhotos] = useState({});
+  const [failedToolPhotos, setFailedToolPhotos] = useState({});
   const [hoveredGallery, setHoveredGallery] = useState(null);
   const [heroVisible, setHeroVisible] = useState(false);
   const pageRef = useRef(null);
@@ -162,7 +199,7 @@ export default function IntroPage() {
       if (parsed.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/onboarding');
+        navigate('/home');
       }
       return;
     }
@@ -177,23 +214,45 @@ export default function IntroPage() {
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setActiveBgIndex((prev) => (prev + 1) % LIVE_BACKGROUNDS.length);
+    }, 8000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('app-theme', isLightMode ? 'light' : 'dark');
+  }, [isLightMode]);
+
   const go = useCallback(() => navigate('/login'), [navigate]);
   const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
-    <div ref={pageRef} className="ip-page">
-      {/* ── Background ──────────────────────────────────── */}
-      <div className="ip-bg-grid" aria-hidden="true" />
-      <div className="ip-orb ip-orb-1" aria-hidden="true" />
-      <div className="ip-orb ip-orb-2" aria-hidden="true" />
-      <div className="ip-orb ip-orb-3" aria-hidden="true" />
+    <div ref={pageRef} className={`ip-page${isLightMode ? ' ip-page--light' : ''}`}>
+      {/* ── Live Background ─────────────────────────────── */}
+      <div className="ip-live-bg" aria-hidden="true">
+        {LIVE_BACKGROUNDS.map((bg, index) => (
+          <div
+            key={bg.id}
+            className={`ip-live-bg-layer${index === activeBgIndex ? ' is-active' : ''}`}
+            style={{ '--ip-live-bg-image': `url(${bg.url})` }}
+          />
+        ))}
+        <div className="ip-live-bg-glow ip-live-bg-glow-1" />
+        <div className="ip-live-bg-glow ip-live-bg-glow-2" />
+        <div className="ip-live-bg-grid" />
+        <div className="ip-live-bg-noise" />
+        <div className="ip-live-bg-vignette" />
+      </div>
 
       {/* ── NAVBAR ──────────────────────────────────────── */}
       <nav className={`ip-nav${scrollY > 40 ? ' ip-nav--scrolled' : ''}`} role="navigation" aria-label="Main navigation">
         <div className="ip-nav-inner">
-          <div className="ip-brand" role="img" aria-label="ND Furniture logo">
-            <img src={ndLogo} alt="ND Furniture" className="ip-brand-logo" />
-            <span className="ip-brand-name">ND Furniture</span>
+          <div className="ip-brand" role="img" aria-label="ND furniture logo">
+            <img src={ndLogo} alt="ND furniture" className="ip-brand-logo" />
+            <span className="ip-brand-name">ND furniture</span>
             
           </div>
           <div className="ip-nav-links" role="list">
@@ -201,10 +260,25 @@ export default function IntroPage() {
             <button className="ip-nav-link" onClick={() => scrollTo('gallery')} role="listitem">Gallery</button>
             <button className="ip-nav-link" onClick={() => scrollTo('tools')} role="listitem">Features</button>
           </div>
-          <button id="btn-nav-signin" className="ip-nav-cta" onClick={go} aria-label="Sign in to start designing">
-            Get Started
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
-          </button>
+          <div className="ip-nav-actions">
+            <button
+              type="button"
+              className={`ip-theme-toggle${isLightMode ? ' is-light' : ''}`}
+              onClick={() => setIsLightMode((prev) => !prev)}
+              aria-label={isLightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+              aria-pressed={isLightMode}
+            >
+              <svg className="ip-theme-toggle-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.2" />
+                <path d="M12 2.5v2.3M12 19.2v2.3M4.8 4.8l1.6 1.6M17.6 17.6l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.8 19.2l1.6-1.6M17.6 6.4l1.6-1.6" />
+              </svg>
+            </button>
+
+            <button id="btn-nav-signin" className="ip-nav-cta" onClick={go} aria-label="Sign in to start designing">
+              Get Started
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -212,7 +286,7 @@ export default function IntroPage() {
       <section
         className="ip-hero"
         style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? 'none' : 'translateY(28px)', transition: 'all 1s cubic-bezier(0.16,1,0.3,1)' }}
-        aria-label="Hero: Welcome to ND Furniture"
+        aria-label="Hero: Welcome to ND furniture"
       >
         <div className="ip-hero-eyebrow" aria-hidden="true">
           <span className="ip-hero-eyebrow-pill">New</span>
@@ -222,7 +296,7 @@ export default function IntroPage() {
 
         <h1 className="ip-hero-h1">
           Design your perfect space
-          <span className="ip-hero-h1-line2"><br />with ND Furniture</span>
+          <span className="ip-hero-h1-line2"><br />with ND furniture</span>
         </h1>
 
         <p className="ip-hero-sub">
@@ -270,10 +344,6 @@ export default function IntroPage() {
       {/* ── ROOM SELECTOR ───────────────────────────────── */}
       <section id="rooms" className="ip-section" aria-labelledby="rooms-heading">
         <div className="ip-section-head ip-reveal">
-          <span className="ip-section-tag">
-            <span className="ip-section-tag-dot" aria-hidden="true" />
-            Plan your room
-          </span>
           <h2 id="rooms-heading" className="ip-section-h2">Choose a room to start designing</h2>
           <p className="ip-section-p">Select a room type below and jump straight into the 3D designer. Set dimensions, add furniture, and visualise instantly.</p>
         </div>
@@ -281,6 +351,7 @@ export default function IntroPage() {
         <div className="ip-rooms-grid" role="list" aria-label="Room types">
           {ROOMS.map((room, i) => {
             const hov = hoveredRoom === room.id;
+            const photoFailed = Boolean(failedRoomPhotos[room.id]);
             return (
               <button
                 key={room.id}
@@ -288,24 +359,34 @@ export default function IntroPage() {
                 className={`ip-room-card ip-reveal ip-reveal-delay-${Math.min(i + 1, 5)}`}
                 role="listitem"
                 aria-label={`Design a ${room.label}, typical size ${room.size}`}
-                style={{
-                  borderColor: hov ? `${room.color}50` : undefined,
-                  background: hov ? `rgba(${hexToRgb(room.color)}, 0.08)` : undefined,
-                  boxShadow: hov ? `0 16px 40px rgba(${hexToRgb(room.color)}, 0.15)` : undefined,
-                }}
                 onMouseEnter={() => setHoveredRoom(room.id)}
                 onMouseLeave={() => setHoveredRoom(null)}
                 onClick={go}
               >
-                <div className="ip-room-card-glow" style={{ background: room.color }} aria-hidden="true" />
-                <div className="ip-room-icon-wrap" style={{ color: room.color, background: `${room.color}18` }}>
-                  {room.icon}
+                <div className="ip-room-photo-wrap" style={{ 
+                  boxShadow: hov ? `0 16px 40px rgba(${hexToRgb(room.color)}, 0.15)` : undefined,
+                  borderColor: hov ? `${room.color}50` : undefined,
+                }}>
+                  <div className="ip-room-photo-inner">
+                    {photoFailed ? (
+                      <div className="ip-room-photo-fallback" aria-hidden="true">{room.photoAlt}</div>
+                    ) : (
+                      <img
+                        src={room.photo}
+                        alt={room.photoAlt}
+                        className="ip-room-photo"
+                        loading="lazy"
+                        decoding="async"
+                        onError={() => setFailedRoomPhotos((prev) => ({ ...prev, [room.id]: true }))}
+                      />
+                    )}
+                    <div className="ip-room-photo-overlay" style={{ background: `linear-gradient(180deg, transparent 45%, ${room.color}35 100%)` }} />
+                  </div>
+                  <div className="ip-add-btn">+</div>
                 </div>
-                <span className="ip-room-name">{room.label}</span>
-                <span className="ip-room-size">{room.size}</span>
-                <span className="ip-room-arrow" style={{ color: room.color }} aria-hidden="true">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
-                </span>
+                <div className="ip-room-text-wrap">
+                  <span className="ip-room-name">Add {room.label}</span>
+                </div>
               </button>
             );
           })}
@@ -318,10 +399,6 @@ export default function IntroPage() {
       {/* ── GALLERY ─────────────────────────────────────── */}
       <section id="gallery" className="ip-section" aria-labelledby="gallery-heading">
         <div className="ip-section-head ip-reveal">
-          <span className="ip-section-tag">
-            <span className="ip-section-tag-dot" aria-hidden="true" />
-            Inspiration
-          </span>
           <h2 id="gallery-heading" className="ip-section-h2">Furnished room ideas</h2>
           <p className="ip-section-p">Browse pre-designed rooms for inspiration. Each style can be fully customised to your own taste.</p>
         </div>
@@ -338,7 +415,8 @@ export default function IntroPage() {
                 aria-label={`Gallery item: ${item.title}`}
               >
                 <div className="ip-gallery-visual" style={{ background: item.gradient }}>
-                  <span className="ip-gallery-emoji" role="img" aria-label={item.room}>{item.icon}</span>
+                    <img src={item.photo} alt={item.title} className="ip-gallery-img" loading="lazy" decoding="async" />
+                    <div className="ip-gallery-overlay" style={{ background: `linear-gradient(to bottom, transparent 30%, ${item.accentColor}30 100%)` }} />
                   <div className="ip-gallery-shimmer" aria-hidden="true" />
                   <span
                     className="ip-gallery-style-badge"
@@ -356,9 +434,15 @@ export default function IntroPage() {
                   <button
                     className="ip-gallery-btn"
                     style={{
-                      background: hov ? item.accentColor : 'rgba(255,255,255,0.04)',
-                      color: hov ? '#fff' : 'rgba(255,255,255,0.45)',
-                      borderColor: hov ? item.accentColor : 'rgba(255,255,255,0.08)',
+                      background: hov
+                        ? item.accentColor
+                        : (isLightMode ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.04)'),
+                      color: hov
+                        ? '#fff'
+                        : (isLightMode ? 'rgba(15,23,42,0.84)' : 'rgba(255,255,255,0.45)'),
+                      borderColor: hov
+                        ? item.accentColor
+                        : (isLightMode ? 'rgba(15,23,42,0.2)' : 'rgba(255,255,255,0.08)'),
                     }}
                     onClick={go}
                     aria-label={`Design ${item.title}`}
@@ -378,10 +462,6 @@ export default function IntroPage() {
       {/* ── HOW IT WORKS ────────────────────────────────── */}
       <section className="ip-section" aria-labelledby="steps-heading">
         <div className="ip-section-head ip-reveal">
-          <span className="ip-section-tag">
-            <span className="ip-section-tag-dot" aria-hidden="true" />
-            How it works
-          </span>
           <h2 id="steps-heading" className="ip-section-h2">Design in three simple steps</h2>
           <p className="ip-section-p">Getting from blank room to finished design takes just minutes.</p>
         </div>
@@ -409,22 +489,40 @@ export default function IntroPage() {
       {/* ── FEATURES / TOOLS ────────────────────────────── */}
       <section id="tools" className="ip-section" aria-labelledby="tools-heading">
         <div className="ip-section-head ip-reveal">
-          <span className="ip-section-tag">
-            <span className="ip-section-tag-dot" aria-hidden="true" />
-            Planning tools
-          </span>
           <h2 id="tools-heading" className="ip-section-h2">Everything you need, in one place</h2>
           <p className="ip-section-p">A complete toolkit for furniture visualization — in-store and at home.</p>
         </div>
 
         <div className="ip-tools-grid">
-          {TOOLS.map((t, i) => (
-            <div key={i} className={`ip-tool-card ip-reveal ip-reveal-delay-${i % 3 + 1}`}>
-              <div className="ip-tool-icon">{t.icon}</div>
-              <h3 className="ip-tool-title">{t.title}</h3>
-              <p className="ip-tool-desc">{t.desc}</p>
-            </div>
-          ))}
+          {TOOLS.map((t, i) => {
+            const photoFailed = Boolean(failedToolPhotos[i]);
+            return (
+              <div key={i} className={`ip-tool-card ip-reveal ip-reveal-delay-${i % 3 + 1}`}>
+                <div className="ip-tool-media">
+                  {photoFailed ? (
+                    <div className="ip-tool-photo-fallback" aria-hidden="true">{t.title}</div>
+                  ) : (
+                    <img
+                      src={t.photo}
+                      alt={t.title}
+                      className="ip-tool-photo"
+                      loading="lazy"
+                      decoding="async"
+                      onError={() => setFailedToolPhotos((prev) => ({ ...prev, [i]: true }))}
+                    />
+                  )}
+                  <div
+                    className="ip-tool-overlay"
+                    style={{ background: `linear-gradient(180deg, rgba(5, 8, 24, 0.08) 10%, rgba(5, 8, 24, 0.92) 100%), linear-gradient(140deg, ${t.tint}44 0%, transparent 80%)` }}
+                  />
+                </div>
+                <div className="ip-tool-body">
+                  <h3 className="ip-tool-title">{t.title}</h3>
+                  <p className="ip-tool-desc">{t.desc}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -464,8 +562,8 @@ export default function IntroPage() {
         <div className="ip-footer-inner">
           <div className="ip-footer-left">
             <div className="ip-brand">
-              <img src={ndLogo} alt="ND Furniture" style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover' }} />
-              <span style={{ fontSize: '0.88rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.6)' }}>ND Furniture</span>
+              <img src={ndLogo} alt="ND furniture" style={{ width: 28, height: 28, borderRadius: 7, objectFit: 'cover' }} />
+              <span style={{ fontSize: '0.88rem', fontWeight: 700, letterSpacing: '-0.02em', color: 'rgba(255,255,255,0.6)' }}>ND furniture</span>
             </div>
             <span className="ip-footer-copy">Built with React · Three.js · Node.js · MongoDB</span>
           </div>
@@ -488,3 +586,10 @@ function hexToRgb(hex) {
   const b = parseInt(hex.slice(5, 7), 16);
   return `${r},${g},${b}`;
 }
+
+
+
+
+
+
+

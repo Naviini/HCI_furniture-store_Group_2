@@ -53,8 +53,8 @@ export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback 
   };
 
   const titles = {
-    login: { title: 'Welcome Back', sub: 'Access the ND Furniture design studio' },
-    register: { title: 'Get Started', sub: 'Create your ND Furniture design studio account' },
+    login: { title: 'Welcome Back', sub: 'Access the ND furniture design studio' },
+    register: { title: 'Get Started', sub: 'Create your ND furniture design studio account' },
     forgot: { title: 'Reset Password', sub: "We'll send you a recovery link" },
   };
 
@@ -62,7 +62,7 @@ export default function LoginBox({ onLogin, onRegister, feedback, clearFeedback 
     <div style={styles.card} className="animate-slideUp" role="main" aria-label="Authentication form">
       {/* Logo */}
       <div style={styles.logoWrap}>
-        <img src={ndLogo} alt="ND Furniture" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
+        <img src={ndLogo} alt="ND furniture" style={{ width: 56, height: 56, borderRadius: 12, objectFit: 'cover' }} />
       </div>
 
       {/* Header */}
@@ -378,8 +378,8 @@ const styles = {
     display: 'block', width: '100%',
     padding: '12px 14px 12px 42px',
     borderRadius: 'var(--radius-md)',
-    border: '1px solid rgba(255,255,255,0.15)',
-    background: 'rgba(255,255,255,0.08)',
+    border: '1px solid var(--border-hover)',
+    background: 'var(--bg-input)',
     color: 'var(--text-main)',
     boxSizing: 'border-box',
     fontSize: '0.9rem',
@@ -396,20 +396,20 @@ const styles = {
     display: 'flex', alignItems: 'center', gap: '10px',
     padding: '12px 14px',
     borderRadius: 'var(--radius-md)',
-    border: '2px solid rgba(255,255,255,0.12)',
-    background: 'rgba(255,255,255,0.08)',
+    border: '2px solid var(--border-hover)',
+    background: 'var(--bg-input)',
     cursor: 'pointer', transition: 'all 0.2s',
     color: 'var(--text-secondary)',
   },
   roleOptionActive: {
-    borderColor: '#a855f7',
-    background: 'rgba(168,85,247,0.16)',
-    color: '#f0abfc',
+    borderColor: 'var(--accent)',
+    background: 'var(--accent-subtle)',
+    color: 'var(--accent-text)',
   },
   roleOptionActiveAdmin: {
-    borderColor: '#f59e0b',
-    background: 'rgba(245,158,11,0.08)',
-    color: '#fbbf24',
+    borderColor: 'var(--warning)',
+    background: 'var(--warning-subtle)',
+    color: 'var(--warning-text)',
   },
   roleLabel: { fontSize: '0.82rem', fontWeight: 700 },
   roleDesc: { fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '1px' },
@@ -430,12 +430,12 @@ const styles = {
     boxShadow: '0 2px 12px rgba(217,119,6,0.3)',
   },
   linkBtn: {
-    background: 'none', border: 'none', color: '#f0abfc',
+    background: 'none', border: 'none', color: 'var(--accent-text)',
     cursor: 'pointer', fontWeight: 600, marginLeft: '6px',
     fontSize: '0.85rem', fontFamily: 'inherit',
   },
   smallLink: {
-    background: 'none', border: 'none', color: 'var(--text-muted)',
+    background: 'none', border: 'none', color: 'var(--text-secondary)',
     cursor: 'pointer', fontSize: '0.78rem', fontFamily: 'inherit',
     transition: 'color var(--transition-fast)',
   },
@@ -445,12 +445,12 @@ const styles = {
   },
   dividerText: {
     position: 'relative', top: '-10px',
-    background: 'rgba(18,19,30,0.75)', padding: '0 12px',
-    fontSize: '0.75rem', color: 'var(--text-muted)',
+    background: 'var(--bg-panel)', padding: '0 12px',
+    fontSize: '0.75rem', color: 'var(--text-secondary)',
     textTransform: 'uppercase', letterSpacing: '1px',
   },
   footer: { textAlign: 'center', fontSize: '0.85rem' },
-  footerText: { color: 'var(--text-muted)' },
+  footerText: { color: 'var(--text-secondary)' },
   errorAlert: {
     display: 'flex', alignItems: 'center', gap: '8px',
     background: 'var(--danger-glow)',

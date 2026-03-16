@@ -5,6 +5,7 @@ import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
 import CustomModal from '../components/CustomModal';
 import TemplatesPage from '../components/TemplatesPage';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 import './Dashboard.css';
 
 /* ── Toast Notification (HCI: Visibility of system status) ── */

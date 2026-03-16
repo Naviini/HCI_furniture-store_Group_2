@@ -6,6 +6,7 @@ import { ImageWithFallback } from './ImageWithFallback';
 import { ThemeToggle } from './ThemeToggle';
 import { AnimatedBackground } from './AnimatedBackground';
 import { useTheme } from './ThemeContext';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 
 const ONBOARDING_STEPS = [
   {
@@ -65,7 +66,7 @@ export default function Onboarding() {
 
   const completeOnboarding = () => {
     localStorage.setItem('onboardingCompleted', 'true');
-    navigate('/dashboard');
+    navigate('/home');
   };
 
   const step = ONBOARDING_STEPS[currentStep];
@@ -92,10 +93,8 @@ export default function Onboarding() {
         <header className="flex items-center justify-between p-6 lg:px-12">
         {/* <header className="flex items-center justify-between p-6 lg:px-12 pt-10 lg:pt-12"> */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <span className="text-xl">🪑</span>
-            </div>
-            <span className={`font-bold text-xl tracking-tight ${textPrimary}`}>ND Furniture</span>
+            <img src={ndLogo} alt="ND furniture" className="w-10 h-10 rounded-xl object-cover border border-white/20 shadow-lg shadow-purple-500/20" />
+            <span className={`font-bold text-xl tracking-tight ${textPrimary}`}>ND furniture</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -225,3 +224,4 @@ export default function Onboarding() {
     </div>
   );
 }
+

@@ -6,8 +6,13 @@
 
 /* ── Page shell ───────────────────────────────────────────── */
 .ip-page {
+    --ip-accent: #ec4899;
+    --ip-accent-2: #9333ea;
+    --ip-surface: rgba(255, 255, 255, 0.045);
+    --ip-border: rgba(255, 255, 255, 0.11);
+    height: 100vh;
     min-height: 100vh;
-    background: var(--bg-dark, #0c0f17);
+    background: #070b14;
     color: var(--text-main, #e8ecf4);
     overflow-y: auto;
     overflow-x: hidden;
@@ -16,63 +21,145 @@
     scroll-behavior: smooth;
 }
 
-/* ── Fixed background grid ────────────────────────────────── */
-.ip-bg-grid {
+.ip-page--light {
+    --ip-surface: rgba(15, 23, 42, 0.05);
+    --ip-border: rgba(15, 23, 42, 0.14);
+    background: #eef3f8;
+    color: #0f172a;
+}
+
+/* ── Live background system ──────────────────────────────── */
+.ip-live-bg {
     position: fixed;
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    overflow: hidden;
+}
+
+.ip-live-bg-layer {
+    position: fixed;
+    inset: -6%;
+    opacity: 0;
+    transform: scale(1.12);
+    transition: opacity 1.8s ease, transform 8s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 0;
+    background-image:
+        linear-gradient(130deg, rgba(5, 12, 26, 0.48) 0%, rgba(8, 16, 34, 0.36) 36%, rgba(17, 20, 40, 0.5) 100%),
+        linear-gradient(180deg, rgba(6, 11, 24, 0.16) 0%, rgba(6, 11, 24, 0.66) 74%, rgba(6, 11, 24, 0.8) 100%),
+        var(--ip-live-bg-image);
+    background-size: cover;
+    background-position: center;
+    filter: saturate(1.08) contrast(1.06);
+    will-change: transform, opacity;
+    animation: ipLiveBgDrift 24s ease-in-out infinite alternate;
+}
+
+.ip-live-bg-layer.is-active {
+    opacity: 1;
+    transform: scale(1.02);
+}
+
+.ip-live-bg-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-    background-size: 64px 64px;
+    background-size: 56px 56px;
+    mix-blend-mode: soft-light;
 }
 
-/* ── Ambient orbs ─────────────────────────────────────────── */
-.ip-orb {
-    position: fixed;
+.ip-live-bg-glow {
+    position: absolute;
     border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
     filter: blur(90px);
-    animation: ipOrbDrift 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 3;
+    animation: ipGlowFloat 18s ease-in-out infinite alternate;
 }
 
-.ip-orb-1 {
-    width: 700px;
-    height: 700px;
-    top: -200px;
-    left: -150px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+.ip-live-bg-glow-1 {
+    width: 560px;
+    height: 560px;
+    top: -170px;
+    left: -100px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.34) 0%, rgba(236, 72, 153, 0) 70%);
+}
+
+.ip-live-bg-glow-2 {
+    width: 600px;
+    height: 600px;
+    bottom: -220px;
+    right: -140px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(59, 130, 246, 0) 72%);
     animation-duration: 22s;
-}
-
-.ip-orb-2 {
-    width: 550px;
-    height: 550px;
-    top: 30%;
-    right: -100px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.09) 0%, transparent 70%);
-    animation-duration: 17s;
     animation-direction: alternate-reverse;
 }
 
-.ip-orb-3 {
-    width: 400px;
-    height: 400px;
-    bottom: -100px;
-    left: 20%;
-    background: radial-gradient(circle, rgba(236, 72, 153, 0.07) 0%, transparent 70%);
-    animation-duration: 25s;
+.ip-live-bg-noise {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    opacity: 0.12;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.45) 0.6px, transparent 0.8px),
+        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.33) 0.6px, transparent 0.9px);
+    background-size: 3px 3px, 4px 4px;
 }
 
-@keyframes ipOrbDrift {
+.ip-live-bg-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.1) 0%, rgba(10, 12, 24, 0.32) 45%, rgba(6, 9, 18, 0.72) 100%),
+        linear-gradient(180deg, rgba(8, 11, 22, 0.08) 0%, rgba(8, 11, 22, 0.36) 42%, rgba(8, 11, 22, 0.64) 100%);
+}
+
+.ip-page--light .ip-live-bg-layer {
+    background-image:
+        linear-gradient(130deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.18) 36%, rgba(255, 255, 255, 0.3) 100%),
+        linear-gradient(180deg, rgba(248, 250, 252, 0.06) 0%, rgba(248, 250, 252, 0.35) 78%, rgba(241, 245, 249, 0.54) 100%),
+        var(--ip-live-bg-image);
+    filter: saturate(1.04) contrast(1.01);
+}
+
+.ip-page--light .ip-live-bg-grid {
+    background-image:
+        linear-gradient(rgba(15, 23, 42, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.07) 1px, transparent 1px);
+    opacity: 0.45;
+}
+
+.ip-page--light .ip-live-bg-noise {
+    opacity: 0.07;
+}
+
+.ip-page--light .ip-live-bg-vignette {
+    background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.35) 0%, rgba(248, 250, 252, 0.2) 48%, rgba(236, 242, 248, 0.45) 100%),
+        linear-gradient(180deg, rgba(248, 250, 252, 0.08) 0%, rgba(241, 245, 249, 0.22) 44%, rgba(241, 245, 249, 0.46) 100%);
+}
+
+@keyframes ipLiveBgDrift {
     0% {
-        transform: translate(0, 0) scale(1);
+        transform: scale(1.06) translate3d(-1.5%, -0.8%, 0);
     }
 
     100% {
-        transform: translate(40px, 30px) scale(1.08);
+        transform: scale(1.13) translate3d(1.2%, 1.4%, 0);
+    }
+}
+
+@keyframes ipGlowFloat {
+    0% {
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate3d(40px, 32px, 0) scale(1.12);
     }
 }
 
@@ -120,17 +207,17 @@
 }
 
 .ip-nav--scrolled {
-    background: rgba(12, 15, 23, 0.88);
+    background: rgba(12, 13, 26, 0.84);
     backdrop-filter: blur(24px) saturate(1.5);
     -webkit-backdrop-filter: blur(24px) saturate(1.5);
-    border-bottom-color: rgba(255, 255, 255, 0.06);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 32px rgba(0, 0, 0, 0.4);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 24px rgba(0, 0, 0, 0.42), 0 0 32px rgba(147, 51, 234, 0.12);
 }
 
 .ip-nav-inner {
     max-width: 1180px;
     margin: 0 auto;
-    padding: 14px 32px;
+    padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -140,21 +227,22 @@
 .ip-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
     flex-shrink: 0;
 }
 
 .ip-brand-logo {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     object-fit: cover;
-    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 2px 12px rgba(236, 72, 153, 0.22);
 }
 
 .ip-brand-name {
-    font-size: 0.97rem;
+    font-size: 1.25rem;
     font-weight: 800;
     letter-spacing: -0.025em;
     color: var(--text-main, #e8ecf4);
@@ -162,14 +250,14 @@
 
 .ip-brand-badge {
     padding: 2px 7px;
-    background: rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(236, 72, 153, 0.25);
     border-radius: 5px;
     font-size: 0.6rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #a5b4fc;
+    color: #f9a8d4;
 }
 
 .ip-nav-links {
@@ -178,11 +266,17 @@
     gap: 6px;
 }
 
+.ip-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .ip-nav-link {
-    padding: 6px 14px;
+    padding: 8px 18px;
     color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
-    font-size: 0.83rem;
+    font-size: 1rem;
     font-weight: 500;
     border-radius: 8px;
     transition: color 0.2s, background 0.2s;
@@ -197,20 +291,59 @@
     background: rgba(255, 255, 255, 0.06);
 }
 
+.ip-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid var(--ip-border);
+    background: var(--ip-surface);
+    color: rgba(255, 255, 255, 0.86);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.ip-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+}
+
+.ip-theme-toggle:focus-visible {
+    outline: 2px solid rgba(236, 72, 153, 0.7);
+    outline-offset: 2px;
+}
+
+.ip-theme-toggle-icon {
+    transition: transform 0.22s ease;
+}
+
+.ip-theme-toggle:hover .ip-theme-toggle-icon {
+    transform: rotate(16deg) scale(1.06);
+}
+
+.ip-theme-toggle.is-light .ip-theme-toggle-icon {
+    transform: scale(0.92);
+}
+
 .ip-nav-cta {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 8px 20px;
-    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, var(--ip-accent) 0%, var(--ip-accent-2) 100%);
     color: #fff;
     border: none;
-    border-radius: 10px;
-    font-size: 0.83rem;
+    border-radius: 12px;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 2px 16px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 2px 16px rgba(236, 72, 153, 0.28);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
     letter-spacing: 0.01em;
@@ -218,11 +351,115 @@
 
 .ip-nav-cta:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 6px 24px rgba(236, 72, 153, 0.42);
 }
 
 .ip-nav-cta:active {
     transform: none;
+}
+
+.ip-page--light .ip-nav--scrolled {
+    background: rgba(245, 248, 252, 0.88);
+    border-bottom-color: rgba(15, 23, 42, 0.1);
+    box-shadow: 0 1px 0 rgba(15, 23, 42, 0.07), 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.ip-page--light .ip-brand-name,
+.ip-page--light .ip-hero-h1,
+.ip-page--light .ip-section-h2,
+.ip-page--light .ip-stat-num,
+.ip-page--light .ip-room-name,
+.ip-page--light .ip-gallery-title,
+.ip-page--light .ip-tool-title,
+.ip-page--light .ip-step-title,
+.ip-page--light .ip-cta-h2 {
+    color: #0f172a;
+    -webkit-text-fill-color: initial;
+}
+
+.ip-page--light .ip-nav-link {
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.ip-page--light .ip-nav-link:hover {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.08);
+}
+
+.ip-page--light .ip-theme-toggle {
+    color: rgba(15, 23, 42, 0.82);
+    background: rgba(255, 255, 255, 0.62);
+    border-color: rgba(15, 23, 42, 0.2);
+}
+
+.ip-page--light .ip-theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(15, 23, 42, 0.28);
+}
+
+.ip-page--light .ip-hero-sub,
+.ip-page--light .ip-section-p,
+.ip-page--light .ip-step-desc,
+.ip-page--light .ip-tool-desc,
+.ip-page--light .ip-cta-p {
+    color: rgba(15, 23, 42, 0.82);
+}
+
+.ip-page--light .ip-stat-label,
+.ip-page--light .ip-room-size,
+.ip-page--light .ip-gallery-meta-tag,
+.ip-page--light .ip-cta-trust-item,
+.ip-page--light .ip-footer-copy,
+.ip-page--light .ip-footer-link {
+    color: rgba(15, 23, 42, 0.74);
+}
+
+.ip-page--light .ip-hero-eyebrow,
+.ip-page--light .ip-section-tag {
+    color: #9d174d;
+    border-color: rgba(190, 24, 93, 0.3);
+    background: rgba(244, 114, 182, 0.14);
+}
+
+.ip-page--light .ip-step-label,
+.ip-page--light .ip-step-n,
+.ip-page--light .ip-step-icon-box {
+    color: #be185d;
+}
+
+.ip-page--light .ip-gallery-meta-tag {
+    background: rgba(15, 23, 42, 0.08);
+}
+
+.ip-page--light .ip-footer {
+    border-top-color: rgba(15, 23, 42, 0.14);
+}
+
+.ip-page--light .ip-footer-link:hover {
+    color: #0f172a;
+    background: rgba(15, 23, 42, 0.08);
+}
+
+.ip-page--light .ip-btn-secondary {
+    color: rgba(15, 23, 42, 0.78);
+    background: rgba(255, 255, 255, 0.56);
+    border-color: rgba(15, 23, 42, 0.18);
+}
+
+.ip-page--light .ip-btn-secondary:hover {
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.82);
+    border-color: rgba(15, 23, 42, 0.28);
+}
+
+.ip-page--light .ip-gallery-card,
+.ip-page--light .ip-tool-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(248, 250, 252, 0.56));
+    border-color: rgba(15, 23, 42, 0.16);
+}
+
+.ip-page--light .ip-divider-line {
+    background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.2) 20%, rgba(15, 23, 42, 0.2) 80%, transparent);
 }
 
 /* ── HERO ─────────────────────────────────────────────────── */
@@ -241,19 +478,19 @@
     gap: 8px;
     padding: 5px 14px 5px 6px;
     margin-bottom: 32px;
-    background: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    background: rgba(236, 72, 153, 0.08);
+    border: 1px solid rgba(236, 72, 153, 0.2);
     border-radius: 100px;
     font-size: 0.73rem;
     font-weight: 600;
-    color: #a5b4fc;
+    color: #f9a8d4;
     letter-spacing: 0.02em;
     animation: ipHeroFadeIn 0.8s 0.1s both;
 }
 
 .ip-hero-eyebrow-pill {
     padding: 3px 10px;
-    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    background: linear-gradient(135deg, #ec4899, #9333ea);
     border-radius: 100px;
     font-size: 0.65rem;
     font-weight: 700;
@@ -282,7 +519,7 @@
 
 .ip-hero-h1-line2 {
     display: block;
-    background: linear-gradient(135deg, #6366f1 0%, #818cf8 40%, #a78bfa 70%, #c084fc 100%);
+    background: linear-gradient(135deg, #ec4899 0%, #f472b6 40%, #a78bfa 70%, #c084fc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -312,7 +549,7 @@
     align-items: center;
     gap: 9px;
     padding: 14px 32px;
-    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+    background: linear-gradient(135deg, var(--ip-accent) 0%, var(--ip-accent-2) 100%);
     color: #fff;
     border: none;
     border-radius: 12px;
@@ -320,14 +557,14 @@
     font-weight: 700;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 4px 28px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 28px rgba(236, 72, 153, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     letter-spacing: -0.01em;
 }
 
 .ip-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 36px rgba(99, 102, 241, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 36px rgba(236, 72, 153, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .ip-btn-primary:active {
@@ -339,9 +576,9 @@
     align-items: center;
     gap: 8px;
     padding: 14px 28px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--ip-surface);
     color: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--ip-border);
     border-radius: 12px;
     font-size: 0.97rem;
     font-weight: 600;
@@ -446,21 +683,21 @@
     gap: 6px;
     padding: 4px 14px;
     margin-bottom: 16px;
-    background: rgba(99, 102, 241, 0.08);
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    background: rgba(236, 72, 153, 0.08);
+    border: 1px solid rgba(236, 72, 153, 0.15);
     border-radius: 100px;
     font-size: 0.69rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.09em;
-    color: #818cf8;
+    color: #f472b6;
 }
 
 .ip-section-tag-dot {
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #6366f1;
+    background: #ec4899;
 }
 
 .ip-section-h2 {
@@ -497,8 +734,8 @@
 /* ── ROOM CARDS (BENTO) ───────────────────────────────────── */
 .ip-rooms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px 20px;
 }
 
 .ip-room-card {
@@ -507,73 +744,126 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    padding: 28px 16px 24px;
-    background: rgba(20, 24, 36, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 18px;
+    padding: 0;
+    background: transparent;
+    border: none;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .ip-room-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+    display: none;
 }
 
 .ip-room-card:hover {
-    transform: translateY(-6px);
+    transform: none;
 }
 
 .ip-room-card:hover::before {
-    opacity: 1;
+    display: none;
 }
 
 .ip-room-card-glow {
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    filter: blur(30px);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
+    display: none;
 }
 
 .ip-room-card:hover .ip-room-card-glow {
-    opacity: 0.6;
+    display: none;
 }
 
-.ip-room-icon-wrap {
-    width: 56px;
-    height: 56px;
+.ip-room-photo-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 14px;
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease;
+}
+
+.ip-room-photo-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    position: absolute;
+    inset: 0;
+}
+
+.ip-room-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 0.45s ease;
+}
+
+.ip-add-btn {
+    position: absolute;
+    bottom: -18px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 16px;
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 1;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1;
+    z-index: 10;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.ip-room-card:hover .ip-room-icon-wrap {
-    transform: scale(1.1) rotate(-3deg);
+.ip-room-card:hover .ip-add-btn {
+    transform: scale(1.1);
+}
+
+.ip-room-text-wrap {
+    padding-top: 14px;
+    text-align: center;
+}
+
+.ip-room-photo-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.ip-room-photo-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(140deg, rgba(236, 72, 153, 0.28), rgba(147, 51, 234, 0.3));
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-align: center;
+    padding: 10px;
+}
+
+.ip-room-card:hover .ip-room-photo-wrap {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+}
+
+.ip-room-card:hover .ip-room-photo {
+    transform: scale(1.08);
 }
 
 .ip-room-name {
-    font-size: 0.87rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.9);
     position: relative;
@@ -613,8 +903,8 @@
 .ip-gallery-card {
     border-radius: 20px;
     overflow: hidden;
-    background: rgba(20, 24, 36, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--ip-border);
     backdrop-filter: blur(8px);
     transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: default;
@@ -634,17 +924,27 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    background-color: var(--ip-card-bg);
 }
 
-.ip-gallery-emoji {
-    font-size: 3.8rem;
-    filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.3));
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.ip-gallery-img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 0;
+}
+
+.ip-gallery-card:hover .ip-gallery-img {
+    transform: scale(1.08);
+}
+
+.ip-gallery-overlay {
+    position: absolute;
+    inset: 0;
     z-index: 1;
-}
-
-.ip-gallery-card:hover .ip-gallery-emoji {
-    transform: scale(1.12) translateY(-4px);
+    pointer-events: none;
 }
 
 .ip-gallery-style-badge {
@@ -732,7 +1032,7 @@
     left: 10%;
     right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3) 30%, rgba(99, 102, 241, 0.3) 70%, transparent);
+    background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.3) 30%, rgba(236, 72, 153, 0.3) 70%, transparent);
     pointer-events: none;
 }
 
@@ -757,8 +1057,8 @@
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    background: rgba(236, 72, 153, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -768,15 +1068,15 @@
 }
 
 .ip-step-item:hover .ip-step-num-ring {
-    background: rgba(99, 102, 241, 0.18);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    background: rgba(236, 72, 153, 0.18);
+    border-color: rgba(236, 72, 153, 0.5);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.2);
 }
 
 .ip-step-n {
     font-size: 1rem;
     font-weight: 800;
-    color: #818cf8;
+    color: #f472b6;
     line-height: 1;
 }
 
@@ -784,25 +1084,25 @@
     width: 44px;
     height: 44px;
     border-radius: 14px;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    background: rgba(236, 72, 153, 0.1);
+    border: 1px solid rgba(236, 72, 153, 0.15);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
-    color: #818cf8;
+    color: #f472b6;
     transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .ip-step-item:hover .ip-step-icon-box {
     transform: scale(1.12);
-    background: rgba(99, 102, 241, 0.18);
+    background: rgba(236, 72, 153, 0.18);
 }
 
 .ip-step-label {
     font-size: 0.66rem;
     font-weight: 700;
-    color: #6366f1;
+    color: #ec4899;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-bottom: 6px;
@@ -830,9 +1130,9 @@
 }
 
 .ip-tool-card {
-    padding: 28px 26px;
-    background: rgba(20, 24, 36, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid var(--ip-border);
     border-radius: 18px;
     backdrop-filter: blur(8px);
     transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
@@ -848,38 +1148,63 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.4), transparent);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .ip-tool-card:hover {
-    border-color: rgba(99, 102, 241, 0.2);
+    border-color: rgba(236, 72, 153, 0.3);
     transform: translateY(-3px);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 24px rgba(147, 51, 234, 0.12);
 }
 
 .ip-tool-card:hover::after {
     opacity: 1;
 }
 
-.ip-tool-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.15);
+.ip-tool-media {
+    position: relative;
+    height: 140px;
+    overflow: hidden;
+    border-radius: 18px 18px 0 0;
+}
+
+.ip-tool-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 0.45s ease;
+}
+
+.ip-tool-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.ip-tool-photo-fallback {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #818cf8;
-    margin-bottom: 18px;
-    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    padding: 14px;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: rgba(255, 255, 255, 0.92);
+    background: linear-gradient(140deg, rgba(236, 72, 153, 0.35), rgba(59, 130, 246, 0.32));
 }
 
-.ip-tool-card:hover .ip-tool-icon {
-    transform: scale(1.08);
-    background: rgba(99, 102, 241, 0.18);
+.ip-tool-body {
+    padding: 22px 22px 24px;
+}
+
+.ip-tool-card:hover .ip-tool-photo {
+    transform: scale(1.07);
 }
 
 .ip-tool-title {
@@ -909,19 +1234,32 @@
     position: relative;
     padding: 72px 48px;
     background:
-        linear-gradient(135deg, rgba(99, 102, 241, 0.14) 0%, rgba(124, 58, 237, 0.1) 50%, rgba(236, 72, 153, 0.07) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+        linear-gradient(135deg, rgba(236, 72, 153, 0.14) 0%, rgba(147, 51, 234, 0.1) 50%, rgba(236, 72, 153, 0.07) 100%);
+    border: 1px solid rgba(236, 72, 153, 0.28);
     border-radius: 28px;
     text-align: center;
     overflow: hidden;
 }
 
+.ip-cta-image {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(180deg, rgba(9, 12, 30, 0.68) 0%, rgba(9, 12, 30, 0.86) 70%, rgba(9, 12, 30, 0.9) 100%),
+        linear-gradient(120deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.12) 45%, rgba(59, 130, 246, 0.1) 100%),
+        url('https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=1600&q=80');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
 .ip-cta-noise {
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, rgba(99, 102, 241, 0.2) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(236, 72, 153, 0.2) 1px, transparent 1px);
     background-size: 22px 22px;
-    opacity: 0.18;
+    opacity: 0.14;
     pointer-events: none;
 }
 
@@ -931,7 +1269,7 @@
     top: -80px;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%);
     pointer-events: none;
     filter: blur(40px);
 }
@@ -942,14 +1280,14 @@
     bottom: -80px;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
     pointer-events: none;
     filter: blur(40px);
 }
 
 .ip-cta-content {
     position: relative;
-    z-index: 1;
+    z-index: 2;
 }
 
 .ip-cta-h2 {
@@ -1052,6 +1390,11 @@
         display: none;
     }
 
+    .ip-theme-toggle {
+        width: 36px;
+        height: 36px;
+    }
+
     .ip-hero {
         padding: 130px 20px 60px;
     }
@@ -1122,5 +1465,19 @@
 
     .ip-tools-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ip-live-bg-layer,
+    .ip-live-bg-glow,
+    .ip-hero,
+    .ip-hero-eyebrow,
+    .ip-hero-h1,
+    .ip-hero-sub,
+    .ip-hero-actions,
+    .ip-hero-stats {
+        animation: none !important;
+        transition: none !important;
     }
 }

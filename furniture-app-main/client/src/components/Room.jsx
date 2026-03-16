@@ -70,14 +70,17 @@ function Wall({ from, to, color, wallId, windows = [], doors = [] }) {
   useFrame(({ camera }) => {
     const group = groupRef.current;
     if (!group) return;
-    // Determine which single outer wall the camera currently faces
-    const camAngle = Math.atan2(camera.position.x, camera.position.z);
-    let facingWall;
-    if      (camAngle >= -Math.PI / 4 && camAngle <  Math.PI / 4)       facingWall = 'front';
-    else if (camAngle >=  Math.PI / 4 && camAngle <  3 * Math.PI / 4)   facingWall = 'right';
-    else if (camAngle >= -3 * Math.PI / 4 && camAngle < -Math.PI / 4)   facingWall = 'left';
-    else                                                                   facingWall = 'back';
-    const shouldBeTransparent = (wallId === facingWall);
+    // Compute outward normal of this wall segment (perpendicular to wall direction)
+    let nx = dz / len;
+    let nz = -dx / len;
+    // If normal points toward room interior (origin), flip it to get the outward normal
+    if (nx * cx + nz * cz < 0) {
+      nx = -nx;
+      nz = -nz;
+    }
+    // Wall is transparent when camera is on the outside (positive side) of this wall
+    const camDot = nx * (camera.position.x - cx) + nz * (camera.position.z - cz);
+    const shouldBeTransparent = camDot > 0;
     if (shouldBeTransparent === stateRef.current.isTransparent) return;
     stateRef.current.isTransparent = shouldBeTransparent;
     group.traverse(child => {
