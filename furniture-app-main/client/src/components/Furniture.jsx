@@ -15,7 +15,6 @@ import tvStand3Path       from '../assets/Tv stand/tv_stand_3/scene.gltf?url';
 import fileCabinetPath    from '../assets/cabinet/file_cabinets/scene.gltf?url';
 import computerChairPath  from '../assets/chair/black_computer_chair_-_mesh_back_support/scene.gltf?url';
 import loungeChairPath    from '../assets/chair/lounge_chair/scene.gltf?url';
-import titanicLampPath    from '../assets/lap and lights/titanic_lamp/scene.gltf?url';
 import modernSofaPath     from '../assets/sofa/modern__sofa/scene.gltf?url';
 import sofaPath           from '../assets/sofa/sofa/scene.gltf?url';
 import sofaChairPath      from '../assets/sofa/sofa_chair/scene.gltf?url';
@@ -24,7 +23,7 @@ import diningSetPath      from '../assets/table/modern_dining_room_table_set/sce
 import diningTablePath    from '../assets/table/simple_dining_table/scene.gltf?url';
 
 /* Lamps that can be placed on top of other furniture (Y > 0) */
-const TABLE_LAMP_TYPES = ['Desk Lamp', 'Titanic Lamp'];
+const TABLE_LAMP_TYPES = ['Desk Lamp'];
 const WALL_HEIGHT = 5; // must match Room.jsx WALL_HEIGHT
 const WALL_INNER  = 0.1; // half of WALL_THICK (0.2) — inner face offset
 
@@ -42,7 +41,6 @@ const FURNITURE_RADIUS = {
   'File Cabinet':   0.4,
   'Computer Chair': 0.4,
   'Lounge Chair':   0.6,
-  'Titanic Lamp':   0.25,
   'Modern Sofa':    1.2,
   'Sofa':           1.1,
   'Sofa Chair':     0.6,
@@ -64,7 +62,6 @@ const MODEL_MAP = {
   'File Cabinet':   { path: fileCabinetPath,   scale: 0.02, yOffset: 0 },
   'Computer Chair': { path: computerChairPath, scale: 1,    yOffset: 0 },
   'Lounge Chair':   { path: loungeChairPath,   scale: 1,    yOffset: 0 },
-  'Titanic Lamp':   { path: titanicLampPath,   scale: 1,    yOffset: 0 },
   'Modern Sofa':    { path: modernSofaPath,    scale: 1,    yOffset: 0 },
   'Sofa':           { path: sofaPath,          scale: 1.8,    yOffset: 0 },
   'Sofa Chair':     { path: sofaChairPath,     scale: 1,    yOffset: 0 },
@@ -85,7 +82,6 @@ useGLTF.preload(tvStand3Path);
 useGLTF.preload(fileCabinetPath);
 useGLTF.preload(computerChairPath);
 useGLTF.preload(loungeChairPath);
-useGLTF.preload(titanicLampPath);
 useGLTF.preload(modernSofaPath);
 useGLTF.preload(sofaPath);
 useGLTF.preload(sofaChairPath);
@@ -255,7 +251,7 @@ export default function Furniture({
         )}
 
         {/* Light source for Lamps */}
-        {(type === 'Lamp' || type === 'Desk Lamp' || type === 'Titanic Lamp') && (
+        {(type === 'Lamp' || type === 'Desk Lamp') && (
           <pointLight position={[0, 0.5, 0]} intensity={2} distance={8} color="#ffddaa" castShadow />
         )}
 
