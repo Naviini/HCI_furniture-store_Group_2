@@ -631,7 +631,7 @@ export default function Dashboard() {
 
           {/* Camera Mode Toggle Switch (TPP/FPP) */}
           {mode === '3D' && (
-            <div 
+            <div
               style={{
                 position: 'absolute',
                 top: '20px',
@@ -639,13 +639,14 @@ export default function Dashboard() {
                 zIndex: 9999,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
-                padding: '4px',
-                background: 'rgba(30, 30, 40, 0.85)',
+                gap: '1px',
+                padding: '3px',
+                background: 'rgba(26, 11, 46, 0.95)',
                 borderRadius: '12px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(233, 53, 199, 0.1)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(233, 53, 199, 0.15)',
+                overflow: 'hidden',
               }}
             >
               {/* TPP Button */}
@@ -654,25 +655,47 @@ export default function Dashboard() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 16px',
-                  background: cameraMode === 'TPP' ? '#6366f1' : 'transparent',
-                  color: cameraMode === 'TPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
-                  border: 'none',
-                  borderRadius: '8px',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  background: cameraMode === 'TPP'
+                    ? 'linear-gradient(135deg, #E935C7 0%, #8b5cf6 100%)'
+                    : 'transparent',
+                  color: cameraMode === 'TPP' ? '#ffffff' : 'rgba(216, 180, 254, 0.7)',
+                  border: cameraMode === 'TPP'
+                    ? '1px solid rgba(233, 53, 199, 0.25)'
+                    : '1px solid transparent',
+                  borderRadius: '9px',
                   cursor: 'pointer',
-                  fontWeight: cameraMode === 'TPP' ? 'bold' : 'normal',
-                  fontSize: '13px',
+                  fontWeight: cameraMode === 'TPP' ? '700' : '600',
+                  fontSize: '11px',
                   fontFamily: 'inherit',
-                  transition: 'all 0.3s ease',
-                  boxShadow: cameraMode === 'TPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: cameraMode === 'TPP'
+                    ? '0 2px 8px rgba(233, 53, 199, 0.25), 0 0 12px rgba(233, 53, 199, 0.15)'
+                    : 'none',
+                  transform: cameraMode === 'TPP' ? 'translateY(-0.5px)' : 'none',
+                  letterSpacing: '0.3px',
+                }}
+                onMouseEnter={(e) => {
+                  if (cameraMode !== 'TPP') {
+                    e.target.style.background = 'rgba(233, 53, 199, 0.08)';
+                    e.target.style.color = 'rgba(245, 208, 254, 0.85)';
+                    e.target.style.transform = 'translateY(-0.5px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (cameraMode !== 'TPP') {
+                    e.target.style.background = 'transparent';
+                    e.target.style.color = 'rgba(216, 180, 254, 0.7)';
+                    e.target.style.transform = 'none';
+                  }
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                   <circle cx="12" cy="13" r="4" />
                 </svg>
-                <span>TPP</span>
+                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>Third Person</span>
               </button>
 
               {/* FPP Button */}
@@ -681,27 +704,48 @@ export default function Dashboard() {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  padding: '10px 16px',
-                  background: cameraMode === 'FPP' ? '#6366f1' : 'transparent',
-                  color: cameraMode === 'FPP' ? 'white' : 'rgba(255, 255, 255, 0.6)',
-                  border: 'none',
-                  borderRadius: '8px',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  background: cameraMode === 'FPP'
+                    ? 'linear-gradient(135deg, #E935C7 0%, #8b5cf6 100%)'
+                    : 'transparent',
+                  color: cameraMode === 'FPP' ? '#ffffff' : 'rgba(216, 180, 254, 0.7)',
+                  border: cameraMode === 'FPP'
+                    ? '1px solid rgba(233, 53, 199, 0.25)'
+                    : '1px solid transparent',
+                  borderRadius: '9px',
                   cursor: 'pointer',
-                  fontWeight: cameraMode === 'FPP' ? 'bold' : 'normal',
-                  fontSize: '13px',
+                  fontWeight: cameraMode === 'FPP' ? '700' : '600',
+                  fontSize: '11px',
                   fontFamily: 'inherit',
-                  transition: 'all 0.3s ease',
-                  boxShadow: cameraMode === 'FPP' ? '0 2px 8px rgba(99, 102, 241, 0.4)' : 'none',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: cameraMode === 'FPP'
+                    ? '0 2px 8px rgba(233, 53, 199, 0.25), 0 0 12px rgba(233, 53, 199, 0.15)'
+                    : 'none',
+                  transform: cameraMode === 'FPP' ? 'translateY(-0.5px)' : 'none',
+                  letterSpacing: '0.3px',
+                }}
+                onMouseEnter={(e) => {
+                  if (cameraMode !== 'FPP') {
+                    e.target.style.background = 'rgba(233, 53, 199, 0.08)';
+                    e.target.style.color = 'rgba(245, 208, 254, 0.85)';
+                    e.target.style.transform = 'translateY(-0.5px)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (cameraMode !== 'FPP') {
+                    e.target.style.background = 'transparent';
+                    e.target.style.color = 'rgba(216, 180, 254, 0.7)';
+                    e.target.style.transform = 'none';
+                  }
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="3" />
-                  <line x1="12" y1="4" x2="12" y2="6" />
-                  <line x1="12" y1="18" x2="12" y2="20" />
+                  <path d="M12 1v6M12 17v6M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h6M17 12h6M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                 </svg>
-                <span>FPP</span>
+                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>First Person</span>
               </button>
             </div>
           )}

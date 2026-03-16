@@ -1,0 +1,11 @@
+Model Information:
+* title:	Outdoors Sofa
+* source:	https://sketchfab.com/3d-models/outdoors-sofa-788d99c8fdfa4384b83a18817e889bef
+* author:	Stars_001 (https://sketchfab.com/Stars_001)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Outdoors Sofa" (https://sketchfab.com/3d-models/outdoors-sofa-788d99c8fdfa4384b83a18817e889bef) by Stars_001 (https://sketchfab.com/Stars_001) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
