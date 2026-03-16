@@ -17,6 +17,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/designs', require('./routes/designRoutes'));
+app.use('/api/templates', require('./routes/templateRoutes'));
 
 const PORT = process.env.PORT || 5000;
 

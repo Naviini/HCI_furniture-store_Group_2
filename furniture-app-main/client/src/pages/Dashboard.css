@@ -71,30 +71,66 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  height: 52px;
-  padding: 0 16px;
-  background: rgba(12, 13, 26, 0.84);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04), 0 6px 24px rgba(0, 0, 0, 0.42), 0 0 32px rgba(147, 51, 234, 0.12);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  gap: 10px;
+  height: 56px;
+  padding: 0 18px;
+  background: rgba(12, 15, 24, 0.95);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04),
+    0 4px 24px rgba(0, 0, 0, 0.5);
   flex-shrink: 0;
 }
 
-/* Left section */
+/* Subtle shimmer line at top of header */
+.db-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(139,92,246,0.5), transparent);
+  opacity: 0.6;
+}
+
+/* ── LEFT section ── */
 .db-header-left {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* ── CENTER section ── */
+.db-header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   flex: 1;
   min-width: 0;
 }
 
-/* Brand */
+/* ── RIGHT section ── */
+.db-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Vertical divider between groups */
+.db-header-divider {
+  display: block;
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* ── Brand ── */
 .db-brand {
   display: flex;
   align-items: center;
@@ -116,51 +152,78 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  border-radius: 9px;
   color: white;
-  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.4);
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.45);
   flex-shrink: 0;
 }
 
 .db-brand-name {
-  font-size: 0.92rem;
-  font-weight: 700;
+  font-size: 0.94rem;
+  font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .db-brand-sep {
   width: 1px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.15);
+  height: 13px;
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 1px;
 }
 
 .db-brand-sub {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 500;
   color: var(--text-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/* Keyboard shortcut hints */
+/* ── Project title (center) ── */
+.db-project-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.db-project-title svg {
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+.db-project-title:hover {
+  color: rgba(255, 255, 255, 0.65);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Keyboard shortcut hints ── */
 .db-shortcut-hints {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-left: 4px;
 }
 
 .db-hint {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   color: var(--text-muted);
   white-space: nowrap;
+  opacity: 0.7;
 }
 
 .db-hint kbd {
@@ -171,7 +234,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom-width: 2px;
   border-radius: 4px;
-  font-size: 0.64rem;
+  font-size: 0.63rem;
   font-family: inherit;
   color: var(--text-secondary);
   line-height: 1.4;
@@ -181,30 +244,29 @@
 .db-mode-toggle {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   padding: 3px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  height: 42px;
+  border-radius: 11px;
+  height: 38px;
 }
 
 .db-mode-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 0 18px;
-  height: 36px;
-  font-size: 0.8rem;
+  gap: 6px;
+  padding: 0 14px;
+  height: 32px;
+  font-size: 0.78rem;
   font-weight: 600;
   font-family: inherit;
   letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.38);
   background: transparent;
   border: none;
-  border-radius: 9px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
@@ -214,27 +276,26 @@
 }
 
 .db-mode-btn svg {
-  opacity: 0.5;
+  opacity: 0.45;
   transition: opacity 0.22s;
   flex-shrink: 0;
 }
 
 .db-mode-btn:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.72);
   background: rgba(255, 255, 255, 0.06);
 }
 
 .db-mode-btn:hover svg {
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 .db-mode-btn--active {
   color: #fff;
   background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
   box-shadow:
-    0 2px 14px rgba(236, 72, 153, 0.4),
-    0 0 0 1px rgba(236, 72, 153, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 2px 12px rgba(99, 102, 241, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .db-mode-btn--active svg {
@@ -243,31 +304,107 @@
 
 .db-mode-btn--active:hover {
   color: #fff;
+  background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);
 }
 
-/* Right section */
-.db-header-right {
+/* ── Header action button group ── */
+.db-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: flex-end;
-  min-width: 0;
-  overflow: hidden;
+  gap: 4px;
 }
 
-/* Selected item badge */
+/* Header action buttons */
+.db-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.77rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  user-select: none;
+  min-height: 32px;
+}
+
+.db-header-btn svg {
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: opacity 0.18s;
+}
+
+.db-header-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.db-header-btn:hover svg {
+  opacity: 1;
+}
+
+.db-header-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Save button — highlighted */
+.db-header-btn--save {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(124, 58, 237, 0.13) 100%);
+  border-color: rgba(99, 102, 241, 0.28);
+  color: #a5b4fc;
+}
+
+.db-header-btn--save svg {
+  opacity: 0.85;
+}
+
+.db-header-btn--save:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.32) 0%, rgba(124, 58, 237, 0.25) 100%);
+  border-color: rgba(99, 102, 241, 0.5);
+  color: #c7d2fe;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.28);
+}
+
+/* Admin button */
+.db-header-btn--admin {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+}
+
+.db-header-btn--admin svg {
+  opacity: 0.85;
+}
+
+.db-header-btn--admin:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fde68a;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2);
+}
+
+/* ── Selected item badge ── */
 .db-selected-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 10px;
-  background: rgba(236, 72, 153, 0.12);
-  border: 1px solid rgba(236, 72, 153, 0.25);
+  padding: 4px 10px;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.22);
   border-radius: 20px;
-  font-size: 0.73rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  color: #f9a8d4;
+  color: #a5b4fc;
   animation: fadeIn 0.2s ease-out;
   white-space: nowrap;
 }
@@ -276,57 +413,13 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #f472b6;
+  background: #818cf8;
   box-shadow: 0 0 6px rgba(129, 140, 248, 0.8);
   animation: pulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
-/* Header action buttons */
-.db-header-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 13px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 9px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  user-select: none;
-  min-height: 34px;
-}
-
-.db-header-btn:hover {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.db-header-btn:active {
-  transform: translateY(0);
-}
-
-.db-header-btn--save {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(124, 58, 237, 0.15) 100%);
-  border-color: rgba(236, 72, 153, 0.3);
-  color: #f9a8d4;
-}
-
-.db-header-btn--save:hover {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(124, 58, 237, 0.25) 100%);
-  border-color: rgba(236, 72, 153, 0.5);
-  color: #fbcfe8;
-  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.25);
-}
-
-/* User chip */
+/* ── User chip ── */
 .db-user-chip {
   display: flex;
   align-items: center;
@@ -334,23 +427,24 @@
   padding: 4px 10px 4px 4px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 22px;
+  border-radius: 24px;
   cursor: default;
-  transition: background 0.2s;
-  max-width: 160px;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
 }
 
 .db-user-chip:hover {
   background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .db-avatar {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
   color: white;
-  font-size: 0.72rem;
+  font-size: 0.73rem;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -359,14 +453,45 @@
   box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.3);
 }
 
+.db-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
 .db-username {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100px;
+  max-width: 90px;
+  line-height: 1.2;
+}
+
+/* Role badge below username */
+.db-role-badge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  border-radius: 3px;
+  padding: 1px 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.db-role-badge--admin {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.db-role-badge--user {
+  color: #818cf8;
+  background: rgba(99, 102, 241, 0.12);
 }
 
 /* ── CANVAS WRAPPER ───────────────────────────────────────── */
@@ -730,21 +855,32 @@
 }
 
 /* ── Responsive: hide hints on small viewport ─────────────── */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .db-shortcut-hints {
-    display: none;
-  }
-
-  .db-brand-sub {
-    display: none;
-  }
-
-  .db-brand-sep {
     display: none;
   }
 }
 
+@media (max-width: 1050px) {
+  .db-brand-sub,
+  .db-brand-sep {
+    display: none;
+  }
+
+  .db-project-title span {
+    display: none;
+  }
+
+  .db-project-title {
+    padding: 5px 8px;
+  }
+}
+
 @media (max-width: 900px) {
+  .db-header-center {
+    display: none;
+  }
+
   .db-username {
     display: none;
   }
@@ -754,7 +890,7 @@
   }
 
   .db-header-btn {
-    padding: 7px 10px;
+    padding: 6px 9px;
   }
 
   .db-stat--muted {
@@ -772,6 +908,10 @@
   }
 
   .db-selected-badge span:last-child {
+    display: none;
+  }
+
+  .db-brand-name {
     display: none;
   }
 }
