@@ -1,0 +1,314 @@
+.sp-page {
+  min-height: 100vh;
+  padding: 14px;
+  background:
+    radial-gradient(64% 44% at 8% 8%, rgba(147, 51, 234, 0.24), transparent 65%),
+    radial-gradient(46% 34% at 96% 12%, rgba(236, 72, 153, 0.2), transparent 70%),
+    #090b15;
+  color: #f8fafc;
+}
+
+.sp-page--light {
+  background:
+    radial-gradient(70% 46% at 10% 8%, rgba(129, 140, 248, 0.18), transparent 64%),
+    radial-gradient(54% 36% at 94% 10%, rgba(236, 72, 153, 0.14), transparent 66%),
+    #edf3f9;
+  color: #0f172a;
+}
+
+.sp-shell {
+  width: min(1220px, 100%);
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(12, 14, 28, 0.9), rgba(9, 11, 22, 0.96));
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 0 14px 18px;
+}
+
+.sp-page--light .sp-shell {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 249, 253, 0.92));
+}
+
+.sp-header {
+  display: grid;
+  grid-template-columns: 82px 1fr 82px;
+  align-items: center;
+  min-height: 60px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0 -14px;
+  padding: 0 14px;
+}
+
+.sp-page--light .sp-header {
+  border-bottom-color: rgba(15, 23, 42, 0.1);
+}
+
+.sp-header h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.sp-back {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  border-radius: 10px;
+  min-height: 36px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sp-page--light .sp-back {
+  border-color: rgba(15, 23, 42, 0.16);
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.sp-header-gap {
+  height: 1px;
+}
+
+.sp-section {
+  margin-top: 16px;
+}
+
+.sp-section h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.sp-list {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.03));
+  overflow: hidden;
+}
+
+.sp-page--light .sp-list {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.sp-row {
+  min-height: 66px;
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sp-row:first-child {
+  border-top: 0;
+}
+
+.sp-page--light .sp-row {
+  border-top-color: rgba(15, 23, 42, 0.08);
+}
+
+.sp-row--action {
+  width: 100%;
+  border: none;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sp-row--action:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sp-page--light .sp-row--action:hover {
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.sp-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: rgba(129, 140, 248, 0.28);
+  color: #f8fafc;
+}
+
+.sp-icon--green {
+  background: #16a34a;
+}
+
+.sp-row-main strong {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.sp-row-main p {
+  margin-top: 2px;
+  font-size: 0.9rem;
+  color: rgba(248, 250, 252, 0.62);
+}
+
+.sp-page--light .sp-row-main p {
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.sp-chevron {
+  color: rgba(248, 250, 252, 0.9);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.sp-page--light .sp-chevron {
+  color: rgba(15, 23, 42, 0.85);
+}
+
+.sp-select {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 38px;
+  padding: 0 10px;
+}
+
+.sp-page--light .sp-select {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.sp-mode-group {
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sp-page--light .sp-mode-group {
+  border-color: rgba(15, 23, 42, 0.16);
+}
+
+.sp-mode-btn {
+  border: none;
+  min-height: 36px;
+  min-width: 64px;
+  padding: 0 12px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sp-mode-btn.is-active {
+  background: linear-gradient(135deg, #ec4899, #9333ea);
+  color: #fff;
+}
+
+.sp-font-group {
+  display: flex;
+  gap: 6px;
+}
+
+.sp-font-btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  min-height: 36px;
+  padding: 0 9px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sp-page--light .sp-font-btn {
+  border-color: rgba(15, 23, 42, 0.15);
+  background: rgba(15, 23, 42, 0.05);
+}
+
+.sp-font-btn.is-active {
+  border-color: rgba(236, 72, 153, 0.7);
+  background: rgba(236, 72, 153, 0.2);
+}
+
+.sp-toggle {
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.sp-page--light .sp-toggle {
+  background: rgba(15, 23, 42, 0.24);
+}
+
+.sp-toggle-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.sp-toggle.is-on {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.sp-toggle.is-on .sp-toggle-thumb {
+  transform: translateX(18px);
+}
+
+.sp-version {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: rgba(248, 250, 252, 0.66);
+}
+
+.sp-page--light .sp-version {
+  color: rgba(15, 23, 42, 0.58);
+}
+
+@media (max-width: 920px) {
+  .sp-header h1 {
+    font-size: 1.12rem;
+  }
+
+  .sp-row {
+    grid-template-columns: 36px 1fr;
+    gap: 10px;
+  }
+
+  .sp-row > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .sp-row-main strong {
+    font-size: 0.92rem;
+  }
+
+  .sp-row-main p {
+    font-size: 0.78rem;
+  }
+}
