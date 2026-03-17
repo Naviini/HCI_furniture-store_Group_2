@@ -42,7 +42,7 @@ const featureCards = [
     desc: 'Start from templates or blank canvas and design your room',
     cta: 'TRY',
     media: [livingPreview, bedroomCard],
-    onAction: '/dashboard',
+    onAction: 'create-flow',
   },
   {
     title: 'Order Design',
@@ -86,13 +86,13 @@ const roomTypeOptions = [
 ];
 
 const roomShapeOptions = [
-  { id: 'rectangle', label: 'Rectangular', glyph: '[]' },
-  { id: 'l-shape', label: 'L-shape', glyph: 'L' },
-  { id: 't-shape', label: 'T-shape', glyph: 'T' },
-  { id: 'cut', label: 'Cut', glyph: '/_' },
-  { id: 'rounded', label: 'Rounded', glyph: 'O' },
-  { id: 'z-shape', label: 'Z-shape', glyph: 'Z' },
-  { id: 'custom', label: 'Draw from Scratch', glyph: '+' },
+  { id: 'rectangle', label: 'Rectangular' },
+  { id: 'l-shape', label: 'L-shape' },
+  { id: 't-shape', label: 'T-shape' },
+  { id: 'cut', label: 'Cut' },
+  { id: 'rounded', label: 'Rounded' },
+  { id: 'z-shape', label: 'Z-shape' },
+  { id: 'custom', label: 'Draw from Scratch' },
 ];
 
 const starterTemplates = [
@@ -151,7 +151,26 @@ export default function PlannerHome() {
       setShowAddModal(true);
       return;
     }
-    navigate('/dashboard');
+
+    const mappedRoom =
+      card.title.toLowerCase().includes('bedroom')
+        ? roomTypeOptions.find((room) => room.id === 'bedroom')
+        : card.title.toLowerCase().includes('living')
+          ? roomTypeOptions.find((room) => room.id === 'living-room')
+          : roomTypeOptions.find((room) => room.id === 'floor-plan');
+
+    setSelectedRoomType(mappedRoom || roomTypeOptions[0]);
+    setShowGetStartedModal(true);
+  };
+
+  const handleFeatureAction = (action) => {
+    if (action === 'create-flow') {
+      setSelectedRoomType(roomTypeOptions.find((room) => room.id === 'living-room') || roomTypeOptions[0]);
+      setShowGetStartedModal(true);
+      return;
+    }
+
+    navigate(action);
   };
 
   const handleCreateFloorPlan = () => {
@@ -209,6 +228,73 @@ export default function PlannerHome() {
     localStorage.setItem('nd-uploaded-floor-plan', JSON.stringify(uploadInfo));
     setUploadMessage(`Uploaded: ${file.name}`);
     event.target.value = '';
+  };
+
+  const shapeIcon = (shapeId) => {
+    switch (shapeId) {
+      case 'rectangle':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <rect x="20" y="20" width="60" height="60" rx="2" />
+            <circle cx="20" cy="20" r="4" /><circle cx="80" cy="20" r="4" />
+            <circle cx="20" cy="80" r="4" /><circle cx="80" cy="80" r="4" />
+          </svg>
+        );
+      case 'l-shape':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 20H80V80H48V62H20Z" />
+            <circle cx="20" cy="20" r="4" /><circle cx="80" cy="20" r="4" />
+            <circle cx="80" cy="80" r="4" /><circle cx="48" cy="80" r="4" />
+            <circle cx="48" cy="62" r="4" /><circle cx="20" cy="62" r="4" />
+          </svg>
+        );
+      case 't-shape':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 30H36V20H64V30H80V80H20Z" />
+            <circle cx="20" cy="30" r="4" /><circle cx="36" cy="30" r="4" />
+            <circle cx="36" cy="20" r="4" /><circle cx="64" cy="20" r="4" />
+            <circle cx="64" cy="30" r="4" /><circle cx="80" cy="30" r="4" />
+            <circle cx="80" cy="80" r="4" /><circle cx="20" cy="80" r="4" />
+          </svg>
+        );
+      case 'cut':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 20H58L80 42V80H20Z" />
+            <circle cx="20" cy="20" r="4" /><circle cx="58" cy="20" r="4" />
+            <circle cx="80" cy="42" r="4" /><circle cx="80" cy="80" r="4" />
+            <circle cx="20" cy="80" r="4" />
+          </svg>
+        );
+      case 'rounded':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 80V44A30 30 0 0 1 80 44V80Z" />
+            <circle cx="20" cy="80" r="4" /><circle cx="80" cy="80" r="4" /><circle cx="50" cy="22" r="4" />
+          </svg>
+        );
+      case 'z-shape':
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 20H54V36H80V80H46V64H20Z" />
+            <circle cx="20" cy="20" r="4" /><circle cx="54" cy="20" r="4" />
+            <circle cx="54" cy="36" r="4" /><circle cx="80" cy="36" r="4" />
+            <circle cx="80" cy="80" r="4" /><circle cx="46" cy="80" r="4" />
+            <circle cx="46" cy="64" r="4" /><circle cx="20" cy="64" r="4" />
+          </svg>
+        );
+      default:
+        return (
+          <svg viewBox="0 0 100 100" className="ph-shape-svg" aria-hidden="true">
+            <path d="M20 20V80H44" />
+            <path d="M56 44L76 64" />
+            <path d="M76 44L56 64" />
+            <circle cx="20" cy="20" r="4" /><circle cx="20" cy="80" r="4" /><circle cx="44" cy="80" r="4" />
+          </svg>
+        );
+    }
   };
 
   return (
@@ -347,7 +433,7 @@ export default function PlannerHome() {
               <div className="ph-feature-body">
                 <div className="ph-feature-head">
                   <h3>{card.title}</h3>
-                  <button type="button" className="ph-feature-cta" onClick={() => navigate(card.onAction)}>{card.cta}</button>
+                  <button type="button" className="ph-feature-cta" onClick={() => handleFeatureAction(card.onAction)}>{card.cta}</button>
                 </div>
                 <p>{card.desc}</p>
               </div>
@@ -371,6 +457,36 @@ export default function PlannerHome() {
           className="ph-hidden-upload"
           onChange={onFloorPlanSelected}
         />
+
+        {showBlankModal && (
+          <section className="ph-blank-screen" role="dialog" aria-modal="true" aria-label="Choose room shape">
+            <header className="ph-blank-head">
+              <button
+                type="button"
+                className="ph-blank-back"
+                onClick={() => {
+                  setShowBlankModal(false);
+                  setShowGetStartedModal(true);
+                }}
+                aria-label="Back"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+              </button>
+              <h3>Choose room shape</h3>
+            </header>
+
+            <div className="ph-blank-grid">
+              {roomShapeOptions.map((shape) => (
+                <button key={shape.id} type="button" className="ph-blank-card" onClick={() => proceedWithBlank(shape)}>
+                  <span className="ph-blank-glyph">{shapeIcon(shape.id)}</span>
+                  <span className="ph-blank-label">{shape.label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       {showAddModal && (
@@ -426,25 +542,6 @@ export default function PlannerHome() {
             <button type="button" className="ph-center-option" onClick={startFromBlank}>Start from Blank</button>
             <button type="button" className="ph-center-option" onClick={startFromTemplate}>Start from Template</button>
             <button type="button" className="ph-center-cancel" onClick={() => setShowGetStartedModal(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {showBlankModal && (
-        <div className="ph-center-overlay" role="dialog" aria-modal="true" aria-label="Choose room shape" onClick={() => setShowBlankModal(false)}>
-          <div className="ph-shape-modal" onClick={(e) => e.stopPropagation()}>
-            <header className="ph-shape-head">
-              <button type="button" className="ph-shape-back" onClick={() => { setShowBlankModal(false); setShowGetStartedModal(true); }}>Back</button>
-              <h3>Choose room shape</h3>
-            </header>
-            <div className="ph-shape-grid">
-              {roomShapeOptions.map((shape) => (
-                <button key={shape.id} type="button" className="ph-shape-card" onClick={() => proceedWithBlank(shape)}>
-                  <span className="ph-shape-glyph">{shape.glyph}</span>
-                  <span className="ph-shape-label">{shape.label}</span>
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       )}

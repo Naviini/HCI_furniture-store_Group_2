@@ -493,7 +493,6 @@ export default function Dashboard() {
             </div>
 
           {/* ── LEFT: View Mode Toggle ── */}
-          <div className="db-header-left">
             <div className="db-mode-toggle" role="toolbar" aria-label="View mode selector">
               <button
                 id="btn-3d-view"
@@ -555,7 +554,6 @@ export default function Dashboard() {
               <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
             </div>
 
-          <div className="db-header-right">
             {/* Quick actions */}
 
             {/* Action buttons group */}
