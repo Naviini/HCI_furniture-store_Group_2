@@ -147,6 +147,7 @@ html:not(.dark) .ph-nav-item--active {
   padding: 24px 20px;
   overflow-y: auto;
   min-height: 0;
+  position: relative;
 }
 
 .ph-header,
@@ -751,19 +752,19 @@ html:not(.dark) .ph-sheet-cancel {
   place-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   color: rgba(248, 250, 252, 0.7);
-  font-size: 1.85rem;
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
 .ph-center-option,
 .ph-center-cancel {
   width: 100%;
-  min-height: 70px;
+  min-height: 62px;
   border: none;
   background: transparent;
   color: #f8fafc;
-  font-size: 2.5rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -968,6 +969,107 @@ html:not(.dark) .ph-sheet-cancel {
   cursor: pointer;
 }
 
+.ph-blank-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 95;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #0c0f1f, #090b15);
+  color: #f8fafc;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 10px 12px 20px;
+}
+
+.ph-blank-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ph-blank-back {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.ph-blank-back:hover {
+  border-color: rgba(236, 72, 153, 0.4);
+}
+
+.ph-blank-back svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  fill: none;
+}
+
+.ph-blank-head h3 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.ph-blank-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ph-blank-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  min-height: 220px;
+  display: grid;
+  place-content: center;
+  gap: 12px;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+.ph-blank-card:hover {
+  border-color: rgba(236, 72, 153, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ph-blank-glyph {
+  width: 140px;
+  height: 140px;
+  display: grid;
+  place-items: center;
+}
+
+.ph-shape-svg {
+  width: 110px;
+  height: 110px;
+  stroke: #94a3b8;
+  stroke-width: 5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ph-shape-svg circle {
+  fill: rgba(15, 23, 42, 0.9);
+}
+
+.ph-blank-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
 html:not(.dark) .ph-room-overlay {
   background: rgba(15, 23, 42, 0.24);
 }
@@ -1010,6 +1112,43 @@ html:not(.dark) .ph-center-cancel {
   color: #b91c1c;
 }
 
+html:not(.dark) .ph-blank-screen {
+  border-color: rgba(15, 23, 42, 0.14);
+  background: #eef2f6;
+  color: #1f2937;
+  box-shadow: none;
+}
+
+html:not(.dark) .ph-blank-back {
+  border-color: #d7dde7;
+  border-radius: 0;
+  background: #ffffff;
+  color: #111827;
+}
+
+html:not(.dark) .ph-blank-card {
+  border-color: #d7dde7;
+  background: #ffffff;
+  color: #4b5563;
+}
+
+html:not(.dark) .ph-blank-card:hover {
+  border-color: #b8c2d3;
+  background: #ffffff;
+}
+
+html:not(.dark) .ph-shape-svg {
+  stroke: #556173;
+}
+
+html:not(.dark) .ph-shape-svg circle {
+  fill: #ffffff;
+}
+
+html:not(.dark) .ph-blank-label {
+  color: #4b5563;
+}
+
 @media (max-width: 1240px) {
   .ph-designs-head h2 {
     font-size: 1.7rem;
@@ -1040,18 +1179,36 @@ html:not(.dark) .ph-center-cancel {
   }
 
   .ph-center-sheet h3 {
-    font-size: 1.35rem;
+    font-size: 1rem;
   }
 
   .ph-center-option,
   .ph-center-cancel {
-    min-height: 58px;
-    font-size: 1.2rem;
+    min-height: 54px;
+    font-size: 0.95rem;
   }
 
   .ph-shape-grid,
   .ph-template-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ph-blank-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ph-blank-card {
+    min-height: 150px;
+  }
+
+  .ph-blank-glyph {
+    width: 96px;
+    height: 96px;
+  }
+
+  .ph-shape-svg {
+    width: 80px;
+    height: 80px;
   }
 
   .ph-shape-card {
