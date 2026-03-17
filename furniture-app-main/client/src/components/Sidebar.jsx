@@ -125,7 +125,7 @@ const ITEM_PRICES = FURNITURE_ITEMS.reduce((acc, f) => ({ ...acc, [f.name]: f.pr
   Table: 89.99, Cabinet: 79.99,
 });
 
-const CATEGORIES = ['All', 'Tables', 'Seating', 'Storage', 'Living', 'Lighting', 'Dining', 'Bedroom', 'Bathroom', 'Kitchen', 'Outdoor'];
+const CATEGORIES = ['Tables', 'Seating', 'Storage', 'Living', 'Lighting', 'Dining', 'Bedroom', 'Bathroom', 'Kitchen', 'Outdoor'];
 const MATERIALS  = ['All', 'Wood', 'Plastic', 'Metal', 'Fabric', 'Leather', 'Glass', 'Ceramic'];
 
 const FLOOR_TYPES = [
@@ -320,14 +320,14 @@ const ActionBtn = ({ onClick, icon, label, primary, danger }) => {
 ───────────────────────────────────────────────────────────────────────────── */
 function LibraryPanel({ items, addItem }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [catFilter, setCatFilter] = useState('All');
+  const [catFilter, setCatFilter] = useState('');
   const [matFilter, setMatFilter] = useState('All');
   const [hovered, setHovered] = useState(null);
 
   const filtered = useMemo(() => {
     let r = FURNITURE_ITEMS;
     if (searchQuery) r = r.filter(f => (f.name + f.desc).toLowerCase().includes(searchQuery.toLowerCase()));
-    if (catFilter !== 'All') r = r.filter(f => f.category === catFilter);
+    if (catFilter) r = r.filter(f => f.category === catFilter);
     if (matFilter !== 'All') r = r.filter(f => f.material === matFilter);
     return r;
   }, [searchQuery, catFilter, matFilter]);
@@ -360,7 +360,7 @@ function LibraryPanel({ items, addItem }) {
         <span style={{ display:'block', fontSize:'0.6rem', fontWeight:700, color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.7px', marginBottom:6 }}>Category</span>
         <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
           {CATEGORIES.map(cat => (
-            <Chip key={cat} active={catFilter === cat} onClick={() => setCatFilter(cat)}>{cat}</Chip>
+            <Chip key={cat} active={catFilter === cat} onClick={() => setCatFilter(prev => (prev === cat ? '' : cat))}>{cat}</Chip>
           ))}
         </div>
       </div>
@@ -930,29 +930,11 @@ const PriceLine = ({ label, value, muted, valueColor }) => (
 /* ─────────────────────────────────────────────────────────────────────────────
    GLOBAL / SETTINGS PANEL
 ───────────────────────────────────────────────────────────────────────────── */
-function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downloadScreenshot, saveAsTemplate, undo, redo, canUndo, canRedo }) {
+function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downloadScreenshot, undo, redo, canUndo, canRedo }) {
   const updateRoom = (key, val) => setRoomConfig(p => ({ ...p, [key]: val }));
 
   return (
     <div className="sb-fade">
-      {/* Undo / Redo */}
-      <SectionDivider title="History" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:18 }}>
-        <button onClick={undo} disabled={!canUndo}
-          aria-label="Undo last action"
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'11px', borderRadius:10, cursor: canUndo ? 'pointer' : 'not-allowed', fontFamily:'inherit', fontSize:'0.82rem', fontWeight:700, transition:C.tr, border:`1px solid ${canUndo ? 'rgba(99,102,241,0.35)' : C.borderSoft}`, background: canUndo ? C.accentDim : 'rgba(255,255,255,0.02)', color: canUndo ? C.textAccent : C.textMuted, opacity: canUndo ? 1 : 0.45 }}>
-          <Ico size={14} sw={2}><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></Ico>
-          Undo
-        </button>
-        <button onClick={redo} disabled={!canRedo}
-          aria-label="Redo last action"
-          style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, padding:'11px', borderRadius:10, cursor: canRedo ? 'pointer' : 'not-allowed', fontFamily:'inherit', fontSize:'0.82rem', fontWeight:700, transition:C.tr, border:`1px solid ${canRedo ? 'rgba(34,211,238,0.35)' : C.borderSoft}`, background: canRedo ? 'rgba(34,211,238,0.1)' : 'rgba(255,255,255,0.02)', color: canRedo ? C.cyan : C.textMuted, opacity: canRedo ? 1 : 0.45 }}>
-          <Ico size={14} sw={2}><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></Ico>
-          Redo
-        </button>
-      </div>
-      <div style={{ fontSize:'0.62rem', color:C.textMuted, textAlign:'center', marginBottom:18, opacity:.7 }}>Ctrl+Z · Ctrl+Y</div>
-
       {/* Lighting */}
       <SectionDivider title="Environment" />
       <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
@@ -1017,9 +999,6 @@ function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downl
         <ActionBtn onClick={saveDesign} primary
           icon={<Ico size={15} sw={2}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Ico>}
           label="Save Project" />
-        <ActionBtn onClick={saveAsTemplate}
-          icon={<Ico size={15} sw={2}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></Ico>}
-          label="Save as Template" />
         <ActionBtn onClick={loadDesigns}
           icon={<Ico size={15} sw={2}><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></Ico>}
           label="Load Previous" />
@@ -1036,7 +1015,6 @@ function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downl
 ───────────────────────────────────────────────────────────────────────────── */
 export default function Sidebar({
   user,
-  onLogout,
   addItem,
   selectedId,
   items,
@@ -1055,7 +1033,6 @@ export default function Sidebar({
   saveDesign,
   loadDesigns,
   downloadScreenshot,
-  saveAsTemplate,
   undo,
   redo,
   canUndo = false,
@@ -1063,24 +1040,17 @@ export default function Sidebar({
 }) {
   const [activeTab, setActiveTab]   = useState(TABS.LIBRARY);
   const [collapsed, setCollapsed]   = useState(false);
-  const [hovLogout, setHovLogout]   = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const lastSelectedIdRef = React.useRef(null);
 
   const selectedItem = items.find(i => i.id === selectedId);
 
-  // Close user menu when clicking outside
+  // Jump to Properties only when selection changes.
   React.useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest('.user-card')) {
-        setShowUserMenu(false);
-      }
-    };
-
-    if (showUserMenu) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
+    if (selectedId && selectedId !== lastSelectedIdRef.current) {
+      setActiveTab(TABS.PROPERTIES);
     }
-  }, [showUserMenu]);
+    lastSelectedIdRef.current = selectedId;
+  }, [selectedId]);
 
   // Each tab gets a live badge
   const BADGES = {
@@ -1141,14 +1111,16 @@ export default function Sidebar({
               <div style={{ fontSize:'0.58rem', color:C.textMuted, fontWeight:600, letterSpacing:'1px', textTransform:'uppercase' }}>Design Studio</div>
             </div>
           </div>
-          {/* Collapse button */}
-          <button onClick={() => setCollapsed(true)}
-            style={{ width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', background:'transparent', border:'none', borderRadius:8, color:C.textMuted, cursor:'pointer', transition:C.tr }}
-            onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color=C.textMain; }}
-            onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.color=C.textMuted; }}
-            title="Collapse sidebar">
-            <Ico size={15} sw={2}><polyline points="15 18 9 12 15 6"/></Ico>
-          </button>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+            {/* Collapse button */}
+            <button onClick={() => setCollapsed(true)}
+              style={{ width:30, height:30, display:'flex', alignItems:'center', justifyContent:'center', background:'transparent', border:'none', borderRadius:8, color:C.textMuted, cursor:'pointer', transition:C.tr }}
+              onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.06)'; e.currentTarget.style.color=C.textMain; }}
+              onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.color=C.textMuted; }}
+              title="Collapse sidebar">
+              <Ico size={15} sw={2}><polyline points="15 18 9 12 15 6"/></Ico>
+            </button>
+          </div>
         </div>
 
         {/* User card */}
@@ -1225,23 +1197,11 @@ export default function Sidebar({
           <GlobalPanel
             roomConfig={roomConfig} setRoomConfig={setRoomConfig}
             saveDesign={saveDesign} loadDesigns={loadDesigns} downloadScreenshot={downloadScreenshot}
-            saveAsTemplate={saveAsTemplate}
             undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo}
           />
         )}
       </div>
 
-      {/* ── FOOTER ── */}
-      <div style={{ padding:'10px 12px', borderTop:`1px solid ${C.borderSoft}`, flexShrink:0 }}>
-        <button
-          onClick={onLogout}
-          onMouseEnter={() => setHovLogout(true)}
-          onMouseLeave={() => setHovLogout(false)}
-          style={{ display:'flex', alignItems:'center', gap:8, width:'100%', padding:'9px 11px', background: hovLogout ? 'rgba(239,68,68,0.08)' : 'transparent', border:`1px solid ${hovLogout ? 'rgba(239,68,68,0.2)' : 'transparent'}`, borderRadius:9, color: hovLogout ? '#f87171' : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', fontSize:'0.8rem', fontWeight:600 }}>
-          <Ico size={14} sw={2}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></Ico>
-          Sign out
-        </button>
-      </div>
     </aside>
   );
 }

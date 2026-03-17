@@ -141,13 +141,13 @@ const MODEL_MAP = {
   'Table':            { path: tablePath,         scale: 0.02,  yOffset: 0 },
   'Industrial Table': { path: industrialTablePath, scale: 2,   yOffset: 0 },
   /* ── NEW BATHROOM ── */
-  'Bathroom Asset 1':  { path: bathroomAsset1Path,     scale: 1,     yOffset: 0.2 },
+  'Bathroom Asset 1':  { path: bathroomAsset1Path,     scale: 1,     yOffset: 1.5 },
   'Bathroom Closet':   { path: bathroomClosetPath,     scale: 1.5,   yOffset: 0 },
   'Bathtub':           { path: bathtubPath,            scale: 0.02,  yOffset: 0.1 },
   'Bathtub 2':         { path: bathtub2Path,           scale: 1.4,   yOffset: 0 },
   'Sink & Vanity':     { path: sinkVanityPath,         scale: 1,     yOffset: 0 },
   'Sink with Faucet':  { path: sinkFaucetPath,         scale: 1.5,   yOffset: 0 },
-  'Toilet':            { path: toiletPath,             scale: 1,     yOffset: 0 },
+  'Toilet':            { path: toiletPath,             scale: 1.8,   yOffset: 0 },
   'Toilet Vaa':        { path: toiletVaaPath,          scale: 0.02,  yOffset: 0.1 },
   /* ── NEW BEDROOM ── */
   'Bed Agape':         { path: bedAgapePath,           scale: 0.02,  yOffset: 0.1 },
