@@ -64,6 +64,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.nd-compact-ui .btn,
+body.nd-compact-ui .input,
+body.nd-compact-ui .db-header-btn,
+body.nd-compact-ui .ph-nav-item {
+  min-height: 32px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+body.nd-reduced-motion *,
+body.nd-reduced-motion *::before,
+body.nd-reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
 @keyframes login-gradient-shift {
   0% { background-position: 0% 0%; }
   25% { background-position: 100% 100%; }
