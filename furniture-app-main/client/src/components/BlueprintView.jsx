@@ -4,7 +4,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
    Room outline points for each shape (same logic as Room.jsx)
    Returns an array of [x, z] forming a closed polygon
    ──────────────────────────────────────────── */
-function getRoomOutline(shape, w, d) {
+function getRoomOutline(shape, w, d, customPoints = []) {
   const hw = w / 2;
   const hd = d / 2;
 
@@ -38,6 +38,55 @@ function getRoomOutline(shape, w, d) {
         [hw, hd], [-hw, hd],
       ];
     }
+    case 'z-shape': {
+      const topW = w * 0.42;
+      const rightW = w * 0.32;
+      const notchDepth = d * 0.3;
+      const innerZ1 = -hd + notchDepth;
+      const innerZ2 = hd - notchDepth;
+      return [
+        [-hw, -hd],
+        [-hw + topW, -hd],
+        [-hw + topW, innerZ1],
+        [hw, innerZ1],
+        [hw, hd],
+        [hw - rightW, hd],
+        [hw - rightW, innerZ2],
+        [-hw, innerZ2],
+      ];
+    }
+    case 'cut': {
+      const cutW = w * 0.32;
+      const cutD = d * 0.32;
+      return [
+        [-hw, -hd],
+        [hw - cutW, -hd],
+        [hw, -hd + cutD],
+        [hw, hd],
+        [-hw, hd],
+      ];
+    }
+    case 'rounded': {
+      const segments = 7;
+      const rx = hw;
+      const rz = d * 0.58;
+      const topCenterZ = hd - rz;
+      const pts = [[-hw, hd], [-hw, -hd]];
+      for (let i = 0; i <= segments; i += 1) {
+        const t = i / segments;
+        const a = Math.PI - t * Math.PI;
+        const x = Math.cos(a) * rx;
+        const z = topCenterZ + Math.sin(a) * rz;
+        pts.push([x, z]);
+      }
+      pts.push([hw, hd]);
+      return pts;
+    }
+    case 'custom':
+      if (Array.isArray(customPoints) && customPoints.length >= 3) {
+        return customPoints;
+      }
+      return [];
     case 'open':
     case 'rectangle':
     default:
@@ -73,10 +122,22 @@ const ITEM_COLORS = {
 /* ════════════════════════════════════════════
    BlueprintView Component
    ════════════════════════════════════════════ */
-export default function BlueprintView({ roomConfig, items, selectedId, setSelectedId, updateItem, windows = [], doors = [] }) {
+export default function BlueprintView({
+  roomConfig,
+  items,
+  selectedId,
+  setSelectedId,
+  updateItem,
+  windows = [],
+  doors = [],
+  drawWallEnabled = false,
+  onCustomRoomCreated,
+  onCancelDrawWall,
+}) {
   const containerRef = useRef(null);
   const [dragging, setDragging] = useState(null); // { id, offsetX, offsetZ }
   const [containerSize, setContainerSize] = useState({ w: 800, h: 600 });
+  const [draftPoints, setDraftPoints] = useState([]);
 
   // Observe container size
   useEffect(() => {
@@ -89,8 +150,8 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
     return () => ro.disconnect();
   }, []);
 
-  const { width: roomW, depth: roomD, shape, floorColor, wallColor } = roomConfig;
-  const outline = getRoomOutline(shape, roomW, roomD);
+  const { width: roomW, depth: roomD, shape, floorColor, wallColor, customPoints } = roomConfig;
+  const outline = getRoomOutline(shape, roomW, roomD, customPoints);
 
   // Compute scale: fit room into container with padding
   const PAD = 80;
@@ -108,6 +169,7 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
 
   // Room outline as SVG polygon points string
   const outlinePoints = outline.map(([x, z]) => `${toSvgX(x)},${toSvgY(z)}`).join(' ');
+  const draftPointsSvg = draftPoints.map(([x, z]) => `${toSvgX(x)},${toSvgY(z)}`).join(' ');
 
   // Drag handlers
   const handlePointerDown = useCallback((e, item) => {
@@ -141,7 +203,51 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
     setDragging(null);
   }, []);
 
-  const handleBgClick = () => setSelectedId(null);
+  const finishDrawing = useCallback(() => {
+    if (!drawWallEnabled || draftPoints.length < 3) return;
+    onCustomRoomCreated?.(draftPoints);
+    setDraftPoints([]);
+  }, [drawWallEnabled, draftPoints, onCustomRoomCreated]);
+
+  const cancelDrawing = useCallback(() => {
+    setDraftPoints([]);
+    onCancelDrawWall?.();
+  }, [onCancelDrawWall]);
+
+  const handleBgClick = useCallback((e) => {
+    if (!drawWallEnabled) {
+      setSelectedId(null);
+      return;
+    }
+
+    const svgRect = containerRef.current.getBoundingClientRect();
+    const mx = e.clientX - svgRect.left;
+    const my = e.clientY - svgRect.top;
+
+    const rawX = toWorldX(mx);
+    const rawZ = toWorldZ(my);
+    const clampedX = Math.max(-roomW / 2, Math.min(roomW / 2, rawX));
+    const clampedZ = Math.max(-roomD / 2, Math.min(roomD / 2, rawZ));
+    const nextPoint = [Number(clampedX.toFixed(3)), Number(clampedZ.toFixed(3))];
+
+    if (draftPoints.length >= 3) {
+      const [fx, fz] = draftPoints[0];
+      const dx = fx - nextPoint[0];
+      const dz = fz - nextPoint[1];
+      if (Math.sqrt(dx * dx + dz * dz) < 0.5) {
+        finishDrawing();
+        return;
+      }
+    }
+
+    setDraftPoints(prev => [...prev, nextPoint]);
+  }, [drawWallEnabled, setSelectedId, toWorldX, toWorldZ, roomW, roomD, draftPoints, finishDrawing]);
+
+  useEffect(() => {
+    if (!drawWallEnabled) {
+      setDraftPoints([]);
+    }
+  }, [drawWallEnabled]);
 
   // Grid lines
   const gridLines = [];
@@ -185,8 +291,16 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
         <div style={styles.legendInfo}>
           {roomConfig.shape} • {roomW}m × {roomD}m • {items.length} items
         </div>
-        <div style={styles.legendHint}>Click & drag items to reposition</div>
+        <div style={styles.legendHint}>{drawWallEnabled ? 'Wall drawing enabled: click points to draw walls' : 'Click & drag items to reposition'}</div>
       </div>
+
+      {drawWallEnabled && (
+        <div style={styles.drawPanel}>
+          <span style={styles.drawMeta}>Points: {draftPoints.length}</span>
+          <button style={styles.drawBtn} onClick={finishDrawing} disabled={draftPoints.length < 3}>Finish Drawing</button>
+          <button style={styles.cancelBtn} onClick={cancelDrawing}>Cancel</button>
+        </div>
+      )}
 
       <svg
         width={containerSize.w}
@@ -198,37 +312,70 @@ export default function BlueprintView({ roomConfig, items, selectedId, setSelect
         {gridLines}
 
         {/* Room outline fill */}
-        <polygon
-          points={outlinePoints}
-          fill={floorColor}
-          fillOpacity={0.25}
-          stroke="none"
-        />
+        {outline.length >= 3 && (
+          <polygon
+            points={outlinePoints}
+            fill={floorColor}
+            fillOpacity={0.25}
+            stroke="none"
+          />
+        )}
 
         {/* Room outline border */}
-        <polygon
-          points={outlinePoints}
-          fill="none"
-          stroke={wallColor}
-          strokeWidth={3}
-          strokeLinejoin="round"
-        />
+        {outline.length >= 3 && (
+          <polygon
+            points={outlinePoints}
+            fill="none"
+            stroke={wallColor}
+            strokeWidth={3}
+            strokeLinejoin="round"
+          />
+        )}
 
         {/* Wall hatch marks (thick line on outside) */}
-        <polygon
-          points={outlinePoints}
-          fill="none"
-          stroke="rgba(255,255,255,0.2)"
-          strokeWidth={8}
-          strokeLinejoin="round"
-        />
-        <polygon
-          points={outlinePoints}
-          fill="none"
-          stroke={wallColor}
-          strokeWidth={3}
-          strokeLinejoin="round"
-        />
+        {outline.length >= 3 && (
+          <polygon
+            points={outlinePoints}
+            fill="none"
+            stroke="rgba(255,255,255,0.2)"
+            strokeWidth={8}
+            strokeLinejoin="round"
+          />
+        )}
+        {outline.length >= 3 && (
+          <polygon
+            points={outlinePoints}
+            fill="none"
+            stroke={wallColor}
+            strokeWidth={3}
+            strokeLinejoin="round"
+          />
+        )}
+
+        {drawWallEnabled && draftPoints.length >= 1 && (
+          <>
+            <polyline
+              points={draftPointsSvg}
+              fill="none"
+              stroke="#38bdf8"
+              strokeWidth={3}
+              strokeDasharray="6 6"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+            {draftPoints.map(([x, z], idx) => (
+              <circle
+                key={`draft-${idx}`}
+                cx={toSvgX(x)}
+                cy={toSvgY(z)}
+                r={idx === 0 && draftPoints.length >= 3 ? 6 : 4.5}
+                fill={idx === 0 && draftPoints.length >= 3 ? '#22c55e' : '#38bdf8'}
+                stroke="white"
+                strokeWidth={1.5}
+              />
+            ))}
+          </>
+        )}
 
         {/* Dimension: width */}
         <text x={cx} y={toSvgY(hd) + 24} style={dimStyle}>
@@ -472,5 +619,44 @@ const styles = {
     color: '#555',
     fontSize: 10,
     fontStyle: 'italic',
+  },
+  drawPanel: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '8px 10px',
+    borderRadius: 10,
+    background: 'rgba(13, 17, 23, 0.92)',
+    border: '1px solid rgba(56, 189, 248, 0.35)',
+    backdropFilter: 'blur(8px)',
+  },
+  drawMeta: {
+    color: '#cbd5e1',
+    fontSize: 12,
+    fontWeight: 600,
+  },
+  drawBtn: {
+    border: 'none',
+    borderRadius: 8,
+    background: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 700,
+    padding: '7px 10px',
+    cursor: 'pointer',
+  },
+  cancelBtn: {
+    border: '1px solid rgba(148, 163, 184, 0.4)',
+    borderRadius: 8,
+    background: 'rgba(15, 23, 42, 0.72)',
+    color: '#e2e8f0',
+    fontSize: 12,
+    fontWeight: 600,
+    padding: '7px 10px',
+    cursor: 'pointer',
   },
 };

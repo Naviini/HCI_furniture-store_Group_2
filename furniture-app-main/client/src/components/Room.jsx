@@ -393,12 +393,37 @@ function FloorTile({ cx, cz, w, d, color, floorType = 'plank_flooring' }) {
   );
 }
 
+function CustomPolygonFloor({ points, color }) {
+  const geometry = useMemo(() => {
+    if (!Array.isArray(points) || points.length < 3) return null;
+
+    const shape = new THREE.Shape();
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i += 1) {
+      shape.lineTo(points[i][0], points[i][1]);
+    }
+    shape.closePath();
+
+    const geom = new THREE.ShapeGeometry(shape);
+    geom.rotateX(-Math.PI / 2);
+    return geom;
+  }, [points]);
+
+  if (!geometry) return null;
+
+  return (
+    <mesh geometry={geometry} position={[0, -0.01, 0]} receiveShadow>
+      <meshStandardMaterial color={color} roughness={0.5} metalness={0.0} />
+    </mesh>
+  );
+}
+
 /* ────────────────────────────────────────────
    Shape definitions
    Returns { floors: [{cx,cz,w,d}], walls: [[[x1,z1],[x2,z2]]] }
    Coordinate system: X = left/right, Z = back(-) / front(+)
    ──────────────────────────────────────────── */
-function getShapeGeometry(shape, w, d) {
+function getShapeGeometry(shape, w, d, customPoints = []) {
   const hw = w / 2;
   const hd = d / 2;
 
@@ -485,6 +510,110 @@ function getShapeGeometry(shape, w, d) {
       };
     }
 
+    /* ── Z-Shape ────────────────────────── */
+    case 'z-shape': {
+      const topW = w * 0.42;
+      const rightW = w * 0.32;
+      const notchDepth = d * 0.3;
+      const innerZ1 = -hd + notchDepth;
+      const innerZ2 = hd - notchDepth;
+      const leftX = -hw;
+      const midLeftX = -hw + topW;
+      const midRightX = hw - rightW;
+      const rightX = hw;
+
+      const pts = [
+        [leftX, -hd],
+        [midLeftX, -hd],
+        [midLeftX, innerZ1],
+        [rightX, innerZ1],
+        [rightX, hd],
+        [midRightX, hd],
+        [midRightX, innerZ2],
+        [leftX, innerZ2],
+      ];
+
+      return {
+        floors: [{ cx: 0, cz: 0, w, d }],
+        customPolygon: pts,
+        walls: pts.map((p, i) => ({
+          from: p,
+          to: pts[(i + 1) % pts.length],
+          id: `z-${i}`,
+        })),
+      };
+    }
+
+    /* ── Cut corner ─────────────────────── */
+    case 'cut': {
+      const cutW = w * 0.32;
+      const cutD = d * 0.32;
+      const pts = [
+        [-hw, -hd],
+        [hw - cutW, -hd],
+        [hw, -hd + cutD],
+        [hw, hd],
+        [-hw, hd],
+      ];
+
+      return {
+        floors: [{ cx: 0, cz: 0, w, d }],
+        customPolygon: pts,
+        walls: pts.map((p, i) => ({
+          from: p,
+          to: pts[(i + 1) % pts.length],
+          id: `cut-${i}`,
+        })),
+      };
+    }
+
+    /* ── Rounded top (faceted) ──────────── */
+    case 'rounded': {
+      const segments = 7;
+      const rx = hw;
+      const rz = d * 0.58;
+      const topCenterZ = hd - rz;
+      const pts = [[-hw, hd], [-hw, -hd]];
+
+      for (let i = 0; i <= segments; i += 1) {
+        const t = i / segments;
+        const a = Math.PI - t * Math.PI;
+        const x = Math.cos(a) * rx;
+        const z = topCenterZ + Math.sin(a) * rz;
+        pts.push([x, z]);
+      }
+
+      pts.push([hw, hd]);
+
+      return {
+        floors: [{ cx: 0, cz: 0, w, d }],
+        customPolygon: pts,
+        walls: pts.map((p, i) => ({
+          from: p,
+          to: pts[(i + 1) % pts.length],
+          id: `rounded-${i}`,
+        })),
+      };
+    }
+
+    /* ── User-drawn custom polygon ──────── */
+    case 'custom': {
+      if (!Array.isArray(customPoints) || customPoints.length < 3) {
+        return { floors: [{ cx: 0, cz: 0, w, d }], walls: [], customPolygon: [] };
+      }
+
+      const points = customPoints.map(([x, z]) => [x, z]);
+      return {
+        floors: [],
+        customPolygon: points,
+        walls: points.map((p, i) => ({
+          from: p,
+          to: points[(i + 1) % points.length],
+          id: `custom-${i}`,
+        })),
+      };
+    }
+
     /* ── Open (floor only, no walls) ────── */
     case 'open':
       return {
@@ -510,14 +639,18 @@ function getShapeGeometry(shape, w, d) {
 /* ════════════════════════════════════════════
    Room Component
    ════════════════════════════════════════════ */
-export default function Room({ width, depth, wallColor, floorColor, floorType = 'solid', shape = 'rectangle', windows = [], doors = [] }) {
-  const { floors, walls } = useMemo(
-    () => getShapeGeometry(shape, width, depth),
-    [shape, width, depth]
+export default function Room({ width, depth, wallColor, floorColor, floorType = 'solid', shape = 'rectangle', customPoints = [], windows = [], doors = [] }) {
+  const { floors, walls, customPolygon } = useMemo(
+    () => getShapeGeometry(shape, width, depth, customPoints),
+    [shape, width, depth, customPoints]
   );
 
   return (
     <group>
+      {Array.isArray(customPolygon) && customPolygon.length >= 3 ? (
+        <CustomPolygonFloor points={customPolygon} color={floorColor} />
+      ) : null}
+
       {/* Floor tiles */}
       {floors.map((f, i) => (
         <FloorTile key={`floor-${shape}-${floorType}-${i}`} cx={f.cx} cz={f.cz} w={f.w} d={f.d} color={floorColor} floorType={floorType} />

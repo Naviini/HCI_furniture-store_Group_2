@@ -158,6 +158,7 @@ export default function Dashboard() {
   const [selectedId, setSelectedId] = useState(null);
   const [mode, setMode] = useState('3D');
   const [cameraMode, setCameraMode] = useState('TPP');
+  const [drawWallMode, setDrawWallMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -166,6 +167,7 @@ export default function Dashboard() {
     wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
     ambientIntensity: null, sunIntensity: null,
+    customPoints: [],
   });
 
   const [windows, setWindows] = useState([]);
@@ -173,6 +175,7 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
@@ -200,6 +203,56 @@ export default function Dashboard() {
     if (!storedUser) navigate('/login');
     else setUser(JSON.parse(storedUser));
   }, [navigate]);
+
+  useEffect(() => {
+    const selectedShape = localStorage.getItem('nd-selected-room-shape');
+    const startMode = localStorage.getItem('nd-start-mode');
+    if (!selectedShape || startMode !== 'blank') return;
+
+    const shapeMap = {
+      rectangle: 'rectangle',
+      square: 'square',
+      'l-shape': 'l-shape',
+      't-shape': 't-shape',
+      'u-shape': 'u-shape',
+      'z-shape': 'z-shape',
+      cut: 'cut',
+      rounded: 'rounded',
+      custom: 'custom',
+    };
+    const nextShape = shapeMap[selectedShape] || 'rectangle';
+
+    setRoomConfig(prev => ({
+      ...prev,
+      shape: nextShape,
+      customPoints: nextShape === 'custom' ? [] : prev.customPoints,
+    }));
+
+    if (nextShape === 'custom') {
+      setMode('2D');
+      setDrawWallMode(true);
+      setToast('Draw your room walls in 2D. Click points, then press Finish Drawing.');
+      setToastType('info');
+      setTimeout(() => setToast(null), 4500);
+    } else {
+      setDrawWallMode(false);
+    }
+
+    localStorage.removeItem('nd-selected-room-shape');
+    localStorage.removeItem('nd-start-mode');
+  }, []);
+
+  const handleCustomRoomCreated = useCallback((points) => {
+    if (!Array.isArray(points) || points.length < 3) return;
+    setRoomConfig(prev => ({
+      ...prev,
+      shape: 'custom',
+      customPoints: points,
+    }));
+    setDrawWallMode(false);
+    setMode('3D');
+    showToast('Custom room walls created. Switched to 3D view.', 'success');
+  }, []);
 
   const showToast = (msg, type = 'info') => {
     setToast(msg); setToastType(type);
@@ -591,7 +644,7 @@ export default function Dashboard() {
               <button
                 id="btn-templates"
                 className="db-header-btn"
-                onClick={() => setShowTemplates(true)}
+                onClick={() => setShowTemplateModal(true)}
                 aria-label="Browse room templates"
                 title="Templates"
               >
@@ -705,6 +758,9 @@ export default function Dashboard() {
               updateItem={updateItem}
               windows={windows}
               doors={doors}
+              drawWallEnabled={drawWallMode}
+              onCustomRoomCreated={handleCustomRoomCreated}
+              onCancelDrawWall={() => setDrawWallMode(false)}
             />
           ) : (
             <DesignCanvas
@@ -719,6 +775,26 @@ export default function Dashboard() {
               windows={windows}
               doors={doors}
             />
+          )}
+
+          {drawWallMode && mode === '2D' && (
+            <div className="db-draw-hint" style={{
+              position: 'absolute',
+              top: '20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 10000,
+              padding: '8px 14px',
+              borderRadius: '999px',
+              background: 'rgba(14, 15, 30, 0.88)',
+              border: '1px solid rgba(99,102,241,0.35)',
+              color: '#e2e8f0',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              backdropFilter: 'blur(10px)',
+            }}>
+              Draw Wall Mode: click points to create walls, then finish drawing.
+            </div>
           )}
 
           {/* Camera Mode Toggle Switch (TPP/FPP) */}
