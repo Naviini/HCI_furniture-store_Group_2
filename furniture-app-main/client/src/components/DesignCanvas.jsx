@@ -73,6 +73,7 @@ const DesignCanvas = forwardRef(({
           floorColor={roomConfig.floorColor}
           floorType={roomConfig.floorType}
           shape={roomConfig.shape}
+          customPoints={roomConfig.customPoints}
           windows={windows}
           doors={doors}
         />
