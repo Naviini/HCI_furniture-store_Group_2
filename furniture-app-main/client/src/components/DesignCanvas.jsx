@@ -49,18 +49,18 @@ const DesignCanvas = forwardRef(({
       <color attach="background" args={[config.bg]} />
       
       {/* --- Environment --- */}
-      <ambientLight intensity={config.ambient} />
+      <ambientLight intensity={roomConfig.ambientIntensity ?? config.ambient} />
       {config.sky ? (
         <Sky sunPosition={config.sun} turbidity={8} rayleigh={6} />
       ) : (
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
       )}
-      
-      <directionalLight 
-        position={[10, 20, 10]} 
-        intensity={1.2} 
-        castShadow 
-        shadow-mapSize={[2048, 2048]} 
+
+      <directionalLight
+        position={[10, 20, 10]}
+        intensity={roomConfig.sunIntensity ?? 1.2}
+        castShadow
+        shadow-mapSize={[2048, 2048]}
       />
       <SoftShadows size={15} focus={0.5} samples={12} />
 

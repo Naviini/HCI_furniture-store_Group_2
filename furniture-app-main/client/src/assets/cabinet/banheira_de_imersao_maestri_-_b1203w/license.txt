@@ -1,0 +1,11 @@
+Model Information:
+* title:	Banheira de Imersão Maestri - B1203W
+* source:	https://sketchfab.com/3d-models/banheira-de-imersao-maestri-b1203w-fe749f6106084db483b66c256029f8b1
+* author:	Bracci (https://sketchfab.com/bracci)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Banheira de Imersão Maestri - B1203W" (https://sketchfab.com/3d-models/banheira-de-imersao-maestri-b1203w-fe749f6106084db483b66c256029f8b1) by Bracci (https://sketchfab.com/bracci) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
