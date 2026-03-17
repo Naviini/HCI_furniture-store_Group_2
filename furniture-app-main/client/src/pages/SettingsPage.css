@@ -1,23 +1,13 @@
 .sp-page {
-  min-height: 100vh;
-  padding: 14px;
-  background:
-    radial-gradient(64% 44% at 8% 8%, rgba(147, 51, 234, 0.24), transparent 65%),
-    radial-gradient(46% 34% at 96% 12%, rgba(236, 72, 153, 0.2), transparent 70%),
-    #090b15;
   color: #f8fafc;
 }
 
-.sp-page--light {
-  background:
-    radial-gradient(70% 46% at 10% 8%, rgba(129, 140, 248, 0.18), transparent 64%),
-    radial-gradient(54% 36% at 94% 10%, rgba(236, 72, 153, 0.14), transparent 66%),
-    #edf3f9;
-  color: #0f172a;
+.sp-main {
+  padding: 24px 20px;
 }
 
 .sp-shell {
-  width: min(1220px, 100%);
+  width: min(100%, 780px);
   margin: 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
@@ -26,9 +16,10 @@
   padding: 0 14px 18px;
 }
 
-.sp-page--light .sp-shell {
+html:not(.dark) .sp-shell {
   border-color: rgba(15, 23, 42, 0.12);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(246, 249, 253, 0.92));
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .sp-header {
@@ -41,21 +32,21 @@
   padding: 0 14px;
 }
 
-.sp-page--light .sp-header {
+html:not(.dark) .sp-header {
   border-bottom-color: rgba(15, 23, 42, 0.1);
 }
 
 .sp-header h1 {
   margin: 0;
   text-align: center;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.01em;
 }
 
 .sp-back {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
   color: inherit;
   border-radius: 10px;
   min-height: 36px;
@@ -64,9 +55,19 @@
   cursor: pointer;
 }
 
-.sp-page--light .sp-back {
+.sp-back:hover {
+  border-color: rgba(236, 72, 153, 0.4);
+}
+
+html:not(.dark) .sp-back {
   border-color: rgba(15, 23, 42, 0.16);
   background: rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+}
+
+html:not(.dark) .sp-back:hover {
+  border-color: rgba(129, 140, 248, 0.4);
+  background: rgba(129, 140, 248, 0.08);
 }
 
 .sp-header-gap {
@@ -79,7 +80,7 @@
 
 .sp-section h2 {
   margin: 0 0 8px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.01em;
 }
@@ -91,7 +92,7 @@
   overflow: hidden;
 }
 
-.sp-page--light .sp-list {
+html:not(.dark) .sp-list {
   border-color: rgba(15, 23, 42, 0.1);
   background: rgba(15, 23, 42, 0.04);
 }
@@ -110,7 +111,7 @@
   border-top: 0;
 }
 
-.sp-page--light .sp-row {
+html:not(.dark) .sp-row {
   border-top-color: rgba(15, 23, 42, 0.08);
 }
 
@@ -127,7 +128,7 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-.sp-page--light .sp-row--action:hover {
+html:not(.dark) .sp-row--action:hover {
   background: rgba(15, 23, 42, 0.05);
 }
 
@@ -144,24 +145,29 @@
   color: #f8fafc;
 }
 
+html:not(.dark) .sp-icon {
+  background: rgba(129, 140, 248, 0.18);
+  color: #0f172a;
+}
+
 .sp-icon--green {
   background: #16a34a;
 }
 
 .sp-row-main strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
   font-weight: 800;
   letter-spacing: 0.01em;
 }
 
 .sp-row-main p {
   margin-top: 2px;
-  font-size: 0.9rem;
+  font-size: 0.84rem;
   color: rgba(248, 250, 252, 0.62);
 }
 
-.sp-page--light .sp-row-main p {
+html:not(.dark) .sp-row-main p {
   color: rgba(15, 23, 42, 0.62);
 }
 
@@ -171,7 +177,7 @@
   font-weight: 700;
 }
 
-.sp-page--light .sp-chevron {
+html:not(.dark) .sp-chevron {
   color: rgba(15, 23, 42, 0.85);
 }
 
@@ -184,11 +190,39 @@
   font-weight: 600;
   min-height: 38px;
   padding: 0 10px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(248,250,252,0.9)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 18px;
 }
 
-.sp-page--light .sp-select {
+.sp-select option {
+  background-color: #1f2937;
+  color: #f8fafc;
+  padding: 8px;
+}
+
+.sp-select option:checked {
+  background: linear-gradient(#ec4899, #ec4899);
+  background-color: #ec4899;
+  color: #ffffff;
+}
+
+html:not(.dark) .sp-select {
   border-color: rgba(15, 23, 42, 0.18);
-  background: rgba(15, 23, 42, 0.05);
+  background-color: rgba(15, 23, 42, 0.05);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(15,23,42,0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  color: #0f172a;
+}
+
+html:not(.dark) .sp-select option {
+  background-color: #f8fafc;
+  color: #0f172a;
 }
 
 .sp-mode-group {
@@ -198,7 +232,7 @@
   overflow: hidden;
 }
 
-.sp-page--light .sp-mode-group {
+html:not(.dark) .sp-mode-group {
   border-color: rgba(15, 23, 42, 0.16);
 }
 
@@ -236,11 +270,6 @@
   cursor: pointer;
 }
 
-.sp-page--light .sp-font-btn {
-  border-color: rgba(15, 23, 42, 0.15);
-  background: rgba(15, 23, 42, 0.05);
-}
-
 .sp-font-btn.is-active {
   border-color: rgba(236, 72, 153, 0.7);
   background: rgba(236, 72, 153, 0.2);
@@ -256,10 +285,6 @@
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-}
-
-.sp-page--light .sp-toggle {
-  background: rgba(15, 23, 42, 0.24);
 }
 
 .sp-toggle-thumb {
@@ -285,11 +310,15 @@
   color: rgba(248, 250, 252, 0.66);
 }
 
-.sp-page--light .sp-version {
+html:not(.dark) .sp-version {
   color: rgba(15, 23, 42, 0.58);
 }
 
 @media (max-width: 920px) {
+  .sp-main {
+    padding: 16px 14px;
+  }
+
   .sp-header h1 {
     font-size: 1.12rem;
   }

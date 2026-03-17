@@ -33,6 +33,14 @@ export default function App() {
     const compactUi = localStorage.getItem('nd-compact-ui') === 'true';
     document.body.classList.toggle('nd-reduced-motion', reducedMotion);
     document.body.classList.toggle('nd-compact-ui', compactUi);
+
+    // Apply theme on load
+    const savedTheme = localStorage.getItem('nd-theme') || 'dark';
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, []);
 
   return (

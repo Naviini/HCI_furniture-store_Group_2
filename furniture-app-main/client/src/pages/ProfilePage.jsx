@@ -1,16 +1,35 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ndLogo from '../assets/LOGO/logo.jpeg';
 import './ProfilePage.css';
 
 const menuItems = [
-  'Share Profile',
-  'Profile Settings',
-  'Help and Feedback',
-  'I Love It!',
-  'Upgrade to PRO',
+  { label: 'Share Profile' },
+  { label: 'Settings', action: '/settings' },
+  { label: 'Help and Feedback' },
+  { label: 'I Love It!' },
+  { label: 'Upgrade to PRO' },
 ];
 
 const quickChips = ['Ideas & Likes', 'My Items'];
+
+const mainNav = [
+  { label: 'Home', action: '/home' },
+  { label: 'Designer Studio', action: '/dashboard' },
+  { label: 'Profile', action: null, active: true },
+  { label: 'Settings', action: '/settings' },
+  { label: 'Quick Tour', action: '/onboarding' },
+];
+
+const secondaryNav = [
+  { label: 'My Photos' },
+  { label: 'Ideas & Likes' },
+];
+
+const footerNav = [
+  { label: 'Notification' },
+  { label: 'More' },
+];
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -22,9 +41,63 @@ export default function ProfilePage() {
   const name = useMemo(() => user?.username || 'User Name', [user]);
   const initial = useMemo(() => name.charAt(0).toUpperCase(), [name]);
 
+  const signOut = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('onboardingCompleted');
+    navigate('/login');
+  };
+
   return (
     <div className="pp-page">
-      <main className="pp-card">
+      <aside className="pp-sidebar">
+        <div className="pp-brand">
+          <img className="pp-brand-icon" src={ndLogo} alt="ND furniture" />
+          <div className="pp-brand-copy">
+            <div className="pp-brand-title">ND</div>
+            <div className="pp-brand-title">Furnitures</div>
+          </div>
+        </div>
+
+        <nav className="pp-nav">
+          {mainNav.map((item) => (
+            <button
+              key={item.label}
+              type="button"
+              className={`pp-nav-item${item.active ? ' is-active' : ''}`}
+              onClick={() => item.action && navigate(item.action)}
+            >
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="pp-sidebar-divider" />
+
+        <nav className="pp-nav">
+          {secondaryNav.map((item) => (
+            <button key={item.label} type="button" className="pp-nav-item">
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="pp-sidebar-spacer" />
+
+        <nav className="pp-nav pp-nav--footer">
+          {footerNav.map((item) => (
+            <button key={item.label} type="button" className="pp-nav-item">
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <button type="button" className="pp-nav-item pp-nav-item--exit" onClick={signOut}>
+          <span>Exit</span>
+        </button>
+      </aside>
+
+      <main className="pp-main">
+        <section className="pp-card">
         <header className="pp-top-row">
           <h1>{name}</h1>
           <div className="pp-menu-wrap">
@@ -40,8 +113,17 @@ export default function ProfilePage() {
             {menuOpen && (
               <div className="pp-menu" role="menu" aria-label="Profile actions">
                 {menuItems.map((item) => (
-                  <button type="button" className="pp-menu-item" role="menuitem" key={item}>
-                    {item}
+                  <button
+                    type="button"
+                    className="pp-menu-item"
+                    role="menuitem"
+                    key={item.label}
+                    onClick={() => {
+                      if (item.action) navigate(item.action);
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {item.label}
                   </button>
                 ))}
               </div>
@@ -108,6 +190,7 @@ export default function ProfilePage() {
           <button type="button" className="pp-link-btn" onClick={() => navigate('/home')}>Back to Home</button>
           <button type="button" className="pp-link-btn" onClick={() => navigate('/dashboard')}>Open Designer Studio</button>
         </footer>
+        </section>
       </main>
     </div>
   );

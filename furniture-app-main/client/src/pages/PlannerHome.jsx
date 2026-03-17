@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ndLogo from '../assets/LOGO/logo.jpeg';
 import floorPlanCard from '../assets/home-cards/floor-plan-generated.svg';
@@ -38,8 +38,8 @@ const quickCards = [
 
 const featureCards = [
   {
-    title: 'AI Redesign',
-    desc: 'Upload a photo - let AI recreate the interior',
+    title: 'Create 3D design',
+    desc: 'Start from templates or blank canvas and design your room',
     cta: 'TRY',
     media: [livingPreview, bedroomCard],
     onAction: '/dashboard',
@@ -71,14 +71,144 @@ const footerNav = [
   { label: 'More' },
 ];
 
+const roomTypeOptions = [
+  { id: 'floor-plan', label: 'Floor Plan', image: floorPlanRender, badge: '1 design', full: true },
+  { id: 'bedroom', label: 'Bedroom', image: bedroomCard, notify: true },
+  { id: 'living-room', label: 'Living Room', image: livingPreview, notify: true },
+  { id: 'kitchen', label: 'Kitchen', image: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'patio', label: 'Yard or Patio', image: 'https://images.unsplash.com/photo-1599619585752-c3edb42a414c?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'kids', label: 'Baby & Kids', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'bathroom', label: 'Bathroom', image: 'https://images.unsplash.com/photo-1564540583246-934409427776?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'closet', label: 'Closet', image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'store', label: 'Store', image: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'office', label: 'Home Office', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1400&q=80', notify: true },
+  { id: 'cinema', label: 'Home Cinema', image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=1400&q=80', notify: true },
+];
+
+const roomShapeOptions = [
+  { id: 'rectangle', label: 'Rectangular', glyph: '[]' },
+  { id: 'l-shape', label: 'L-shape', glyph: 'L' },
+  { id: 't-shape', label: 'T-shape', glyph: 'T' },
+  { id: 'cut', label: 'Cut', glyph: '/_' },
+  { id: 'rounded', label: 'Rounded', glyph: 'O' },
+  { id: 'z-shape', label: 'Z-shape', glyph: 'Z' },
+  { id: 'custom', label: 'Draw from Scratch', glyph: '+' },
+];
+
+const starterTemplates = [
+  {
+    id: 'classic-bedroom',
+    room: 'Bedroom',
+    title: 'Classic Bedroom',
+    image: 'https://images.unsplash.com/photo-1616594039964-3b8f09c6e6f1?auto=format&fit=crop&w=1200&q=80',
+    size: '12 x 10 m',
+  },
+  {
+    id: 'modern-lounge',
+    room: 'Living Room',
+    title: 'Modern Lounge',
+    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
+    size: '16 x 14 m',
+  },
+  {
+    id: 'cozy-bedroom',
+    room: 'Bedroom',
+    title: 'Cozy Bedroom',
+    image: bedroomCard,
+    size: '14 x 12 m',
+  },
+  {
+    id: 'minimal-office',
+    room: 'Home Office',
+    title: 'Minimal Office',
+    image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80',
+    size: '11 x 9 m',
+  },
+];
+
 export default function PlannerHome() {
   const navigate = useNavigate();
   const [failedQuickPhotos, setFailedQuickPhotos] = useState({});
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showRoomTypeModal, setShowRoomTypeModal] = useState(false);
+  const [showGetStartedModal, setShowGetStartedModal] = useState(false);
+  const [showBlankModal, setShowBlankModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [selectedRoomType, setSelectedRoomType] = useState(null);
+  const [templateCategory, setTemplateCategory] = useState('All');
+  const [uploadMessage, setUploadMessage] = useState('');
+  const floorPlanInputRef = useRef(null);
 
   const signOut = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('onboardingCompleted');
     navigate('/login');
+  };
+
+  const handleQuickCardClick = (card) => {
+    if (card.kind === 'add') {
+      setUploadMessage('');
+      setShowAddModal(true);
+      return;
+    }
+    navigate('/dashboard');
+  };
+
+  const handleCreateFloorPlan = () => {
+    setShowAddModal(false);
+    setShowRoomTypeModal(true);
+  };
+
+  const handleRoomTypeSelect = (roomType) => {
+    setShowRoomTypeModal(false);
+    setSelectedRoomType(roomType);
+    setShowGetStartedModal(true);
+  };
+
+  const startFromBlank = () => {
+    setShowGetStartedModal(false);
+    setShowBlankModal(true);
+  };
+
+  const startFromTemplate = () => {
+    setShowGetStartedModal(false);
+    setShowTemplateModal(true);
+  };
+
+  const proceedWithBlank = (shape) => {
+    localStorage.setItem('nd-selected-room-type', selectedRoomType?.id || 'floor-plan');
+    localStorage.setItem('nd-selected-room-shape', shape.id);
+    localStorage.setItem('nd-start-mode', 'blank');
+    setShowBlankModal(false);
+    navigate('/dashboard');
+  };
+
+  const proceedWithTemplate = (template) => {
+    localStorage.setItem('nd-selected-room-type', selectedRoomType?.id || 'floor-plan');
+    localStorage.setItem('nd-start-mode', 'template');
+    localStorage.setItem('nd-selected-template', JSON.stringify(template));
+    setShowTemplateModal(false);
+    navigate('/dashboard');
+  };
+
+  const handleUploadFloorPlan = () => {
+    floorPlanInputRef.current?.click();
+  };
+
+  const onFloorPlanSelected = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const uploadInfo = {
+      name: file.name,
+      type: file.type || 'application/octet-stream',
+      size: file.size,
+      uploadedAt: Date.now(),
+    };
+
+    localStorage.setItem('nd-uploaded-floor-plan', JSON.stringify(uploadInfo));
+    setUploadMessage(`Uploaded: ${file.name}`);
+    event.target.value = '';
   };
 
   return (
@@ -158,7 +288,7 @@ export default function PlannerHome() {
           {quickCards.map((card) => {
             const photoKey = `${card.title}-${card.photo || ''}`;
             return (
-            <button className="ph-quick-card" type="button" key={card.title} onClick={() => navigate('/dashboard')}>
+            <button className="ph-quick-card" type="button" key={card.title} onClick={() => handleQuickCardClick(card)}>
               <div className={`ph-quick-media ph-quick-media--${card.kind}`}>
                 {card.kind === 'add' && <span className="ph-quick-center-icon" aria-hidden="true">+</span>}
 
@@ -233,7 +363,134 @@ export default function PlannerHome() {
             <button type="button">Help and Feedback</button>
           </div>
         </section>
+
+        <input
+          ref={floorPlanInputRef}
+          type="file"
+          accept="image/*,.pdf"
+          className="ph-hidden-upload"
+          onChange={onFloorPlanSelected}
+        />
       </main>
+
+      {showAddModal && (
+        <div className="ph-sheet-overlay" role="dialog" aria-modal="true" aria-label="Add room or floor plan" onClick={() => setShowAddModal(false)}>
+          <div className="ph-sheet" onClick={(e) => e.stopPropagation()}>
+            <h3>Add Room or Floor Plan</h3>
+            <button type="button" className="ph-sheet-option" onClick={handleCreateFloorPlan}>Create...</button>
+            <button type="button" className="ph-sheet-option" onClick={handleUploadFloorPlan}>Upload Floor Plan</button>
+            {uploadMessage && <p className="ph-sheet-status">{uploadMessage}</p>}
+            <button type="button" className="ph-sheet-cancel" onClick={() => setShowAddModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showRoomTypeModal && (
+        <div className="ph-room-overlay" role="dialog" aria-modal="true" aria-label="Select room type" onClick={() => setShowRoomTypeModal(false)}>
+          <div className="ph-room-modal" onClick={(e) => e.stopPropagation()}>
+            <header className="ph-room-head">
+              <h3>Select room type</h3>
+              <button
+                type="button"
+                className="ph-room-close"
+                aria-label="Close room type selector"
+                onClick={() => setShowRoomTypeModal(false)}
+              >
+                x
+              </button>
+            </header>
+
+            <div className="ph-room-grid">
+              {roomTypeOptions.map((room) => (
+                <button
+                  key={room.id}
+                  type="button"
+                  className={`ph-room-card${room.full ? ' ph-room-card--full' : ''}`}
+                  onClick={() => handleRoomTypeSelect(room)}
+                >
+                  <img src={room.image} alt={room.label} loading="lazy" decoding="async" />
+                  {room.notify && <span className="ph-room-dot" aria-hidden="true" />}
+                  {room.badge && <span className="ph-room-badge">{room.badge}</span>}
+                  <span className="ph-room-label">{room.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGetStartedModal && (
+        <div className="ph-center-overlay" role="dialog" aria-modal="true" aria-label="Get started" onClick={() => setShowGetStartedModal(false)}>
+          <div className="ph-center-sheet" onClick={(e) => e.stopPropagation()}>
+            <h3>Get Started</h3>
+            <button type="button" className="ph-center-option" onClick={startFromBlank}>Start from Blank</button>
+            <button type="button" className="ph-center-option" onClick={startFromTemplate}>Start from Template</button>
+            <button type="button" className="ph-center-cancel" onClick={() => setShowGetStartedModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showBlankModal && (
+        <div className="ph-center-overlay" role="dialog" aria-modal="true" aria-label="Choose room shape" onClick={() => setShowBlankModal(false)}>
+          <div className="ph-shape-modal" onClick={(e) => e.stopPropagation()}>
+            <header className="ph-shape-head">
+              <button type="button" className="ph-shape-back" onClick={() => { setShowBlankModal(false); setShowGetStartedModal(true); }}>Back</button>
+              <h3>Choose room shape</h3>
+            </header>
+            <div className="ph-shape-grid">
+              {roomShapeOptions.map((shape) => (
+                <button key={shape.id} type="button" className="ph-shape-card" onClick={() => proceedWithBlank(shape)}>
+                  <span className="ph-shape-glyph">{shape.glyph}</span>
+                  <span className="ph-shape-label">{shape.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTemplateModal && (
+        <div className="ph-center-overlay" role="dialog" aria-modal="true" aria-label="Start from template" onClick={() => setShowTemplateModal(false)}>
+          <div className="ph-template-modal" onClick={(e) => e.stopPropagation()}>
+            <header className="ph-template-head">
+              <h3>{selectedRoomType?.label || 'Templates'}</h3>
+              <button type="button" className="ph-template-close" onClick={() => setShowTemplateModal(false)}>Done</button>
+            </header>
+
+            <button type="button" className="ph-template-blank" onClick={() => { setShowTemplateModal(false); setShowBlankModal(true); }}>
+              + Start from Blank
+            </button>
+
+            <div className="ph-template-tabs">
+              {['All', 'Bedroom', 'Living Room', 'Home Office'].map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`ph-template-tab${templateCategory === tab ? ' is-active' : ''}`}
+                  onClick={() => setTemplateCategory(tab)}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="ph-template-grid">
+              {starterTemplates
+                .filter((tpl) => templateCategory === 'All' || tpl.room === templateCategory)
+                .map((template) => (
+                  <article key={template.id} className="ph-template-card">
+                    <img src={template.image} alt={template.title} loading="lazy" decoding="async" />
+                    <div className="ph-template-body">
+                      <strong>{template.title}</strong>
+                      <span>{template.size}</span>
+                    </div>
+                    <button type="button" onClick={() => proceedWithTemplate(template)}>Use Template</button>
+                  </article>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,7 +4,6 @@ import Sidebar from '../components/Sidebar';
 import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
 import CustomModal from '../components/CustomModal';
-import TemplatesPage from '../components/TemplatesPage';
 import ndLogo from '../assets/LOGO/logo.jpeg';
 import './Dashboard.css';
 
@@ -176,8 +175,6 @@ export default function Dashboard() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
-  const [showTemplates, setShowTemplates] = useState(false);
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
   const [projectName, setProjectName] = useState('Untitled Project');
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -201,11 +198,7 @@ export default function Dashboard() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) navigate('/login');
-    else {
-      setUser(JSON.parse(storedUser));
-      // Show templates picker on very first visit (empty canvas)
-      setShowTemplates(true);
-    }
+    else setUser(JSON.parse(storedUser));
   }, [navigate]);
 
   const showToast = (msg, type = 'info') => {
@@ -425,37 +418,6 @@ export default function Dashboard() {
     showToast(`Loaded: ${design.name}`, 'success');
   };
 
-  const handleDeleteDesign = async (e, designId) => {
-    e.stopPropagation();
-    try {
-      await fetch(`http://localhost:5000/api/designs/${designId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${user.token}` },
-      });
-      setSavedDesigns(prev => prev.filter(d => d._id !== designId));
-      showToast('Design deleted', 'info');
-    } catch {
-      showToast('Failed to delete design', 'error');
-    }
-  };
-
-  /* ── Load a template ── */
-  const handleSelectTemplate = (template) => {
-    // Use resetHistory to properly initialize undo/redo state
-    const itemsWithNewIds = template.items.map(item => ({
-      ...item,
-      id: Date.now() + Math.random() * 1000
-    }));
-    resetHistory(itemsWithNewIds);
-
-    setRoomConfig(template.roomConfig);
-    setWindows(template.windows || []);
-    setDoors(template.doors || []);
-    setProjectName(template.name);
-    setShowTemplates(false);
-    showToast(`Loaded template: ${template.name}`, 'success');
-  };
-
   if (!user) return null;
 
   const selectedItem = items.find(i => i.id === selectedId);
@@ -508,6 +470,27 @@ export default function Dashboard() {
 
         {/* ── TOP HEADER BAR ── */}
         <header className="db-header" role="banner">
+          <div className="db-header-left">
+            <button
+              type="button"
+              className="db-header-btn"
+              onClick={() => navigate('/home')}
+              aria-label="Back to home"
+              data-tooltip="Back to Home"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>Home</span>
+            </button>
+
+            {/* Logo / Brand */}
+            <div className="db-brand">
+              <img className="db-brand-logo" src={ndLogo} alt="ND furniture" />
+              <span className="db-brand-name">ND furniture</span>
+              <span className="db-brand-sep" aria-hidden="true" />
+              <span className="db-brand-sub">Design Studio</span>
+            </div>
 
           {/* ── LEFT: View Mode Toggle ── */}
           <div className="db-header-left">
@@ -572,7 +555,8 @@ export default function Dashboard() {
               <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
             </div>
 
-            <span className="db-header-divider" aria-hidden="true" />
+          <div className="db-header-right">
+            {/* Quick actions */}
 
             {/* Action buttons group */}
             <div className="db-header-actions" role="toolbar" aria-label="Project actions">
@@ -1180,16 +1164,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* ── TEMPLATES PICKER ── */}
-      {showTemplates && (
-        <TemplatesPage
-          onSelectTemplate={handleSelectTemplate}
-          onSkip={() => setShowTemplates(false)}
-          onClose={() => setShowTemplates(false)}
-          user={user}
-        />
       )}
 
       {/* ── ADMIN PANEL CONFIRM ── */}
