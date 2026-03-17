@@ -1,9 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeContext';
+import ndLogo from '../assets/LOGO/logo.jpeg';
+import './PlannerHome.css';
 import './SettingsPage.css';
 
 const fontOptions = [90, 100, 110, 120];
+
+const primaryNav = [
+  { label: 'Home', active: false, onAction: '/home' },
+  { label: 'Designer Studio', active: false, onAction: '/dashboard' },
+  { label: 'Profile', active: false, onAction: '/profile' },
+  { label: 'Settings', active: true, onAction: null },
+  { label: 'Quick Tour', active: false, onAction: '/onboarding' },
+];
+
+const secondaryNav = [
+  { label: 'My Photos' },
+  { label: 'Ideas & Likes' },
+];
+
+const footerNav = [
+  { label: 'Notification' },
+  { label: 'More' },
+];
 
 function ToggleSwitch({ checked, onChange, label }) {
   return (
@@ -72,9 +92,63 @@ export default function SettingsPage() {
     }
   };
 
+  const signOut = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('onboardingCompleted');
+    navigate('/login');
+  };
+
   return (
-    <div className={`sp-page${isDark ? '' : ' sp-page--light'}`}>
-      <main className="sp-shell">
+    <div className="ph-page sp-page">
+      <aside className="ph-sidebar">
+        <div className="ph-brand">
+          <img className="ph-brand-icon" src={ndLogo} alt="ND furniture" />
+          <div className="ph-brand-copy">
+            <div className="ph-brand-title">ND</div>
+            <div className="ph-brand-title">Furnitures</div>
+          </div>
+        </div>
+
+        <nav className="ph-nav ph-nav--primary">
+          {primaryNav.map((item) => (
+            <button
+              className={`ph-nav-item${item.active ? ' ph-nav-item--active' : ''}`}
+              type="button"
+              key={item.label}
+              onClick={() => item.onAction && navigate(item.onAction)}
+            >
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="ph-sidebar-divider" />
+
+        <nav className="ph-nav ph-nav--secondary">
+          {secondaryNav.map((item) => (
+            <button className="ph-nav-item" type="button" key={item.label}>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="ph-sidebar-spacer" />
+
+        <nav className="ph-nav ph-nav--footer">
+          {footerNav.map((item) => (
+            <button className="ph-nav-item" type="button" key={item.label}>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <button className="ph-nav-item ph-nav-item--exit" type="button" onClick={signOut}>
+          <span>Exit</span>
+        </button>
+      </aside>
+
+      <main className="ph-main sp-main">
+        <div className="sp-shell">
         <header className="sp-header">
           <button type="button" className="sp-back" onClick={() => navigate('/home')}>Back</button>
           <h1>Settings</h1>
@@ -229,6 +303,7 @@ export default function SettingsPage() {
         </section>
 
         <p className="sp-version">Version 26.08 Build 14776</p>
+        </div>
       </main>
     </div>
   );

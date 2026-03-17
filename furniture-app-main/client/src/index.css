@@ -64,6 +64,23 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light mode support */
+html:not(.dark) {
+  --bg-dark: #f8fafc;
+  --bg-panel: #f3f4f6;
+  --bg-card: #ffffff;
+  --bg-input: #eff6ff;
+  --bg-hover: #f0f4f8;
+  --text-main: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+}
+
+html:not(.dark) body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
 body.nd-compact-ui .btn,
 body.nd-compact-ui .input,
 body.nd-compact-ui .db-header-btn,

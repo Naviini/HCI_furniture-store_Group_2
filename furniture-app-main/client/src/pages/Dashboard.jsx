@@ -4,7 +4,6 @@ import Sidebar from '../components/Sidebar';
 import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
 import CustomModal from '../components/CustomModal';
-import TemplatesPage from '../components/TemplatesPage';
 import ndLogo from '../assets/LOGO/logo.jpeg';
 import './Dashboard.css';
 
@@ -75,7 +74,6 @@ export default function Dashboard() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
-  const [showTemplates, setShowTemplates] = useState(false);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
@@ -94,11 +92,7 @@ export default function Dashboard() {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (!storedUser) navigate('/login');
-    else {
-      setUser(JSON.parse(storedUser));
-      // Show templates picker on very first visit (empty canvas)
-      setShowTemplates(true);
-    }
+    else setUser(JSON.parse(storedUser));
   }, [navigate]);
 
   const showToast = (msg, type = 'info') => {
@@ -232,16 +226,6 @@ export default function Dashboard() {
     showToast(`Loaded: ${design.name}`, 'success');
   };
 
-  /* ── Load a template ── */
-  const handleSelectTemplate = (template) => {
-    setItems(template.items.map(item => ({ ...item, id: Date.now() + Math.random() })));
-    setRoomConfig(template.roomConfig);
-    setWindows(template.windows || []);
-    setDoors(template.doors || []);
-    setShowTemplates(false);
-    showToast(`Loaded template: ${template.name}`, 'success');
-  };
-
   if (!user) return null;
 
   const selectedItem = items.find(i => i.id === selectedId);
@@ -291,6 +275,19 @@ export default function Dashboard() {
         {/* ── TOP HEADER BAR ── */}
         <header className="db-header" role="banner">
           <div className="db-header-left">
+            <button
+              type="button"
+              className="db-header-btn"
+              onClick={() => navigate('/home')}
+              aria-label="Back to home"
+              data-tooltip="Back to Home"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>Home</span>
+            </button>
+
             {/* Logo / Brand */}
             <div className="db-brand">
               <img className="db-brand-logo" src={ndLogo} alt="ND furniture" />
@@ -351,17 +348,6 @@ export default function Dashboard() {
 
           <div className="db-header-right">
             {/* Quick actions */}
-            {/* Templates button */}
-            <button
-              id="btn-templates"
-              className="db-header-btn"
-              onClick={() => setShowTemplates(true)}
-              aria-label="Browse room templates"
-              data-tooltip="Templates"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
-              <span>Templates</span>
-            </button>
 
             <button
               className="db-header-btn db-header-btn--save"
@@ -672,15 +658,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      )}
-
-      {/* ── TEMPLATES PICKER ── */}
-      {showTemplates && (
-        <TemplatesPage
-          onSelectTemplate={handleSelectTemplate}
-          onSkip={() => setShowTemplates(false)}
-          onClose={() => setShowTemplates(false)}
-        />
       )}
 
       {/* ── ADMIN PANEL CONFIRM ── */}
