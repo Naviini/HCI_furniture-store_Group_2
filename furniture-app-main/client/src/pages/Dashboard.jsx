@@ -50,6 +50,67 @@ const ModeBadge = ({ mode }) => {
   );
 };
 
+const ITEM_BOUND_RADIUS = {
+  'Coffee Table': 0.7,
+  'Chair': 0.4,
+  'Drawer': 0.4,
+  'TV Stand': 1.0,
+  'TV Stand 3': 0.8,
+  'File Cabinet': 0.4,
+  'Computer Chair': 0.4,
+  'Lounge Chair': 0.6,
+  'Dining Table': 1.0,
+  'Dining Set': 1.3,
+  'Computer Table': 0.8,
+  'Table': 0.8,
+  'Industrial Table': 1.2,
+  'Modern Sofa': 1.2,
+  'Sofa': 1.1,
+  'Sofa Chair': 0.6,
+  'Bed': 1.1,
+  'Poliform Bed': 1.2,
+  'Desk Lamp': 0.15,
+  'Floor Lamp': 0.2,
+  'Eric Floor Lamp': 0.2,
+  'Bathroom Asset 1': 0.8,
+  'Bathroom Closet': 0.6,
+  'Bathtub': 1.5,
+  'Bathtub 2': 1.4,
+  'Sink & Vanity': 0.8,
+  'Sink with Faucet': 0.6,
+  'Toilet': 0.5,
+  'Toilet Vaa': 0.5,
+  'Bed Agape': 1.3,
+  'Chocolate Bookshelf': 0.6,
+  'Modern Wardrobe': 0.8,
+  'Wardrobe': 0.8,
+  'Wardrobe 2': 0.8,
+  'Banheira Maestri': 1.6,
+  'European Cabinet': 1.0,
+  'Kitchen': 2.0,
+  'Kitchen Cabinet 1': 0.8,
+  'Modern Fridge': 0.7,
+  'Small Kitchen': 1.5,
+  'Couch Complete': 1.8,
+  'Dining Chair': 0.4,
+  'Outdoor Sofa': 1.6,
+};
+
+const clampPositionToRoom = (position, roomConfig, itemType) => {
+  if (!Array.isArray(position) || position.length < 3) return position;
+  if (!roomConfig || roomConfig.shape === 'open') return position;
+
+  const [x, y, z] = position;
+  const halfW = (roomConfig.width ?? 0) / 2;
+  const halfD = (roomConfig.depth ?? 0) / 2;
+  const radius = ITEM_BOUND_RADIUS[itemType] ?? 0.6;
+  const margin = 0.45 + radius;
+
+  const clampedX = Math.max(-halfW + margin, Math.min(halfW - margin, x));
+  const clampedZ = Math.max(-halfD + margin, Math.min(halfD - margin, z));
+  return [clampedX, y, clampedZ];
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const canvasRef = useRef();
@@ -119,6 +180,8 @@ export default function Dashboard() {
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showAdminConfirm, setShowAdminConfirm] = useState(false);
   const [projectName, setProjectName] = useState('Untitled Project');
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   /* ── Keyboard shortcuts (HCI: accelerators for expert users) ── */
   useEffect(() => {
@@ -156,6 +219,11 @@ export default function Dashboard() {
     navigate('/login');
   };
 
+  const handleSignOutClick = () => {
+    setIsProfileModalOpen(false);
+    setShowSignOutConfirm(true);
+  };
+
   const addItem = (type) => {
     const DEFAULTS = {
       'Coffee Table': { y: 0, color: '#888888' },
@@ -176,9 +244,16 @@ export default function Dashboard() {
 
   const updateItem = useCallback((id, data) => {
     const current = histRef.current.stack[histRef.current.idx];
-    const next = current.map(i => i.id === id ? { ...i, ...data } : i);
+    const next = current.map(i => {
+      if (i.id !== id) return i;
+      const merged = { ...i, ...data };
+      if (merged.position) {
+        merged.position = clampPositionToRoom(merged.position, roomConfig, merged.type);
+      }
+      return merged;
+    });
     pushHistory(next);
-  }, [pushHistory]);
+  }, [pushHistory, roomConfig]);
 
   const deleteItem = useCallback((id) => {
     const current = histRef.current.stack[histRef.current.idx];
@@ -393,7 +468,6 @@ export default function Dashboard() {
       {/* ── SIDEBAR ── */}
       <Sidebar
         user={user}
-        onLogout={handleLogout}
         addItem={addItem}
         selectedId={selectedId}
         items={items}
@@ -503,6 +577,36 @@ export default function Dashboard() {
             {/* Action buttons group */}
             <div className="db-header-actions" role="toolbar" aria-label="Project actions">
               <button
+                id="btn-undo-header"
+                className="db-header-btn"
+                onClick={undo}
+                disabled={!(histRef.current.idx > 0)}
+                aria-label="Undo last action"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="9 14 4 9 9 4" />
+                  <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+                </svg>
+                <span>Undo</span>
+              </button>
+
+              <button
+                id="btn-redo-header"
+                className="db-header-btn"
+                onClick={redo}
+                disabled={!(histRef.current.idx < histRef.current.stack.length - 1)}
+                aria-label="Redo last action"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 14 20 9 15 4" />
+                  <path d="M4 20v-7a4 4 0 0 1 4-4h12" />
+                </svg>
+                <span>Redo</span>
+              </button>
+
+              <button
                 id="btn-templates"
                 className="db-header-btn"
                 onClick={() => setShowTemplates(true)}
@@ -587,7 +691,13 @@ export default function Dashboard() {
             <span className="db-header-divider" aria-hidden="true" />
 
             {/* User chip */}
-            <div className="db-user-chip" aria-label={`Logged in as ${user.username || user.email}`} title={user.username || user.email}>
+            <button
+              type="button"
+              className="db-user-chip db-user-chip--button"
+              aria-label={`Open profile for ${user.username || user.email}`}
+              title={user.username || user.email}
+              onClick={() => setIsProfileModalOpen(true)}
+            >
               <div className="db-avatar" aria-hidden="true"
                 style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}>
                 {(user.username || user.email || 'U')[0].toUpperCase()}
@@ -598,7 +708,7 @@ export default function Dashboard() {
                   {user.role === 'admin' ? 'Admin' : 'User'}
                 </span>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
@@ -817,6 +927,53 @@ export default function Dashboard() {
 
       {/* ── TOAST ── */}
       {toast && <Toast message={toast} type={toastType} onDismiss={() => setToast(null)} />}
+
+      {/* ── PROFILE MODAL ── */}
+      {isProfileModalOpen && (
+        <div className="db-profile-overlay" onClick={() => setIsProfileModalOpen(false)}>
+          <div className="db-profile-modal" role="dialog" aria-modal="true" aria-label="User profile" onClick={e => e.stopPropagation()}>
+            <div className="db-profile-head">
+              <div className="db-profile-avatar" style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}>
+                {(user.username || user.email || 'U')[0].toUpperCase()}
+              </div>
+              <div>
+                <h3 className="db-profile-name">{(user.username || user.email || '').split('@')[0]}</h3>
+                <p className="db-profile-email">{user.email}</p>
+              </div>
+            </div>
+
+            <div className="db-profile-info-row">
+              <span className="db-profile-label">Role</span>
+              <span className={`db-role-badge ${user.role === 'admin' ? 'db-role-badge--admin' : 'db-role-badge--user'}`}>
+                {user.role === 'admin' ? 'Admin' : 'User'}
+              </span>
+            </div>
+
+            <div className="db-profile-info-row">
+              <span className="db-profile-label">Status</span>
+              <span className="db-profile-status">Online</span>
+            </div>
+
+            <button type="button" className="db-profile-signout" onClick={handleSignOutClick}>
+              Sign out
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── SIGN OUT CONFIRM ── */}
+      {showSignOutConfirm && (
+        <div className="db-signout-overlay" onClick={() => setShowSignOutConfirm(false)}>
+          <div className="db-signout-modal" role="alertdialog" aria-modal="true" aria-label="Confirm sign out" onClick={e => e.stopPropagation()}>
+            <h3>Sign out?</h3>
+            <p>You will be returned to the login page.</p>
+            <div className="db-signout-actions">
+              <button type="button" className="db-signout-cancel" onClick={() => setShowSignOutConfirm(false)}>Cancel</button>
+              <button type="button" className="db-signout-confirm" onClick={handleLogout}>Sign out</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── SAVE MODAL ── */}
       <CustomModal
