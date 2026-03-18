@@ -525,6 +525,8 @@ export default function Dashboard() {
 
   if (!user) return null;
 
+  const guideViewEnabled = roomConfig.showFloorGrid ?? true;
+
   return (
     <div className="db-root">
       {/* HCI: Skip link for keyboard users */}
@@ -638,20 +640,6 @@ export default function Dashboard() {
               </svg>
               <span>{projectName}</span>
             </div>
-
-            {/* Keyboard shortcut hints */}
-            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
-              <span className="db-hint"><kbd>Del</kbd> Remove</span>
-              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
-              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
-            </div>
-
-            {/* Quick actions */}
-
-            <div className="db-live-pill" aria-label="Auto-save is active">
-              <span className="db-live-dot" aria-hidden="true" />
-              <span>Live</span>
-            </div>
           </div>
 
           {/* ── RIGHT: Actions + User ── */}
@@ -660,7 +648,7 @@ export default function Dashboard() {
             <div className="db-header-actions" role="toolbar" aria-label="Project actions">
               <button
                 id="btn-templates"
-                className="db-header-btn"
+                className="db-header-btn db-header-btn--icon"
                 onClick={() => setShowTemplateModal(true)}
                 aria-label="Browse room templates"
                 title="Templates"
@@ -669,22 +657,6 @@ export default function Dashboard() {
                   <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" />
                 </svg>
-                <span>Templates</span>
-              </button>
-
-              <button
-                id="btn-save-header"
-                className="db-header-btn db-header-btn--save"
-                onClick={() => setShowSaveModal(true)}
-                aria-label="Save design (Ctrl+S)"
-                title="Save (Ctrl+S)"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                  <polyline points="17 21 17 13 7 13 7 21" />
-                  <polyline points="7 3 7 8 15 8" />
-                </svg>
-                <span>Save</span>
               </button>
 
               <button
@@ -712,6 +684,25 @@ export default function Dashboard() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M15 14l5-5-5-5" />
                   <path d="M20 9h-9a7 7 0 0 0 0 14h1" />
+                </svg>
+              </button>
+
+              <button
+                id="btn-capture-header"
+                className="db-header-btn db-header-btn--icon"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.download = `design-${Date.now()}.jpg`;
+                  link.href = canvasRef.current.takeScreenshot();
+                  link.click();
+                  showToast('Screenshot downloaded!', 'success');
+                }}
+                aria-label="Capture screenshot"
+                title="Capture"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
                 </svg>
               </button>
             </div>
@@ -933,6 +924,78 @@ export default function Dashboard() {
               </button>
             </div>
           )}
+
+          {/* Guide View toggle (top-right quick control) */}
+          <button
+            type="button"
+            onClick={() => setRoomConfig(prev => ({ ...prev, showFloorGrid: !guideViewEnabled }))}
+            aria-label={`Guide view ${guideViewEnabled ? 'on' : 'off'}`}
+            title="Toggle guide view"
+            style={{
+              position: 'absolute',
+              top: '14px',
+              right: '14px',
+              zIndex: 9999,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '8px',
+              height: '38px',
+              minWidth: '76px',
+              padding: '0 10px',
+              borderRadius: '999px',
+              border: `1px solid ${guideViewEnabled ? 'rgba(233, 53, 199, 0.85)' : 'rgba(148, 163, 184, 0.6)'}`,
+              background: guideViewEnabled
+                ? 'linear-gradient(135deg, rgba(73, 16, 70, 0.95) 0%, rgba(48, 20, 84, 0.95) 100%)'
+                : 'rgba(10, 15, 28, 0.95)',
+              color: '#f8fafc',
+              fontSize: '0.74rem',
+              fontWeight: 800,
+              fontFamily: 'inherit',
+              letterSpacing: '0.03em',
+              cursor: 'pointer',
+              backdropFilter: 'blur(14px)',
+              boxShadow: guideViewEnabled
+                ? '0 10px 24px rgba(233,53,199,0.4), 0 0 0 1px rgba(255,255,255,0.08) inset'
+                : '0 10px 22px rgba(2,6,23,0.55), 0 0 0 1px rgba(255,255,255,0.06) inset',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+              <line x1="3" y1="15" x2="21" y2="15" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+              <line x1="15" y1="3" x2="15" y2="21" />
+            </svg>
+            <span
+              aria-hidden="true"
+              style={{
+                position: 'relative',
+                width: '30px',
+                height: '18px',
+                borderRadius: '999px',
+                background: guideViewEnabled ? 'rgba(233,53,199,0.48)' : 'rgba(148,163,184,0.28)',
+                border: `1px solid ${guideViewEnabled ? 'rgba(233,53,199,0.75)' : 'rgba(148,163,184,0.45)'}`,
+                transition: 'all 0.2s ease',
+                boxSizing: 'border-box',
+              }}
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '1px',
+                  left: guideViewEnabled ? '13px' : '1px',
+                  width: '14px',
+                  height: '14px',
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.35)',
+                  transition: 'left 0.2s ease',
+                }}
+              />
+            </span>
+          </button>
 
           {/* Empty state overlay */}
           {items.length === 0 && !isLoading && (

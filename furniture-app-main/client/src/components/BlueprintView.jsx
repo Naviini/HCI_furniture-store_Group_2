@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 
+
 /* ────────────────────────────────────────────
    Room outline points for each shape (same logic as Room.jsx)
    Returns an array of [x, z] forming a closed polygon
