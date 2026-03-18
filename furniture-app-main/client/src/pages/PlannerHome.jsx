@@ -191,7 +191,12 @@ export default function PlannerHome() {
 
   const startFromTemplate = () => {
     setShowGetStartedModal(false);
-    setShowTemplateModal(true);
+    navigate('/templates', {
+      state: {
+        roomTypeId: selectedRoomType?.id || 'floor-plan',
+        roomTypeLabel: selectedRoomType?.label || 'Templates',
+      },
+    });
   };
 
   const proceedWithBlank = (shape) => {

@@ -1,0 +1,285 @@
+.tpage-root {
+  position: relative;
+  min-height: 100vh;
+  height: 100vh;
+  padding: 28px;
+  color: #eef2ff;
+  background: radial-gradient(120% 120% at 10% 0%, #0f1738, #080b18 60%, #06070f 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tpage-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.08;
+  filter: blur(6px) saturate(80%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.tpage-head,
+.tpage-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.tpage-head {
+  max-width: 1080px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tpage-head h1 {
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tpage-back,
+.tpage-done {
+  border: 1px solid rgba(226, 232, 255, 0.2);
+  background: rgba(16, 21, 44, 0.85);
+  color: #e2e8ff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tpage-back:hover,
+.tpage-done:hover {
+  border-color: rgba(233, 53, 199, 0.45);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.3), rgba(139, 92, 246, 0.22));
+  box-shadow: 0 0 22px rgba(233, 53, 199, 0.2);
+  color: #ffffff;
+}
+
+.tpage-back svg,
+.tpage-back-inline svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+.tpage-panel {
+  max-width: 1080px;
+  margin: 0 auto;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  padding: 16px;
+}
+
+.tpage-blank {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+  height: 46px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.tpage-blank:hover {
+  border-color: rgba(233, 53, 199, 0.45);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.28), rgba(139, 92, 246, 0.2));
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(233, 53, 199, 0.18);
+}
+
+.tpage-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tpage-tab {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #dbe7ff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.tpage-tab.is-active {
+  border-color: rgba(236, 72, 153, 0.7);
+  background: rgba(236, 72, 153, 0.22);
+}
+
+.tpage-tab:hover {
+  border-color: rgba(233, 53, 199, 0.42);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tpage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tpage-card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(9, 13, 30, 0.72);
+  display: flex;
+  flex-direction: column;
+}
+
+.tpage-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+}
+
+.tpage-card-body {
+  padding: 10px 10px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tpage-card-body strong {
+  font-size: 0.88rem;
+}
+
+.tpage-card-body span {
+  font-size: 0.78rem;
+  color: #bfdbfe;
+}
+
+.tpage-card button {
+  margin: 0 10px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.16);
+  color: #dbeafe;
+  font-size: 0.92rem;
+  font-weight: 700;
+  height: 38px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tpage-card button:hover {
+  border-color: rgba(233, 53, 199, 0.55);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.32), rgba(139, 92, 246, 0.26));
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(233, 53, 199, 0.2);
+}
+
+.tpage-shape-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tpage-shape-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.tpage-back-inline {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tpage-back-inline:hover {
+  border-color: rgba(233, 53, 199, 0.45);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.3), rgba(139, 92, 246, 0.22));
+  color: #ffffff;
+}
+
+.tpage-shape-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tpage-shape-card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.tpage-shape-card:hover {
+  border-color: rgba(233, 53, 199, 0.45);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.24), rgba(139, 92, 246, 0.2));
+  color: #ffffff;
+  box-shadow: 0 0 22px rgba(233, 53, 199, 0.18);
+}
+
+.tpage-shape-glyph {
+  width: 56px;
+  height: 56px;
+}
+
+.tpage-shape-glyph svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+@media (max-width: 900px) {
+  .tpage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tpage-shape-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tpage-head h1 {
+    font-size: 1.35rem;
+  }
+}

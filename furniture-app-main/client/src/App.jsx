@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import PlannerHome from './pages/PlannerHome';
+import TemplateBrowserPage from './pages/TemplateBrowserPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import Onboarding from './components/Onboarding';
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="/" element={<IntroPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<PrivateRoute><PlannerHome /></PrivateRoute>} />
+        <Route path="/templates" element={<PrivateRoute><TemplateBrowserPage /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
         <Route path="/settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
         <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
