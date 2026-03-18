@@ -42,6 +42,18 @@ const FLOOR_TEX_MAP = {
   rubber_tiles:      { diff: rubberDiff,   nor: rubberNor,   arm: rubberArm,   roughness: 0.75, metalness: 0.05 },
 };
 
+const FLOOR_TYPE_ALIASES = {
+  cartago: 'grey_cartago',
+  granite: 'granite_tile',
+  gravel: 'gravel_concrete',
+  laminate: 'laminate_floor',
+  linoleum: 'old_linoleum',
+  pebble: 'pebble_concrete',
+  rubber: 'rubber_tiles',
+};
+
+const resolveFloorType = (floorType) => FLOOR_TYPE_ALIASES[floorType] || floorType;
+
 const WALL_HEIGHT = 5;
 const WALL_THICK = 0.2;
 
@@ -338,7 +350,8 @@ function Wall({ from, to, color, wallId, windows = [], doors = [] }) {
    Handles both ARM-based and separate roughness-only maps.
    ──────────────────────────────────────────── */
 function TexturedFloorTile({ cx, cz, w, d, floorType, color }) {
-  const texInfo = FLOOR_TEX_MAP[floorType];
+  const resolvedFloorType = resolveFloorType(floorType);
+  const texInfo = FLOOR_TEX_MAP[resolvedFloorType];
   // For laminate, arm is null but rough is provided; load rough in place of arm
   const armPath = texInfo.arm || texInfo.rough;
   const [diffMap, norMap, armMap] = useTexture([texInfo.diff, texInfo.nor, armPath]);
@@ -381,8 +394,9 @@ function TexturedFloorTile({ cx, cz, w, d, floorType, color }) {
    the 3 real material types; solid color fallback.
    ──────────────────────────────────────────── */
 function FloorTile({ cx, cz, w, d, color, floorType = 'plank_flooring' }) {
-  if (FLOOR_TEX_MAP[floorType]) {
-    return <TexturedFloorTile cx={cx} cz={cz} w={w} d={d} floorType={floorType} color={color} />;
+  const resolvedFloorType = resolveFloorType(floorType);
+  if (FLOOR_TEX_MAP[resolvedFloorType]) {
+    return <TexturedFloorTile cx={cx} cz={cz} w={w} d={d} floorType={resolvedFloorType} color={color} />;
   }
   // Fallback: solid color plane
   return (
