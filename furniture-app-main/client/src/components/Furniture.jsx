@@ -145,7 +145,7 @@ const MODEL_MAP = {
   'Bathroom Closet':   { path: bathroomClosetPath,     scale: 1.5,   yOffset: 0 },
   'Bathtub':           { path: bathtubPath,            scale: 0.02,  yOffset: 0.1 },
   'Bathtub 2':         { path: bathtub2Path,           scale: 1.4,   yOffset: 0 },
-  'Sink & Vanity':     { path: sinkVanityPath,         scale: 1,     yOffset: 0 },
+  'Sink & Vanity':     { path: sinkVanityPath,         scale: 1,     yOffset: 1 },
   'Sink with Faucet':  { path: sinkFaucetPath,         scale: 1.5,   yOffset: 0 },
   'Toilet':            { path: toiletPath,             scale: 1.8,   yOffset: 0 },
   'Toilet Vaa':        { path: toiletVaaPath,          scale: 0.02,  yOffset: 0.1 },
@@ -160,12 +160,12 @@ const MODEL_MAP = {
   /* ── NEW KITCHEN ── */
   'European Cabinet':  { path: europeanCabinetPath,    scale: 0.01,  yOffset: 0.1 },
   'Kitchen':           { path: kitchenPath,            scale: 0.6,   yOffset: 0 },
-  'Kitchen Cabinet 1': { path: kitchenCabinet1Path,    scale: 1,     yOffset: 0 },
-  'Modern Fridge':     { path: modernFridgePath,       scale: 2,     yOffset: 0 },
+  'Kitchen Cabinet 1': { path: kitchenCabinet1Path,    scale: 10,     yOffset: 0 },
+  'Modern Fridge':     { path: modernFridgePath,       scale: 1,     yOffset: 1 },
   'Small Kitchen':     { path: smallKitchenPath,       scale: 2,     yOffset: 0 },
   /* ── NEW SEATING ── */
   'Couch Complete':    { path: couchCompletePath,      scale: 0.03,  yOffset: 0.1 },
-  'Dining Chair':      { path: diningChairPath,        scale: 1,     yOffset: 0 },
+  'Dining Chair':      { path: diningChairPath,        scale: 1,     yOffset: 1 },
   'Outdoor Sofa':      { path: outdoorSofaPath,        scale: 1,     yOffset: 0 },
 };
 

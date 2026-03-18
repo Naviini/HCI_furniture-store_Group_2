@@ -166,6 +166,7 @@ export default function Dashboard() {
     shape: 'rectangle', width: 15, depth: 15,
     wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
+    showFloorGrid: true,
     ambientIntensity: null, sunIntensity: null,
     customPoints: [],
   });

@@ -1,29 +1,56 @@
 import React, { useState, useMemo } from 'react';
 import ndLogo from '../assets/LOGO/logo.jpeg';
-import coffeeTableImg from '../assets/table/coffee_table_round_01_1k/coffee table.jpg';
-import chairImg from '../assets/chair/plastic_monobloc_chair_01/Chair.jpg';
+import coffeeTableImg from '../assets/table/coffee_table_round_01_1k/coffee table1.jpg';
+import chairImg from '../assets/chair/plastic_monobloc_chair_01/Chair1.jpg';
 
 // Furniture thumbnails from texture files
-import drawerImg from '../assets/Drawer/textures/vintage_wooden_drawer_01_diff_1k.jpg';
-import tvStand3Img from '../assets/Tv stand/tv_stand_3/textures/Wood_Veneer_01_baseColor.jpeg';
-import fileCabinetImg from '../assets/cabinet/file_cabinets/textures/lambert1_baseColor.png';
-import computerChairImg from '../assets/chair/black_computer_chair_-_mesh_back_support/textures/phongE5_baseColor.png';
-import modernSofaImg from '../assets/sofa/modern__sofa/textures/1001_baseColor.jpeg';
-import sofaImg from '../assets/sofa/sofa/textures/sofa_baseColor.png';
-import bedImg from '../assets/Bed/bed 1/textures/Duvet_baseColor.png';
-import poliformBedImg from '../assets/Bed/poliform_bed/textures/mt_edredon_baseColor.png';
-
+import drawerImg from '../assets/Drawer/drawer.jpg';
+import tvStand3Img from '../assets/Tv stand/tv_stand_3/tv_stand_3.jpg';
+import fileCabinetImg from '../assets/cabinet/file_cabinets/file_cabinets.jpg';
+import tvStandImg from '../assets/tv Stand/modern_tv_entertainment_center/tvstand.jpg';
+import computerChairImg from '../assets/chair/black_computer_chair_-_mesh_back_support/computerchair.jpg';
+import modernSofaImg from '../assets/sofa/modern__sofa/modern_sofa.jpg';
+import sofaImg from '../assets/sofa/sofa/sofa.jpg';
+import loungechairimg from '../assets/chair/lounge_chair/lounge_chair.jpg';
+import bedImg from '../assets/Bed/bed 1/bed.jpg';
+import poliformBedImg from '../assets/Bed/poliform_bed/poliform_bed.jpg';
+import diningtableimg from '../assets/table/simple_dining_table/dining_table.jpg';
+import diningsetimg from '../assets/table/modern_dining_room_table_set/dining_set.jpg';
+import computertableimg from '../assets/table/computer_table/computer_table.jpg';
+import tableimg from '../assets/table/table/table.jpg';
+import intableimg from '../assets/table/industrial_table/industrial_table.jpg';
+import sofachairimg from '../assets/sofa/sofa_chair/sofa_chair.jpg';
+import deskLampimg from '../assets/lap and lights/desk_lamp/deskLamp.jpg';
+import outdoorssofaImg from '../assets/chair/outdoors_sofa/outdoors_sofa.jpg';
+import floorLampimg from '../assets/lap and lights/floor_lamp/floor_lamp.jpg';
+import ericlampimg from '../assets/lap and lights/eric_floor_lamp_white/eric_lamp.jpg';
+import diningchairimg from '../assets/chair/dining_chair/diningchair.jpg';
+import wardrobe1img from '../assets/cabinet/modern_wooden_wardrobe/wardobeM.jpg'  
 // Bathroom thumbnails
-import bathroomAsset1Img from '../assets/bathroom/bathroom_asset_part_1/textures/badrumsskp.001_baseColor.png';
-
+import bathroomAsset1Img from '../assets/bathroom/bathroom_asset_part_1/bathroom Asset 1.jpg';
+import bathroomclosetimg from '../assets/bathroom/bathroom_closet/bathroom_closet.jpg';
+import bathtubimg from '../assets/bathroom/bathtub/bathtub.jpg';
+import bathtub1img from '../assets/bathroom/bathtub (1)/bathtub1.jpg';
+import sinkVanityimg from '../assets/bathroom/sink_and_vanity/sink_vanity.jpg';
+import sinkimg from '../assets/bathroom/sink_with_faucet/sink.jpg';
+import toiletimg from '../assets/bathroom/toilet/toilet.jpg';
+import toilet1img from '../assets/bathroom/toilet_vaa-772662wh/toilet11.jpg';
+import bathtub3img from '../assets/cabinet/banheira_de_imersao_maestri_-_b1203w/bathtub3.jpg'
+import warbod1img from '../assets/cabinet/wardrobe/warbod1.jpg'
+import cabnetnew from '../assets/kitchen/european_style_dining_cabinet/cabnetnew.jpg'
+import warbod12  from '../assets/cabinet/wardrobe (1)/warbod12.jpg'
+import newkichen from '../assets/kitchen/kitchen/newkichen.jpg'
+import countertop from '../assets/kitchen/kitchen_cabinet_1/countertop.jpg'
+import fridge from '../assets/kitchen/modern_fridge/fridge.jpg'
+import kitchenwithoven from '../assets/kitchen/small_kitchen_with_oven/kitchenwithoven.jpg'
 // Cabinet/Storage thumbnails
-import chocolateBookshelfImg from '../assets/cabinet/chocolate_beech_bookshelf_free/textures/Shelf_baseColor.png';
+import chocolateBookshelfImg from '../assets/cabinet/chocolate_beech_bookshelf_free/bookrack.jpg';
 
 // Seating thumbnails
-import couchCompleteImg from '../assets/chair/couch_complete_set/textures/Fabric_baseColor.png';
+import couchCompleteImg from '../assets/chair/couch_complete_set/couch.jpg';
 
 // Bedroom thumbnails
-import bedAgapeImg from '../assets/Bed/bed_agape (1)/textures/fabric_baseColor.jpeg';
+import bedAgapeImg from '../assets/Bed/bed_agape (1)/bed14.jpg';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    DESIGN TOKENS - Purple & Hot Pink Theme
@@ -64,56 +91,56 @@ const FURNITURE_ITEMS = [
   { name: 'Coffee Table',     icon: '☕', thumbnail: coffeeTableImg,    desc: 'LACK – Round coffee table',            model: true, category: 'Tables',   material: 'Wood',    color: 'Brown',  price: 49.99  },
   { name: 'Chair',            icon: '💺', thumbnail: chairImg,          desc: 'TEODORES – Monobloc chair',            model: true, category: 'Seating',  material: 'Plastic', color: 'White',  price: 29.99  },
   { name: 'Drawer',           icon: '🗄️', thumbnail: drawerImg,         desc: 'HEMNES – Vintage wooden drawer',       model: true, category: 'Storage',  material: 'Wood',    color: 'Walnut', price: 149.99 },
-  { name: 'TV Stand',         icon: '📺',                               desc: 'Modern TV entertainment center',        model: true, category: 'Living',   material: 'Wood',    color: 'Black',  price: 199.99 },
+  { name: 'TV Stand',         icon: '📺', thumbnail: tvStandImg,        desc: 'Modern TV entertainment center',        model: true, category: 'Living',   material: 'Wood',    color: 'Black',  price: 199.99 },
   { name: 'TV Stand 3',       icon: '🖥️', thumbnail: tvStand3Img,       desc: 'Sleek TV stand with shelf',             model: true, category: 'Living',   material: 'Wood',    color: 'Walnut', price: 149.99 },
   { name: 'File Cabinet',     icon: '🗂️', thumbnail: fileCabinetImg,    desc: 'Office file cabinet – 3 drawers',      model: true, category: 'Storage',  material: 'Metal',   color: 'Grey',   price: 89.99  },
   { name: 'Computer Chair',   icon: '🪑', thumbnail: computerChairImg,   desc: 'Mesh back ergonomic office chair',     model: true, category: 'Seating',  material: 'Fabric',  color: 'Black',  price: 129.99 },
-  { name: 'Lounge Chair',     icon: '🛋️',                              desc: 'Luxury lounge chair',                   model: true, category: 'Seating',  material: 'Leather', color: 'Brown',  price: 349.99 },
-  { name: 'Dining Table',     icon: '🍽️',                              desc: 'Extendable dining table',               model: true, category: 'Dining',   material: 'Wood',    color: 'Oak',    price: 299.99 },
-  { name: 'Dining Set',       icon: '🍴',                               desc: 'Modern dining room table set',          model: true, category: 'Dining',   material: 'Wood',    color: 'Dark',   price: 699.99 },
-  { name: 'Computer Table',   icon: '💻',                               desc: 'Office computer desk',                  model: true, category: 'Tables',   material: 'Wood',    color: 'White',  price: 199.99 },
-  { name: 'Table',            icon: '🍽️',                              desc: 'Simple dining table',                   model: true, category: 'Tables',   material: 'Wood',    color: 'Natural',price: 129.99 },
-  { name: 'Industrial Table', icon: '🔧',                               desc: 'Modern industrial style table',         model: true, category: 'Tables',   material: 'Metal',   color: 'Black',  price: 249.99 },
+  { name: 'Lounge Chair',     icon: '🛋️', thumbnail:loungechairimg,      desc: 'Luxury lounge chair',                   model: true, category: 'Seating',  material: 'Leather', color: 'Brown',  price: 349.99 },
+  { name: 'Dining Table',     icon: '🍽️', thumbnail:diningtableimg,     desc: 'Extendable dining table',               model: true, category: 'Dining',   material: 'Wood',    color: 'Oak',    price: 299.99 },
+  { name: 'Dining Set',       icon: '🍴', thumbnail:diningsetimg,       desc: 'Modern dining room table set',          model: true, category: 'Dining',   material: 'Wood',    color: 'Dark',   price: 699.99 },
+  { name: 'Computer Table',   icon: '💻', thumbnail:computertableimg,    desc: 'Office computer desk',                  model: true, category: 'Tables',   material: 'Wood',    color: 'White',  price: 199.99 },
+  { name: 'Table',            icon: '🍽️', thumbnail:tableimg,            desc: 'Simple dining table',                   model: true, category: 'Tables',   material: 'Wood',    color: 'Natural',price: 129.99 },
+  { name: 'Industrial Table', icon: '🔧', thumbnail:intableimg,          desc: 'Modern industrial style table',         model: true, category: 'Tables',   material: 'Metal',   color: 'Black',  price: 249.99 },
   { name: 'Modern Sofa',      icon: '🛋️', thumbnail: modernSofaImg,     desc: 'KIVIK – Modern 3-seat sofa',           model: true, category: 'Living',   material: 'Fabric',  color: 'Gray',   price: 699.99 },
   { name: 'Sofa',             icon: '🛋️', thumbnail: sofaImg,           desc: 'Classic 3-seat sofa',                   model: true, category: 'Living',   material: 'Fabric',  color: 'Navy',   price: 599.99 },
-  { name: 'Sofa Chair',       icon: '🪑',                               desc: 'Single-seat sofa chair',                model: true, category: 'Living',   material: 'Fabric',  color: 'Beige',  price: 299.99 },
+  { name: 'Sofa Chair',       icon: '🪑', thumbnail:sofachairimg,        desc: 'Single-seat sofa chair',                model: true, category: 'Living',   material: 'Fabric',  color: 'Beige',  price: 299.99 },
   { name: 'Bed',              icon: '🛏️', thumbnail: bedImg,            desc: 'MALM – Queen size bed frame',          model: true, category: 'Bedroom',  material: 'Wood',    color: 'White',  price: 399.99 },
   { name: 'Poliform Bed',     icon: '🛌', thumbnail: poliformBedImg,    desc: 'Designer platform bed',                 model: true, category: 'Bedroom',  material: 'Wood',    color: 'Dark',   price: 899.99 },
-  { name: 'Desk Lamp',        icon: '💡',                               desc: 'HEKTAR – Adjustable desk lamp (place on surfaces)',        model: true, category: 'Lighting', material: 'Metal',   color: 'Black',  price: 69.99  },
-  { name: 'Floor Lamp',       icon: '🏮',                               desc: 'Modern floor lamp',                     model: true, category: 'Lighting', material: 'Metal',   color: 'White',  price: 89.99  },
-  { name: 'Eric Floor Lamp',  icon: '💡',                               desc: 'Designer white floor lamp',             model: true, category: 'Lighting', material: 'Metal',   color: 'White',  price: 159.99 },
+  { name: 'Desk Lamp',        icon: '💡', thumbnail: deskLampimg,       desc: 'HEKTAR – Adjustable desk lamp (place on surfaces)',        model: true, category: 'Lighting', material: 'Metal',   color: 'Black',  price: 69.99  },
+  { name: 'Floor Lamp',       icon: '🏮', thumbnail: floorLampimg,        desc: 'Modern floor lamp',                     model: true, category: 'Lighting', material: 'Metal',   color: 'White',  price: 89.99  },
+  { name: 'Eric Floor Lamp',  icon: '💡', thumbnail: ericlampimg,        desc: 'Designer white floor lamp',             model: true, category: 'Lighting', material: 'Metal',   color: 'White',  price: 159.99 },
 
   /* ── NEW BATHROOM FURNITURE ── */
   { name: 'Bathroom Asset 1',  icon: '🚿', thumbnail: bathroomAsset1Img,  desc: 'Complete bathroom set',                 model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 1299.99 },
-  { name: 'Bathroom Closet',   icon: '🚪',                               desc: 'Bathroom storage closet',               model: true, category: 'Bathroom', material: 'Wood',    color: 'White',  price: 299.99 },
-  { name: 'Bathtub',           icon: '🛁',                               desc: 'Modern bathtub',                        model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 799.99 },
-  { name: 'Bathtub 2',         icon: '🛁',                               desc: 'Designer bathtub',                      model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 899.99 },
-  { name: 'Sink & Vanity',     icon: '🚰',                               desc: 'Bathroom sink with vanity',             model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 599.99 },
-  { name: 'Sink with Faucet',  icon: '🚿',                               desc: 'Modern sink with faucet',               model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 399.99 },
-  { name: 'Toilet',            icon: '🚽',                               desc: 'Modern toilet',                         model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 299.99 },
-  { name: 'Toilet Vaa',        icon: '🚽',                               desc: 'Designer toilet VAA model',             model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 399.99 },
+  { name: 'Bathroom Closet',   icon: '🚪', thumbnail: bathroomclosetimg,  desc: 'Bathroom storage closet',               model: true, category: 'Bathroom', material: 'Wood',    color: 'White',  price: 299.99 },
+  { name: 'Bathtub',           icon: '🛁', thumbnail: bathtubimg,         desc: 'Modern bathtub',                        model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 799.99 },
+  { name: 'Bathtub 2',         icon: '🛁', thumbnail: bathtub1img,       desc: 'Designer bathtub',                      model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 899.99 },
+  { name: 'Sink & Vanity',     icon: '🚰', thumbnail: sinkVanityimg,      desc: 'Bathroom sink with vanity',             model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 599.99 },
+  { name: 'Sink with Faucet',  icon: '🚿', thumbnail: sinkimg,             desc: 'Modern sink with faucet',               model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 399.99 },
+  { name: 'Toilet',            icon: '🚽', thumbnail: toiletimg,             desc: 'Modern toilet',                         model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 299.99 },
+  { name: 'Toilet Vaa',        icon: '🚽', thumbnail: toilet1img,                   desc: 'Designer toilet VAA model',             model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 399.99 },
 
   /* ── NEW BEDROOM FURNITURE ── */
   { name: 'Bed Agape',         icon: '🛏️', thumbnail: bedAgapeImg,         desc: 'Agape designer bed',                    model: true, category: 'Bedroom',  material: 'Wood',    color: 'Dark',   price: 1199.99 },
 
   /* ── NEW CABINET/STORAGE FURNITURE ── */
   { name: 'Chocolate Bookshelf', icon: '📚', thumbnail: chocolateBookshelfImg, desc: 'Chocolate beech bookshelf',        model: true, category: 'Storage',  material: 'Wood',    color: 'Brown',  price: 249.99 },
-  { name: 'Modern Wardrobe',   icon: '🚪',                               desc: 'Modern wooden wardrobe',                model: true, category: 'Bedroom',  material: 'Wood',    color: 'Dark',   price: 699.99 },
-  { name: 'Wardrobe',          icon: '👔',                               desc: 'Classic wardrobe',                      model: true, category: 'Bedroom',  material: 'Wood',    color: 'White',  price: 599.99 },
-  { name: 'Wardrobe 2',        icon: '👗',                               desc: 'Double door wardrobe',                  model: true, category: 'Bedroom',  material: 'Wood',    color: 'Oak',    price: 749.99 },
-  { name: 'Banheira Maestri',  icon: '🛁',                               desc: 'Maestri luxury bathtub',                model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 1499.99 },
+  { name: 'Modern Wardrobe',   icon: '🚪',   thumbnail: wardrobe1img,                            desc: 'Modern wooden wardrobe',                model: true, category: 'Bedroom',  material: 'Wood',    color: 'Dark',   price: 699.99 },
+  { name: 'Wardrobe',          icon: '👔',   thumbnail: warbod1img,                            desc: 'Classic wardrobe',                      model: true, category: 'Bedroom',  material: 'Wood',    color: 'White',  price: 599.99 },
+  { name: 'Wardrobe 2',        icon: '👗',   thumbnail: warbod12,                 desc: 'Double door wardrobe',                  model: true, category: 'Bedroom',  material: 'Wood',    color: 'Oak',    price: 749.99 },
+  { name: 'Banheira Maestri',  icon: '🛁',   thumbnail:bathtub3img,        desc: 'Maestri luxury bathtub',                model: true, category: 'Bathroom', material: 'Ceramic', color: 'White',  price: 1499.99 },
 
   /* ── NEW KITCHEN FURNITURE ── */
-  { name: 'European Cabinet',  icon: '🍽️',                              desc: 'European style dining cabinet',         model: true, category: 'Kitchen',  material: 'Wood',    color: 'Dark',   price: 899.99 },
-  { name: 'Kitchen',           icon: '🍳',                               desc: 'Complete kitchen set',                  model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 2999.99 },
-  { name: 'Kitchen Cabinet 1', icon: '🗄️',                              desc: 'Kitchen wall cabinet',                  model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 199.99 },
-  { name: 'Modern Fridge',     icon: '❄️',                               desc: 'Modern refrigerator',                   model: true, category: 'Kitchen',  material: 'Metal',   color: 'Silver', price: 1299.99 },
-  { name: 'Small Kitchen',     icon: '🏠',                               desc: 'Compact kitchen with oven',             model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 1999.99 },
+  { name: 'European Cabinet',  icon: '🍽️',   thumbnail:cabnetnew,                           desc: 'European style dining cabinet',         model: true, category: 'Kitchen',  material: 'Wood',    color: 'Dark',   price: 899.99 },
+  { name: 'Kitchen',           icon: '🍳',   thumbnail:newkichen,                  desc: 'Complete kitchen set',                  model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 2999.99 },
+  { name: 'Kitchen Cabinet 1', icon: '🗄️',   thumbnail:countertop,                 desc: 'Kitchen wall cabinet',                  model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 199.99 },
+  { name: 'Modern Fridge',     icon: '❄️',   thumbnail:fridge,                            desc: 'Modern refrigerator',                   model: true, category: 'Kitchen',  material: 'Metal',   color: 'Silver', price: 1299.99 },
+  { name: 'Small Kitchen',     icon: '🏠',   thumbnail:kitchenwithoven,                  desc: 'Compact kitchen with oven',             model: true, category: 'Kitchen',  material: 'Wood',    color: 'White',  price: 1999.99 },
 
   /* ── NEW SEATING FURNITURE ── */
   { name: 'Couch Complete',    icon: '🛋️', thumbnail: couchCompleteImg,    desc: 'Complete couch set with cushions',      model: true, category: 'Living',   material: 'Fabric',  color: 'Beige',  price: 1299.99 },
-  { name: 'Dining Chair',      icon: '🪑',                               desc: 'Modern dining chair',                   model: true, category: 'Dining',   material: 'Wood',    color: 'Natural',price: 89.99  },
-  { name: 'Outdoor Sofa',      icon: '🏖️',                              desc: 'Weather-resistant outdoor sofa',        model: true, category: 'Outdoor',  material: 'Fabric',  color: 'Gray',   price: 899.99 },
+  { name: 'Dining Chair',      icon: '🪑', thumbnail: diningchairimg,         desc: 'Modern dining chair',                   model: true, category: 'Dining',   material: 'Wood',    color: 'Natural',price: 89.99  },
+  { name: 'Outdoor Sofa',      icon: '🏖️', thumbnail: outdoorssofaImg,                            desc: 'Weather-resistant outdoor sofa',        model: true, category: 'Outdoor',  material: 'Fabric',  color: 'Gray',   price: 899.99 },
   // { name: 'Bookshelf',        icon: '📚',                               desc: 'BILLY – Bookcase collection',           model: false, category: 'Storage', material: 'Wood',    color: 'White',  price: 119.99 },
   // { name: 'Nightstand',       icon: '🕯️',                              desc: 'HEMNES – Nightstand 2 drawers',        model: false, category: 'Bedroom', material: 'Wood',    color: 'Walnut', price: 89.99  },
   // { name: 'Wardrobe',         icon: '🚪',                               desc: 'PAX – Wardrobe combination',           model: false, category: 'Bedroom', material: 'Wood',    color: 'White',  price: 499.99 },
@@ -748,6 +775,33 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
           );
         })}
       </div>
+
+      {/* Floor grid */}
+      <SectionDivider title="Floor Grid" />
+      <button
+        onClick={() => updateRoom('showFloorGrid', !(roomConfig.showFloorGrid ?? true))}
+        style={{
+          width:'100%',
+          display:'flex',
+          alignItems:'center',
+          justifyContent:'space-between',
+          padding:'10px 12px',
+          borderRadius:10,
+          border:`1.5px solid ${(roomConfig.showFloorGrid ?? true) ? 'rgba(99,102,241,0.5)' : C.border}`,
+          background:(roomConfig.showFloorGrid ?? true) ? C.accentDim : 'rgba(255,255,255,0.02)',
+          color:(roomConfig.showFloorGrid ?? true) ? C.accent : C.textMuted,
+          cursor:'pointer',
+          transition:C.tr,
+          fontFamily:'inherit',
+          marginBottom:18,
+          boxShadow:(roomConfig.showFloorGrid ?? true) ? C.accentGlow : 'none'
+        }}
+      >
+        <span style={{ fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.3px' }}>Show floor grid</span>
+        <span style={{ fontSize:'0.72rem', fontWeight:800 }}>
+          {(roomConfig.showFloorGrid ?? true) ? 'ON' : 'OFF'}
+        </span>
+      </button>
 
       {/* Windows */}
       <SectionDivider title="Windows" badge={windows.length} />
