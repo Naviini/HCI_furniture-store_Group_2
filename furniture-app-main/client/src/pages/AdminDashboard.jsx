@@ -17,9 +17,9 @@ const StatCard = ({ icon, label, value, color }) => (
 /* ─── Toast ─── */
 const Toast = ({ message, type = 'info', onDismiss }) => {
     const cfgs = {
-        success: { icon: '✓', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.30)' },
-        error:   { icon: '✕', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.30)' },
-        info:    { icon: 'ℹ', color: '#6366f1', bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.30)' },
+        success: { icon: '✓', color: 'var(--success)', bg: 'var(--success-soft)', border: 'var(--success-border)' },
+        error:   { icon: '✕', color: 'var(--danger)', bg: 'var(--danger-soft)', border: 'var(--danger-border)' },
+        info:    { icon: 'ℹ', color: 'var(--accent)', bg: 'var(--accent-soft)', border: 'var(--accent-border)' },
     };
     const c = cfgs[type] || cfgs.info;
     return (
@@ -38,7 +38,7 @@ const ConfirmModal = ({ user, onConfirm, onCancel }) => (
             <div className="adm-modal-icon adm-modal-icon--danger">⚠️</div>
             <h3 id="confirm-title" className="adm-modal-title">Remove User Account?</h3>
             <p className="adm-modal-desc">
-                This will permanently delete the account for <strong style={{ color: '#e2e8f0' }}>{user.username}</strong> ({user.email}).
+                This will permanently delete the account for <strong className="adm-text-strong">{user.username}</strong> ({user.email}).
                 This action cannot be undone.
             </p>
             <div className="adm-modal-actions">
@@ -53,7 +53,7 @@ const ConfirmModal = ({ user, onConfirm, onCancel }) => (
 const CustomerSessionModal = ({ onClose }) => (
     <div className="adm-modal-backdrop">
         <div className="adm-modal adm-modal--wide" role="dialog" aria-modal="true">
-            <div className="adm-modal-icon">🚀</div>
+            <div className="adm-modal-icon"></div>
             <h3 className="adm-modal-title">Ready to Launch?</h3>
             <p className="adm-modal-desc">
                 The full 3D design canvas will open. Hand the screen to your customer —
@@ -62,12 +62,36 @@ const CustomerSessionModal = ({ onClose }) => (
             <div className="adm-modal-actions">
                 <button className="adm-btn adm-btn--ghost" onClick={onClose}>Cancel</button>
                 <a href="/dashboard" className="adm-btn adm-btn--primary">
-                    🚀 Launch Design Canvas
+                     Launch Design Canvas
                 </a>
             </div>
         </div>
     </div>
 );
+
+/* ─── Sign Out Confirmation Modal ─── */
+const SignOutConfirmModal = ({ onConfirm, onCancel }) => (
+    <div className="adm-modal-backdrop">
+        <div className="adm-modal" role="dialog" aria-modal="true" aria-labelledby="signout-title">
+            <div className="adm-modal-icon">🔐</div>
+            <h3 id="signout-title" className="adm-modal-title">Sign out now?</h3>
+            <p className="adm-modal-desc">
+                You will be logged out of the admin panel and returned to the login page.
+            </p>
+            <div className="adm-modal-actions">
+                <button className="adm-btn adm-btn--ghost" onClick={onCancel}>Cancel</button>
+                <button className="adm-btn adm-btn--danger" onClick={onConfirm}>Yes, Sign Out</button>
+            </div>
+        </div>
+    </div>
+);
+
+const formatDate = (value) =>
+    new Date(value).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
 
 /* ══════════════════════════════════════════════════════
    MAIN ADMIN DASHBOARD
@@ -77,11 +101,13 @@ export default function AdminDashboard() {
     const [adminUser, setAdminUser] = useState(null);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [toast, setToast] = useState(null);
     const [toastType, setToastType] = useState('info');
     const [search, setSearch] = useState('');
     const [confirmDelete, setConfirmDelete] = useState(null);
     const [showSession, setShowSession] = useState(false);
+    const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
     const [activeTab, setActiveTab] = useState('users');
 
     const showToast = (msg, type = 'info') => {
@@ -99,8 +125,9 @@ export default function AdminDashboard() {
     }, [navigate]);
 
     /* ── Fetch users ── */
-    const fetchUsers = async (token) => {
-        setLoading(true);
+    const fetchUsers = async (token, { silent = false } = {}) => {
+        if (!silent) setLoading(true);
+        if (silent) setRefreshing(true);
         try {
             const res = await fetch('http://localhost:5000/api/auth/users', {
                 headers: { Authorization: `Bearer ${token}` },
@@ -111,6 +138,7 @@ export default function AdminDashboard() {
             showToast('Unable to load users.', 'error');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -138,9 +166,15 @@ export default function AdminDashboard() {
     };
 
     const handleLogout = () => {
+        setShowSignOutConfirm(false);
         localStorage.removeItem('user');
         localStorage.removeItem('onboardingCompleted');
         navigate('/login');
+    };
+
+    const handleRefresh = () => {
+        if (!adminUser || refreshing) return;
+        fetchUsers(adminUser.token, { silent: true });
     };
 
     /* ── Derived data ── */
@@ -150,6 +184,12 @@ export default function AdminDashboard() {
         u.username.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase())
     );
+    const today = new Date().toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    });
 
     if (!adminUser) return null;
 
@@ -160,7 +200,7 @@ export default function AdminDashboard() {
             <aside className="adm-sidebar">
                 <div className="adm-sidebar-brand">
                     <img className="adm-sidebar-logo" src={ndLogo} alt="ND furniture" />
-                    <div className="adm-sidebar-logo">🛡️</div>
+                    
                     <div>
                         <div className="adm-sidebar-title">ND furniture</div>
                         <div className="adm-sidebar-subtitle">Admin Panel</div>
@@ -203,7 +243,7 @@ export default function AdminDashboard() {
                             <div className="adm-user-role">Admin</div>
                         </div>
                     </div>
-                    <button className="adm-logout-btn" onClick={handleLogout} id="admin-logout-btn">
+                    <button className="adm-logout-btn" onClick={() => setShowSignOutConfirm(true)} id="admin-logout-btn">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                         Sign Out
                     </button>
@@ -226,6 +266,7 @@ export default function AdminDashboard() {
                             {activeTab === 'session' && 'Launch a live 3D session for an in-store customer'}
                             {activeTab === 'guide'   && 'Quick reference for store staff'}
                         </p>
+                        <p className="adm-header-meta">{today}</p>
                     </div>
                     <div className="adm-header-right">
                         <span className="adm-admin-badge">
@@ -239,9 +280,9 @@ export default function AdminDashboard() {
                 {activeTab === 'users' && (
                     <>
                         <div className="adm-stats-row">
-                            <StatCard icon="👥" label="Total Accounts"  value={users.length}        color="#6366f1" />
-                            <StatCard icon="🧑‍💼" label="Customers"       value={regularUsers.length} color="#22c55e" />
-                            <StatCard icon="🛡️"  label="Staff Accounts"  value={adminUsers.length}   color="#f59e0b" />
+                            <StatCard icon="👥" label="Total Accounts"  value={users.length}        color="var(--accent)" />
+                            <StatCard icon="🧑‍💼" label="Customers"       value={regularUsers.length} color="var(--success)" />
+                            <StatCard icon="🛡️"  label="Staff Accounts"  value={adminUsers.length}   color="var(--warning)" />
                         </div>
 
                         <div className="adm-toolbar">
@@ -256,10 +297,20 @@ export default function AdminDashboard() {
                                     aria-label="Search users"
                                 />
                             </div>
-                            <button className="adm-btn adm-btn--ghost" onClick={() => fetchUsers(adminUser.token)} aria-label="Refresh user list">
+                            <button className="adm-btn adm-btn--ghost" onClick={handleRefresh} aria-label="Refresh user list" disabled={refreshing}>
                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-                                Refresh
+                                {refreshing ? 'Refreshing...' : 'Refresh'}
                             </button>
+                            {search && (
+                                <button className="adm-btn adm-btn--ghost" onClick={() => setSearch('')} aria-label="Clear search">
+                                    Clear
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="adm-results-strip">
+                            <span>{filtered.length} account{filtered.length === 1 ? '' : 's'} shown</span>
+                            {search && <span>Filter: "{search}"</span>}
                         </div>
 
                         <div className="adm-table-wrap">
@@ -272,6 +323,7 @@ export default function AdminDashboard() {
                                 <div className="adm-empty">
                                     <div className="adm-empty-icon">👤</div>
                                     <p>No users found</p>
+                                    <button className="adm-btn adm-btn--ghost" onClick={() => setSearch('')}>Reset Search</button>
                                 </div>
                             ) : (
                                 <table className="adm-table" aria-label="Registered users">
@@ -290,8 +342,8 @@ export default function AdminDashboard() {
                                                 <td>
                                                     <div className="adm-user-cell">
                                                         <div className="adm-user-avatar" style={{
-                                                            background: u.role === 'admin' ? 'rgba(245,158,11,0.14)' : 'rgba(99,102,241,0.14)',
-                                                            color: u.role === 'admin' ? '#fbbf24' : '#a5b4fc',
+                                                            background: u.role === 'admin' ? 'var(--warning-soft)' : 'var(--accent-soft)',
+                                                            color: u.role === 'admin' ? 'var(--warning)' : 'var(--accent-hover)',
                                                         }}>
                                                             {u.username[0].toUpperCase()}
                                                         </div>
@@ -305,7 +357,7 @@ export default function AdminDashboard() {
                                                     </span>
                                                 </td>
                                                 <td className="adm-date">
-                                                    {new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    {formatDate(u.createdAt)}
                                                 </td>
                                                 <td>
                                                     {u.role !== 'admin' ? (
@@ -333,33 +385,10 @@ export default function AdminDashboard() {
                 {/* ══ TAB: CUSTOMER SESSION ══ */}
                 {activeTab === 'session' && (
                     <div className="adm-session-panel">
-                        <div className="adm-session-card">
-                            <div className="adm-session-icon">🖥️</div>
-                            <h2 className="adm-session-title">In-Store Customer Demo</h2>
-                            <p className="adm-session-desc">
-                                As a member of ND furniture customer service staff, you can open the full 3D design
-                                canvas and hand control to a customer physically present in the store. The customer
-                                will be able to explore furniture, configure their room, and visualise their purchase
-                                in real time.
-                            </p>
-                            <ul className="adm-session-features">
-                                <li>✔ Full 3D furniture placement</li>
-                                <li>✔ Blueprint / floor-plan view</li>
-                                <li>✔ Room dimensions & finishing options</li>
-                                <li>✔ Screenshot &amp; save to your staff account</li>
-                            </ul>
-                            <button
-                                className="adm-btn adm-btn--primary adm-btn--lg"
-                                onClick={() => setShowSession(true)}
-                                id="admin-launch-session"
-                            >
-                                🚀 Launch Customer Session
-                            </button>
-                        </div>
                         <div className="adm-session-hero">
                             <div className="adm-session-hero-left">
                                 <div className="adm-session-badge">● In-Store Demo Tool</div>
-                                <span className="adm-session-icon-large">🖥️</span>
+                                <span className="adm-session-icon-large"></span>
                                 <h2 className="adm-session-title">In-Store Customer Demo</h2>
                                 <p className="adm-session-desc">
                                     Open the full 3D design canvas and hand control to a customer physically
@@ -371,7 +400,7 @@ export default function AdminDashboard() {
                                     onClick={() => setShowSession(true)}
                                     id="admin-launch-session"
                                 >
-                                    🚀 Launch Customer Session
+                                     Launch Customer Session
                                 </button>
                             </div>
                             <div className="adm-session-hero-right">
@@ -382,6 +411,9 @@ export default function AdminDashboard() {
                                     <li><span className="feat-icon">📏</span> Room dimensions &amp; finishes</li>
                                     <li><span className="feat-icon">📸</span> Screenshot &amp; save to account</li>
                                 </ul>
+                                <p className="adm-session-note">
+                                    Tip: Ask customers to save their design before ending the demo so your team can follow up.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -390,29 +422,29 @@ export default function AdminDashboard() {
                 {/* ══ TAB: STAFF GUIDE ══ */}
                 {activeTab === 'guide' && (
                     <div className="adm-guide">
-                        <div className="adm-guide-card" style={{ borderLeftColor: '#6366f1' }}>
+                        <div className="adm-guide-card" style={{ borderLeftColor: 'var(--accent)' }}>
                             <div className="adm-guide-card-header">
-                                <div className="adm-guide-card-icon" style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc' }}>🛡️</div>
+                                <div className="adm-guide-card-icon" style={{ background: 'var(--accent-soft)', color: 'var(--accent-hover)' }}>🛡️</div>
                                 <h3>Admin Capabilities</h3>
                             </div>
                             <ul>
-                                <li><strong style={{ color: '#e2e8f0' }}>User Management</strong> – View all registered accounts, search by name or email, and remove customer accounts when needed.</li>
-                                <li><strong style={{ color: '#e2e8f0' }}>Customer Session</strong> – Launch the 3D design canvas for in-store customers from the Customer Session tab.</li>
-                                <li><strong style={{ color: '#e2e8f0' }}>Design Access</strong> – Admin accounts can use the full design canvas at any time via the Launch button.</li>
+                                <li><strong className="adm-text-strong">User Management</strong> – View all registered accounts, search by name or email, and remove customer accounts when needed.</li>
+                                <li><strong className="adm-text-strong">Customer Session</strong> – Launch the 3D design canvas for in-store customers from the Customer Session tab.</li>
+                                <li><strong className="adm-text-strong">Design Access</strong> – Admin accounts can use the full design canvas at any time via the Launch button.</li>
                             </ul>
                         </div>
 
-                        <div className="adm-guide-card" style={{ borderLeftColor: '#22c55e' }}>
+                        <div className="adm-guide-card" style={{ borderLeftColor: 'var(--success)' }}>
                             <div className="adm-guide-card-header">
-                                <div className="adm-guide-card-icon" style={{ background: 'rgba(34,197,94,0.10)', color: '#4ade80' }}>👤</div>
+                                <div className="adm-guide-card-icon" style={{ background: 'var(--success-soft)', color: 'var(--success)' }}>👤</div>
                                 <h3>Registering Staff Accounts</h3>
                             </div>
-                            <p>New staff must register with the <strong style={{ color: '#e2e8f0' }}>Store Staff</strong> account type and provide the staff access code. Contact your store manager to obtain the current code. The development default is <code>NDSTAFF2024</code>.</p>
+                            <p>New staff must register with the <strong className="adm-text-strong">Store Staff</strong> account type and provide the staff access code. Contact your store manager to obtain the current code. The development default is <code>NDSTAFF2024</code>.</p>
                         </div>
 
-                        <div className="adm-guide-card" style={{ borderLeftColor: '#f59e0b' }}>
+                        <div className="adm-guide-card" style={{ borderLeftColor: 'var(--warning)' }}>
                             <div className="adm-guide-card-header">
-                                <div className="adm-guide-card-icon" style={{ background: 'rgba(245,158,11,0.10)', color: '#fbbf24' }}>ℹ️</div>
+                                <div className="adm-guide-card-icon" style={{ background: 'var(--warning-soft)', color: 'var(--warning)' }}>ℹ️</div>
                                 <h3>Role Differences</h3>
                             </div>
                             <table className="adm-guide-table">
@@ -441,6 +473,12 @@ export default function AdminDashboard() {
                 />
             )}
             {showSession && <CustomerSessionModal onClose={() => setShowSession(false)} />}
+            {showSignOutConfirm && (
+                <SignOutConfirmModal
+                    onConfirm={handleLogout}
+                    onCancel={() => setShowSignOutConfirm(false)}
+                />
+            )}
 
             {/* ══ TOAST ══ */}
             {toast && <Toast message={toast} type={toastType} onDismiss={() => setToast(null)} />}

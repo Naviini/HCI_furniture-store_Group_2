@@ -6,8 +6,11 @@
   --accent-hover: #f472b6;
   --accent-glow: rgba(236, 72, 153, 0.26);
   display: flex;
+  gap: 10px;
   height: 100vh;
   width: 100vw;
+  padding: 8px 10px 10px;
+  box-sizing: border-box;
   overflow: hidden;
   background:
     radial-gradient(65% 50% at 5% 12%, rgba(147, 51, 234, 0.2), transparent 65%),
@@ -19,10 +22,14 @@
 /* ── Canvas column ────────────────────────────────────────── */
 .db-canvas-area {
   flex: 1;
+  min-width: 0;
   position: relative;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, rgba(11, 12, 24, 0.98) 0%, rgba(8, 9, 18, 0.98) 100%);
+  border: 1px solid rgba(233, 53, 199, 0.16);
+  border-radius: 18px;
+  box-shadow: 0 14px 34px rgba(2, 6, 23, 0.45);
   overflow: hidden;
 }
 
@@ -71,35 +78,49 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  height: 52px;
-  padding: 0 14px;
-  background: rgba(8, 10, 20, 0.98);
+  gap: 14px;
+  min-height: 62px;
+  margin: 10px 12px 8px;
+  padding: 0 18px;
+  background: linear-gradient(125deg, rgba(10, 12, 24, 0.92) 0%, rgba(21, 14, 38, 0.9) 100%);
   backdrop-filter: blur(24px) saturate(1.6);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(192, 132, 252, 0.24);
+  border-radius: 16px;
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04),
-    0 4px 24px rgba(0, 0, 0, 0.5);
+    0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 34px rgba(2, 6, 23, 0.5);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 /* Subtle shimmer line at top of header */
 .db-header::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 18px;
+  right: 18px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(139,92,246,0.5), transparent);
-  opacity: 0.6;
+  background: linear-gradient(90deg, transparent, rgba(236, 72, 153, 0.65), rgba(167, 139, 250, 0.8), transparent);
+  opacity: 0.85;
+}
+
+.db-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 35%);
 }
 
 /* ── LEFT section ── */
 .db-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+  gap: 10px;
+  flex: 1;
   min-width: 0;
 }
 
@@ -111,16 +132,19 @@
   gap: 8px;
   flex: 1;
   min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
 }
 
 /* ── RIGHT section ── */
 .db-header-right {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
-  flex: 1;
-  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: 10px;
+  border-left: 1px solid rgba(192, 132, 252, 0.22);
 }
 
 /* Vertical divider between groups */
@@ -128,7 +152,7 @@
   display: block;
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, transparent 0%, rgba(192, 132, 252, 0.45) 50%, transparent 100%);
   border-radius: 1px;
   flex-shrink: 0;
 }
@@ -142,12 +166,12 @@
 }
 
 .db-brand-logo {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.4);
   flex-shrink: 0;
 }
 
@@ -165,10 +189,10 @@
 }
 
 .db-brand-name {
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 780;
   color: var(--text-main);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .db-brand-sep {
@@ -179,10 +203,10 @@
 }
 
 .db-brand-sub {
-  font-size: 0.64rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
+  font-size: 0.68rem;
+  font-weight: 650;
+  color: rgba(216, 180, 254, 0.95);
+  letter-spacing: 0.11em;
   text-transform: uppercase;
 }
 
@@ -190,56 +214,88 @@
 .db-project-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
+  gap: 7px;
+  padding: 7px 12px;
+  background: rgba(167, 139, 250, 0.12);
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 11px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(233, 213, 255, 0.95);
   white-space: nowrap;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  max-width: 260px;
+  flex-shrink: 1;
+}
+
+.db-project-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .db-project-title svg {
-  opacity: 0.45;
+  opacity: 0.8;
   flex-shrink: 0;
 }
 
 .db-project-title:hover {
-  color: rgba(255, 255, 255, 0.65);
-  border-color: rgba(255, 255, 255, 0.12);
+  color: #f5d0fe;
+  border-color: rgba(236, 72, 153, 0.45);
+  background: rgba(236, 72, 153, 0.15);
+}
+
+.db-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: rgba(22, 163, 74, 0.15);
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.db-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+  animation: pulse 1.4s ease-in-out infinite;
 }
 
 /* ── Keyboard shortcut hints ── */
 .db-shortcut-hints {
   display: none;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .db-hint {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.67rem;
-  color: var(--text-muted);
+  gap: 5px;
+  font-size: 0.66rem;
+  color: rgba(186, 230, 253, 0.72);
   white-space: nowrap;
-  opacity: 0.7;
+  opacity: 0.95;
 }
 
 .db-hint kbd {
   display: inline-flex;
   align-items: center;
-  padding: 2px 5px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  background: rgba(14, 165, 233, 0.13);
+  border: 1px solid rgba(125, 211, 252, 0.32);
   border-bottom-width: 2px;
-  border-radius: 4px;
+  border-radius: 5px;
   font-size: 0.63rem;
   font-family: inherit;
-  color: var(--text-secondary);
+  color: #e0f2fe;
   line-height: 1.4;
 }
 
@@ -247,12 +303,14 @@
 .db-mode-toggle {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   padding: 3px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 11px;
-  height: 34px;
+  background: rgba(26, 11, 46, 0.8);
+  border: 1px solid rgba(233, 53, 199, 0.2);
+  border-radius: 12px;
+  height: 40px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .db-mode-btn {
@@ -260,13 +318,13 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 10px;
-  height: 28px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  padding: 0 13px;
+  height: 33px;
+  font-size: 0.75rem;
+  font-weight: 700;
   font-family: inherit;
   letter-spacing: 0.01em;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(216, 180, 254, 0.7);
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -285,8 +343,8 @@
 }
 
 .db-mode-btn:hover {
-  color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.06);
+  color: rgba(245, 208, 254, 0.95);
+  background: rgba(233, 53, 199, 0.12);
 }
 
 .db-mode-btn:hover svg {
@@ -295,9 +353,9 @@
 
 .db-mode-btn--active {
   color: #fff;
-  background: linear-gradient(135deg, #ec4899 0%, #9333ea 100%);
+  background: linear-gradient(135deg, #e935c7 0%, #8b5cf6 100%);
   box-shadow:
-    0 2px 12px rgba(99, 102, 241, 0.45),
+    0 2px 14px rgba(233, 53, 199, 0.45),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
@@ -307,14 +365,14 @@
 
 .db-mode-btn--active:hover {
   color: #fff;
-  background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
 }
 
 /* ── Header action button group ── */
 .db-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   min-width: 0;
   max-width: 52vw;
   overflow-x: auto;
@@ -330,20 +388,19 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 9px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  padding: 7px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
   font-family: inherit;
-  color: rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   user-select: none;
-  min-height: 28px;
-  flex-shrink: 0;
+  min-height: 35px;
 }
 
 .db-header-btn svg {
@@ -353,11 +410,86 @@
 }
 
 .db-header-btn:hover {
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.14);
+  color: #f8fafc;
+  background: rgba(233, 53, 199, 0.12);
+  border-color: rgba(233, 53, 199, 0.35);
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.42);
+}
+
+.db-header-btn--icon {
+  width: 34px;
+  min-width: 34px;
+  padding: 0;
+  justify-content: center;
+}
+
+@media (max-width: 1700px) {
+  .db-header {
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  .db-header-center {
+    display: none;
+  }
+
+  .db-header-right {
+    gap: 6px;
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .db-brand-sub,
+  .db-brand-sep {
+    display: none;
+  }
+
+  .db-header-actions {
+    gap: 6px;
+  }
+
+  .db-header-actions .db-header-btn {
+    width: 36px;
+    min-width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .db-header-actions .db-header-btn span {
+    display: none;
+  }
+}
+
+@media (max-width: 1550px) {
+  .db-header {
+    padding: 0 10px;
+  }
+
+  .db-mode-btn {
+    padding: 0 10px;
+  }
+
+  .db-mode-btn span {
+    display: none;
+  }
+}
+
+@media (max-width: 1450px) {
+  .db-header-left > .db-header-btn {
+    width: 36px;
+    min-width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .db-header-left > .db-header-btn span {
+    display: none;
+  }
+
+  .db-brand-name {
+    font-size: 0.92rem;
+  }
 }
 
 .db-header-btn:hover svg {
@@ -389,9 +521,9 @@
 
 /* Save button — highlighted */
 .db-header-btn--save {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.18) 0%, rgba(124, 58, 237, 0.13) 100%);
-  border-color: rgba(99, 102, 241, 0.28);
-  color: #a5b4fc;
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+  border-color: rgba(233, 53, 199, 0.38);
+  color: #f5d0fe;
 }
 
 .db-header-btn--save svg {
@@ -399,17 +531,17 @@
 }
 
 .db-header-btn--save:hover {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.32) 0%, rgba(124, 58, 237, 0.25) 100%);
-  border-color: rgba(99, 102, 241, 0.5);
-  color: #c7d2fe;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.28);
+  background: linear-gradient(135deg, rgba(233, 53, 199, 0.38) 0%, rgba(139, 92, 246, 0.34) 100%);
+  border-color: rgba(233, 53, 199, 0.62);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(233, 53, 199, 0.35);
 }
 
 /* Admin button */
 .db-header-btn--admin {
-  background: rgba(245, 158, 11, 0.12);
-  border-color: rgba(245, 158, 11, 0.25);
-  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(245, 158, 11, 0.36);
+  color: #fcd34d;
 }
 
 .db-header-btn--admin svg {
@@ -454,9 +586,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 3px 8px 3px 3px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 11px 4px 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 24px;
   cursor: default;
   transition: background 0.2s, border-color 0.2s;
@@ -475,8 +607,8 @@
 }
 
 .db-user-chip:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(233, 53, 199, 0.11);
+  border-color: rgba(233, 53, 199, 0.35);
 }
 
 .db-profile-overlay,

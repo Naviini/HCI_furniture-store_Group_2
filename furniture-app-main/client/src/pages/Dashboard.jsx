@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import DesignCanvas from '../components/DesignCanvas';
 import BlueprintView from '../components/BlueprintView';
@@ -112,6 +112,7 @@ const clampPositionToRoom = (position, roomConfig, itemType) => {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const canvasRef = useRef();
 
   const [user, setUser] = useState(null);
@@ -241,6 +242,40 @@ export default function Dashboard() {
     localStorage.removeItem('nd-selected-room-shape');
     localStorage.removeItem('nd-start-mode');
   }, []);
+
+  useEffect(() => {
+    const navTemplate = location.state?.selectedTemplate;
+    const navStartMode = location.state?.startMode;
+    const startMode = navStartMode || localStorage.getItem('nd-start-mode');
+    const selectedTemplateRaw = localStorage.getItem('nd-selected-template');
+    const parsedTemplate = navTemplate || (selectedTemplateRaw ? JSON.parse(selectedTemplateRaw) : null);
+    if (!parsedTemplate && startMode !== 'template') return;
+    if (!parsedTemplate) return;
+
+    try {
+
+      if (parsedTemplate?.roomConfig) setRoomConfig(parsedTemplate.roomConfig);
+      if (Array.isArray(parsedTemplate?.windows)) setWindows(parsedTemplate.windows);
+      if (Array.isArray(parsedTemplate?.doors)) setDoors(parsedTemplate.doors);
+      if (Array.isArray(parsedTemplate?.items) && parsedTemplate.items.length > 0) {
+        resetHistory(parsedTemplate.items);
+      }
+
+      const loadedTemplateName = parsedTemplate?.name || parsedTemplate?.title || 'Template Design';
+      setProjectName(loadedTemplateName);
+      setToast(`Loaded template: ${loadedTemplateName}`);
+      setToastType('success');
+      setTimeout(() => setToast(null), 3000);
+    } catch {
+      setToast('Failed to load selected template');
+      setToastType('error');
+      setTimeout(() => setToast(null), 3000);
+    } finally {
+      localStorage.removeItem('nd-selected-template');
+      localStorage.removeItem('nd-start-mode');
+      localStorage.removeItem('nd-selected-template-version');
+    }
+  }, [location.state, resetHistory]);
 
   const handleCustomRoomCreated = useCallback((points) => {
     if (!Array.isArray(points) || points.length < 3) return;
@@ -490,8 +525,6 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const selectedItem = items.find(i => i.id === selectedId);
-
   return (
     <div className="db-root">
       {/* HCI: Skip link for keyboard users */}
@@ -596,25 +629,15 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── CENTER: Project name + selected item ── */}
-          <div className="db-header-center">
-            <div className="db-project-title" aria-label={`Current project: ${projectName}`}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
+          {/* ── CENTER: Project + Live status ── */}
+          <div className="db-header-center" aria-label="Project context">
+            <div className="db-project-title" title={projectName}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="3" />
+                <path d="M8 8h8M8 12h8M8 16h5" />
               </svg>
               <span>{projectName}</span>
             </div>
-            {selectedItem && (
-              <div className="db-selected-badge" aria-live="polite">
-                <span className="db-selected-dot" aria-hidden="true" />
-                <span>{selectedItem.type} selected</span>
-              </div>
-            )}
-          </div>
-
-          {/* ── RIGHT: Shortcuts + Actions + User ── */}
-          <div className="db-header-right">
 
             {/* Keyboard shortcut hints */}
             <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
@@ -625,38 +648,16 @@ export default function Dashboard() {
 
             {/* Quick actions */}
 
+            <div className="db-live-pill" aria-label="Auto-save is active">
+              <span className="db-live-dot" aria-hidden="true" />
+              <span>Live</span>
+            </div>
+          </div>
+
+          {/* ── RIGHT: Actions + User ── */}
+          <div className="db-header-right">
             {/* Action buttons group */}
             <div className="db-header-actions" role="toolbar" aria-label="Project actions">
-              <button
-                id="btn-undo-header"
-                className="db-header-btn"
-                onClick={undo}
-                disabled={!(histRef.current.idx > 0)}
-                aria-label="Undo last action"
-                title="Undo (Ctrl+Z)"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="9 14 4 9 9 4" />
-                  <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
-                </svg>
-                <span>Undo</span>
-              </button>
-
-              <button
-                id="btn-redo-header"
-                className="db-header-btn"
-                onClick={redo}
-                disabled={!(histRef.current.idx < histRef.current.stack.length - 1)}
-                aria-label="Redo last action"
-                title="Redo (Ctrl+Y)"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="15 14 20 9 15 4" />
-                  <path d="M4 20v-7a4 4 0 0 1 4-4h12" />
-                </svg>
-                <span>Redo</span>
-              </button>
-
               <button
                 id="btn-templates"
                 className="db-header-btn"
@@ -672,23 +673,46 @@ export default function Dashboard() {
               </button>
 
               <button
-                id="btn-screenshot-header"
-                className="db-header-btn"
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.download = `design-${Date.now()}.jpg`;
-                  link.href = canvasRef.current.takeScreenshot();
-                  link.click();
-                  showToast('Screenshot downloaded!', 'success');
-                }}
-                aria-label="Download screenshot"
-                title="Capture screenshot"
+                id="btn-save-header"
+                className="db-header-btn db-header-btn--save"
+                onClick={() => setShowSaveModal(true)}
+                aria-label="Save design (Ctrl+S)"
+                title="Save (Ctrl+S)"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                  <circle cx="12" cy="13" r="4" />
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
                 </svg>
-                <span>Capture</span>
+                <span>Save</span>
+              </button>
+
+              <button
+                id="btn-undo-header"
+                className="db-header-btn db-header-btn--icon"
+                onClick={undo}
+                disabled={histRef.current.idx <= 0}
+                aria-label="Undo"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 14L4 9l5-5" />
+                  <path d="M4 9h9a7 7 0 0 1 0 14h-1" />
+                </svg>
+              </button>
+
+              <button
+                id="btn-redo-header"
+                className="db-header-btn db-header-btn--icon"
+                onClick={redo}
+                disabled={histRef.current.idx >= histRef.current.stack.length - 1}
+                aria-label="Redo"
+                title="Redo (Ctrl+Y)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 14l5-5-5-5" />
+                  <path d="M20 9h-9a7 7 0 0 0 0 14h1" />
+                </svg>
               </button>
             </div>
 
@@ -710,6 +734,31 @@ export default function Dashboard() {
                 </button>
               </>
             )}
+
+            <span className="db-header-divider" aria-hidden="true" />
+
+            {/* User chip */}
+            <button
+              type="button"
+              className="db-user-chip db-user-chip--button"
+              aria-label={`Open profile for ${user.username || user.email}`}
+              title={user.username || user.email}
+              onClick={() => setIsProfileModalOpen(true)}
+            >
+              <div
+                className="db-avatar"
+                aria-hidden="true"
+                style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}
+              >
+                {(user.username || user.email || 'U')[0].toUpperCase()}
+              </div>
+              <div className="db-user-info">
+                <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
+                <span className={`db-role-badge ${user.role === 'admin' ? 'db-role-badge--admin' : 'db-role-badge--user'}`}>
+                  {user.role === 'admin' ? 'Admin' : 'User'}
+                </span>
+              </div>
+            </button>
 
           </div>
         </header>
