@@ -157,14 +157,26 @@ const MATERIALS  = ['All', 'Wood', 'Plastic', 'Metal', 'Fabric', 'Leather', 'Gla
 
 const FLOOR_TYPES = [
   { id: 'plank_flooring', emoji: '🪵', label: 'Plank'    },
-  { id: 'cartago',        emoji: '🧱', label: 'Cartago'  },
-  { id: 'granite',        emoji: '🪨', label: 'Granite'  },
-  { id: 'gravel',         emoji: '⬜', label: 'Gravel'   },
-  { id: 'laminate',       emoji: '📋', label: 'Laminate' },
-  { id: 'linoleum',       emoji: '🟩', label: 'Linoleum' },
-  { id: 'pebble',         emoji: '🔵', label: 'Pebble'   },
-  { id: 'rubber',         emoji: '⚫', label: 'Rubber'   },
+  { id: 'grey_cartago',   emoji: '🧱', label: 'Cartago'  },
+  { id: 'granite_tile',   emoji: '🪨', label: 'Granite'  },
+  { id: 'gravel_concrete', emoji: '⬜', label: 'Gravel'   },
+  { id: 'laminate_floor', emoji: '📋', label: 'Laminate' },
+  { id: 'old_linoleum',   emoji: '🟩', label: 'Linoleum' },
+  { id: 'pebble_concrete', emoji: '🔵', label: 'Pebble'   },
+  { id: 'rubber_tiles',   emoji: '⚫', label: 'Rubber'   },
 ];
+
+const FLOOR_TYPE_ALIASES = {
+  cartago: 'grey_cartago',
+  granite: 'granite_tile',
+  gravel: 'gravel_concrete',
+  laminate: 'laminate_floor',
+  linoleum: 'old_linoleum',
+  pebble: 'pebble_concrete',
+  rubber: 'rubber_tiles',
+};
+
+const normalizeFloorType = (floorType) => FLOOR_TYPE_ALIASES[floorType] || floorType;
 
 const ROOM_SHAPES = [
   { id: 'rectangle', label: 'Rect',
@@ -765,9 +777,9 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
       <SectionDivider title="Floor Texture" />
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:6, marginBottom:18 }}>
         {FLOOR_TYPES.map(f => {
-          const active = roomConfig.floorType === f.id;
+          const active = normalizeFloorType(roomConfig.floorType) === f.id;
           return (
-            <button key={f.id} onClick={() => updateRoom('floorType', f.id)}
+            <button key={f.id} onClick={() => updateRoom('floorType', normalizeFloorType(f.id))}
               style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'9px 4px', borderRadius:10, border:`1.5px solid ${active ? 'rgba(99,102,241,0.5)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none' }}>
               <span style={{ fontSize:'1rem' }}>{f.emoji}</span>
               <span style={{ fontSize:'0.55rem', fontWeight:700, letterSpacing:'0.2px' }}>{f.label}</span>
