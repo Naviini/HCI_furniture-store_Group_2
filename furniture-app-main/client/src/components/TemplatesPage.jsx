@@ -9,10 +9,10 @@ import bgImage from '../assets/background images/modern_living_rooms_with_the_ri
 const TEMPLATES = [
     /* ── LIVING ROOM ── */
     {
-        id: 'living-cozy',
+        id: 'living-classic',
         category: 'Living Room',
-        name: 'Cosy Living Room',
-        desc: 'A warm, inviting space with a sofa, coffee table, and ambient lamp.',
+        name: 'Classic Living Room',
+        desc: 'A timeless living room layout with balanced seating and warm accents.',
         tag: 'Popular',
         tagColor: '#6366f1',
         emoji: '🛋️',
@@ -252,10 +252,10 @@ const TEMPLATES = [
 
     /* ── KITCHEN ── */
     {
-        id: 'kitchen-modern',
+        id: 'kitchen-classic',
         category: 'Kitchen',
-        name: 'Modern Kitchen',
-        desc: 'Contemporary kitchen with full appliances, cabinets, and dining area.',
+        name: 'Classic Kitchen',
+        desc: 'A classic kitchen setup with practical cabinets, dining seats, and appliances.',
         tag: 'New',
         tagColor: '#0ea5e9',
         emoji: '🍳',
@@ -395,10 +395,10 @@ const TEMPLATES = [
 
     /* ── BATHROOM ── */
     {
-        id: 'bathroom-modern',
+        id: 'bathroom-classic',
         category: 'Bathroom',
-        name: 'Modern Bathroom',
-        desc: 'Sleek modern bathroom with bathtub, vanity, and contemporary fixtures.',
+        name: 'Classic Bathroom',
+        desc: 'A classic bathroom layout with bathtub, vanity, and essential fixtures.',
         tag: 'New',
         tagColor: '#06b6d4',
         emoji: '🚿',
@@ -465,10 +465,10 @@ const TEMPLATES = [
 
     /* ── WORKSPACE ── */
     {
-        id: 'workspace-home',
+        id: 'workspace-classic-home-office',
         category: 'Workspace',
-        name: 'Home Office',
-        desc: 'A productive home office with desk, chair, and cabinet storage.',
+        name: 'Classic Home Office',
+        desc: 'A classic home office with desk, chair, and organized storage.',
         tag: 'Popular',
         tagColor: '#0ea5e9',
         emoji: '💻',

@@ -160,7 +160,7 @@ const MODEL_MAP = {
   /* ── NEW KITCHEN ── */
   'European Cabinet':  { path: europeanCabinetPath,    scale: 0.01,  yOffset: 0.1 },
   'Kitchen':           { path: kitchenPath,            scale: 0.6,   yOffset: 0 },
-  'Kitchen Cabinet 1': { path: kitchenCabinet1Path,    scale: 1,     yOffset: 0 },
+  'Kitchen Cabinet 1': { path: kitchenCabinet1Path,    scale: 8,     yOffset: 0 },
   'Modern Fridge':     { path: modernFridgePath,       scale: 2,     yOffset: 0 },
   'Small Kitchen':     { path: smallKitchenPath,       scale: 2,     yOffset: 0 },
   /* ── NEW SEATING ── */
@@ -227,6 +227,13 @@ useGLTF.preload(outdoorSofaPath);
 /* ── Component that renders a loaded glTF scene ── */
 function ModelMesh({ modelInfo, color, brightness = 1, roughness, metalness, isSelected, onClick }) {
   const { scene } = useGLTF(modelInfo.path);
+  const groundedYOffset = useMemo(() => {
+    const bbox = new THREE.Box3().setFromObject(scene);
+    // Lift models whose geometry origin is below floor level.
+    const autoLift = Math.max(0, -bbox.min.y);
+    return modelInfo.yOffset + autoLift;
+  }, [scene, modelInfo.yOffset]);
+
   const clonedScene = useMemo(() => {
     const clone = scene.clone(true);
     clone.traverse((child) => {
@@ -253,7 +260,7 @@ function ModelMesh({ modelInfo, color, brightness = 1, roughness, metalness, isS
 
   return (
     <group onClick={onClick} scale={modelInfo.scale}>
-      <primitive object={clonedScene} position={[0, modelInfo.yOffset, 0]} />
+      <primitive object={clonedScene} position={[0, groundedYOffset, 0]} />
     </group>
   );
 }
