@@ -77,13 +77,15 @@ const DesignCanvas = forwardRef(({
           windows={windows}
           doors={doors}
         />
-        
-        <Grid 
-          args={[roomConfig.width, roomConfig.depth]} 
-          sectionColor="#555" 
-          cellColor="#777" 
-          infiniteGrid={false} 
-        />
+
+        {(roomConfig.showFloorGrid ?? true) && (
+          <Grid 
+            args={[roomConfig.width, roomConfig.depth]} 
+            sectionColor="#555" 
+            cellColor="#777" 
+            infiniteGrid={false} 
+          />
+        )}
       </group>
 
       {/* --- Furniture Items --- */}

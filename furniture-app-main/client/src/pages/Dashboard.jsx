@@ -114,6 +114,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const canvasRef = useRef();
+  const fileMenuRef = useRef(null);
 
   const [user, setUser] = useState(null);
   const [items, setItems] = useState([]);
@@ -167,6 +168,7 @@ export default function Dashboard() {
     shape: 'rectangle', width: 15, depth: 15,
     wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
+    showFloorGrid: true,
     ambientIntensity: null, sunIntensity: null,
     customPoints: [],
   });
@@ -176,6 +178,7 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showFileMenu, setShowFileMenu] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
@@ -190,7 +193,10 @@ export default function Dashboard() {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && document.activeElement.tagName !== 'INPUT') {
         deleteItem(selectedId);
       }
-      if (e.key === 'Escape') setSelectedId(null);
+      if (e.key === 'Escape') {
+        setSelectedId(null);
+        setShowFileMenu(false);
+      }
       if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); setShowSaveModal(true); }
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); undo(); }
       if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
@@ -198,6 +204,16 @@ export default function Dashboard() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedId, items, undo, redo]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
+        setShowFileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -567,7 +583,6 @@ export default function Dashboard() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
-              <span>Home</span>
             </button>
 
             {/* Logo / Brand */}
@@ -710,27 +725,6 @@ export default function Dashboard() {
               </>
             )}
 
-            <span className="db-header-divider" aria-hidden="true" />
-
-            {/* User chip */}
-            <button
-              type="button"
-              className="db-user-chip db-user-chip--button"
-              aria-label={`Open profile for ${user.username || user.email}`}
-              title={user.username || user.email}
-              onClick={() => setIsProfileModalOpen(true)}
-            >
-              <div className="db-avatar" aria-hidden="true"
-                style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}>
-                {(user.username || user.email || 'U')[0].toUpperCase()}
-              </div>
-              <div className="db-user-info">
-                <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
-                <span className={`db-role-badge ${user.role === 'admin' ? 'db-role-badge--admin' : 'db-role-badge--user'}`}>
-                  {user.role === 'admin' ? 'Admin' : 'User'}
-                </span>
-              </div>
-            </button>
           </div>
         </header>
 
@@ -789,15 +783,15 @@ export default function Dashboard() {
             <div
               style={{
                 position: 'absolute',
-                top: '20px',
-                left: '20px',
+                top: '14px',
+                left: '14px',
                 zIndex: 9999,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1px',
-                padding: '3px',
+                padding: '2px',
                 background: 'rgba(26, 11, 46, 0.95)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(233, 53, 199, 0.1)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(233, 53, 199, 0.15)',
@@ -811,7 +805,7 @@ export default function Dashboard() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                   background: cameraMode === 'TPP'
                     ? 'linear-gradient(135deg, #E935C7 0%, #8b5cf6 100%)'
                     : 'transparent',
@@ -822,7 +816,7 @@ export default function Dashboard() {
                   borderRadius: '9px',
                   cursor: 'pointer',
                   fontWeight: cameraMode === 'TPP' ? '700' : '600',
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontFamily: 'inherit',
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: cameraMode === 'TPP'
@@ -833,16 +827,16 @@ export default function Dashboard() {
                 }}
                 onMouseEnter={(e) => {
                   if (cameraMode !== 'TPP') {
-                    e.target.style.background = 'rgba(233, 53, 199, 0.08)';
-                    e.target.style.color = 'rgba(245, 208, 254, 0.85)';
-                    e.target.style.transform = 'translateY(-0.5px)';
+                    e.currentTarget.style.background = 'rgba(233, 53, 199, 0.08)';
+                    e.currentTarget.style.color = 'rgba(245, 208, 254, 0.85)';
+                    e.currentTarget.style.transform = 'translateY(-0.5px)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (cameraMode !== 'TPP') {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = 'rgba(216, 180, 254, 0.7)';
-                    e.target.style.transform = 'none';
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'rgba(216, 180, 254, 0.7)';
+                    e.currentTarget.style.transform = 'none';
                   }
                 }}
               >
@@ -850,7 +844,7 @@ export default function Dashboard() {
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
                   <circle cx="12" cy="13" r="4" />
                 </svg>
-                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>Third Person</span>
+                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>Third</span>
               </button>
 
               {/* FPP Button */}
@@ -860,7 +854,7 @@ export default function Dashboard() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                   background: cameraMode === 'FPP'
                     ? 'linear-gradient(135deg, #E935C7 0%, #8b5cf6 100%)'
                     : 'transparent',
@@ -871,7 +865,7 @@ export default function Dashboard() {
                   borderRadius: '9px',
                   cursor: 'pointer',
                   fontWeight: cameraMode === 'FPP' ? '700' : '600',
-                  fontSize: '11px',
+                  fontSize: '10px',
                   fontFamily: 'inherit',
                   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   boxShadow: cameraMode === 'FPP'
@@ -882,16 +876,16 @@ export default function Dashboard() {
                 }}
                 onMouseEnter={(e) => {
                   if (cameraMode !== 'FPP') {
-                    e.target.style.background = 'rgba(233, 53, 199, 0.08)';
-                    e.target.style.color = 'rgba(245, 208, 254, 0.85)';
-                    e.target.style.transform = 'translateY(-0.5px)';
+                    e.currentTarget.style.background = 'rgba(233, 53, 199, 0.08)';
+                    e.currentTarget.style.color = 'rgba(245, 208, 254, 0.85)';
+                    e.currentTarget.style.transform = 'translateY(-0.5px)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (cameraMode !== 'FPP') {
-                    e.target.style.background = 'transparent';
-                    e.target.style.color = 'rgba(216, 180, 254, 0.7)';
-                    e.target.style.transform = 'none';
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'rgba(216, 180, 254, 0.7)';
+                    e.currentTarget.style.transform = 'none';
                   }
                 }}
               >
@@ -900,7 +894,7 @@ export default function Dashboard() {
                   <circle cx="12" cy="12" r="3" />
                   <path d="M12 1v6M12 17v6M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h6M17 12h6M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
                 </svg>
-                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>First Person</span>
+                <span style={{ lineHeight: '1', whiteSpace: 'nowrap' }}>First</span>
               </button>
             </div>
           )}
