@@ -10,10 +10,10 @@ import './Dashboard.css';
 /* ── Toast Notification (HCI: Visibility of system status) ── */
 const Toast = ({ message, type = 'info', onDismiss }) => {
   const configs = {
-    success: { icon: '✓', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.3)' },
-    error: { icon: '✕', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)' },
-    warning: { icon: '⚠', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)' },
-    info: { icon: 'ℹ', color: '#6366f1', bg: 'rgba(99,102,241,0.12)', border: 'rgba(99,102,241,0.3)' },
+    success: { icon: '✓', color: '#22c55e', bg: 'linear-gradient(135deg, rgba(9,24,18,0.96), rgba(12,30,22,0.96))', border: 'rgba(34,197,94,0.55)' },
+    error: { icon: '✕', color: '#ef4444', bg: 'linear-gradient(135deg, rgba(30,10,14,0.96), rgba(38,12,18,0.96))', border: 'rgba(239,68,68,0.55)' },
+    warning: { icon: '⚠', color: '#f59e0b', bg: 'linear-gradient(135deg, rgba(30,21,8,0.96), rgba(38,26,10,0.96))', border: 'rgba(245,158,11,0.55)' },
+    info: { icon: 'ℹ', color: '#6366f1', bg: 'linear-gradient(135deg, rgba(14,18,34,0.96), rgba(18,22,42,0.96))', border: 'rgba(99,102,241,0.55)' },
   };
   const cfg = configs[type] || configs.info;
   return (
@@ -114,7 +114,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const canvasRef = useRef();
-  const fileMenuRef = useRef(null);
 
   const [user, setUser] = useState(null);
   const [items, setItems] = useState([]);
@@ -168,7 +167,6 @@ export default function Dashboard() {
     shape: 'rectangle', width: 15, depth: 15,
     wallColor: '#e0e0e0', floorColor: '#ffffff',
     floorType: 'plank_flooring', lightingMode: 'Day',
-    showFloorGrid: true,
     ambientIntensity: null, sunIntensity: null,
     customPoints: [],
   });
@@ -178,7 +176,6 @@ export default function Dashboard() {
   const [toast, setToast] = useState(null);
   const [toastType, setToastType] = useState('info');
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [showFileMenu, setShowFileMenu] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState([]);
@@ -193,10 +190,7 @@ export default function Dashboard() {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId && document.activeElement.tagName !== 'INPUT') {
         deleteItem(selectedId);
       }
-      if (e.key === 'Escape') {
-        setSelectedId(null);
-        setShowFileMenu(false);
-      }
+      if (e.key === 'Escape') setSelectedId(null);
       if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); setShowSaveModal(true); }
       if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); undo(); }
       if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); redo(); }
@@ -204,16 +198,6 @@ export default function Dashboard() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedId, items, undo, redo]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (fileMenuRef.current && !fileMenuRef.current.contains(event.target)) {
-        setShowFileMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -511,6 +495,23 @@ export default function Dashboard() {
     }
   };
 
+  useEffect(() => {
+    const isElectron = !!(window?.process?.versions?.electron);
+    if (!isElectron) return undefined;
+
+    const { ipcRenderer } = window.require('electron');
+    const handleMenuSave = () => setShowSaveModal(true);
+    const handleMenuLoad = () => loadDesigns();
+
+    ipcRenderer.on('menu-file-save-project', handleMenuSave);
+    ipcRenderer.on('menu-file-load-project', handleMenuLoad);
+
+    return () => {
+      ipcRenderer.removeListener('menu-file-save-project', handleMenuSave);
+      ipcRenderer.removeListener('menu-file-load-project', handleMenuLoad);
+    };
+  }, [loadDesigns]);
+
   const handleLoadDesign = (design) => {
     // Use resetHistory to properly initialize undo/redo state
     resetHistory(design.items || []);
@@ -637,6 +638,15 @@ export default function Dashboard() {
               </svg>
               <span>{projectName}</span>
             </div>
+
+            {/* Keyboard shortcut hints */}
+            <div className="db-shortcut-hints" aria-label="Keyboard shortcuts">
+              <span className="db-hint"><kbd>Del</kbd> Remove</span>
+              <span className="db-hint"><kbd>Esc</kbd> Deselect</span>
+              <span className="db-hint"><kbd>Ctrl</kbd>+<kbd>S</kbd> Save</span>
+            </div>
+
+            {/* Quick actions */}
 
             <div className="db-live-pill" aria-label="Auto-save is active">
               <span className="db-live-dot" aria-hidden="true" />
