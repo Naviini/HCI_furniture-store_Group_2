@@ -725,6 +725,31 @@ export default function Dashboard() {
               </>
             )}
 
+            <span className="db-header-divider" aria-hidden="true" />
+
+            {/* User chip */}
+            <button
+              type="button"
+              className="db-user-chip db-user-chip--button"
+              aria-label={`Open profile for ${user.username || user.email}`}
+              title={user.username || user.email}
+              onClick={() => setIsProfileModalOpen(true)}
+            >
+              <div
+                className="db-avatar"
+                aria-hidden="true"
+                style={user.role === 'admin' ? { background: 'linear-gradient(135deg, #f59e0b, #d97706)' } : {}}
+              >
+                {(user.username || user.email || 'U')[0].toUpperCase()}
+              </div>
+              <div className="db-user-info">
+                <span className="db-username">{(user.username || user.email || '').split('@')[0]}</span>
+                <span className={`db-role-badge ${user.role === 'admin' ? 'db-role-badge--admin' : 'db-role-badge--user'}`}>
+                  {user.role === 'admin' ? 'Admin' : 'User'}
+                </span>
+              </div>
+            </button>
+
           </div>
         </header>
 
