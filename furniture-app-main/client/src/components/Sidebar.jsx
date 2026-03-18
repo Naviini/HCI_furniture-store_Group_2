@@ -1070,17 +1070,6 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
             );
           })}
         </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:6, marginBottom:18 }}>
-        {FLOOR_TYPES.map(f => {
-          const active = normalizeFloorType(roomConfig.floorType) === f.id;
-          return (
-            <button key={f.id} onClick={() => updateRoom('floorType', normalizeFloorType(f.id))}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'9px 4px', borderRadius:10, border:`1.5px solid ${active ? 'rgba(99,102,241,0.5)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none' }}>
-              <span style={{ fontSize:'1rem' }}>{f.emoji}</span>
-              <span style={{ fontSize:'0.55rem', fontWeight:700, letterSpacing:'0.2px' }}>{f.label}</span>
-            </button>
-          );
-        })}
       </div>
 
       {/* Floor grid */}
@@ -1572,23 +1561,6 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* User card */}
-        <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 12px', background:'rgba(255,255,255,0.03)', borderRadius:10, border:`1px solid ${C.borderSoft}` }}>
-          <div style={{ width:34, height:34, borderRadius:10, background: user?.role === 'admin' ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.82rem', fontWeight:800, color:'white', flexShrink:0, boxShadow: user?.role === 'admin' ? '0 0 10px rgba(245,158,11,0.35)' : '0 0 10px rgba(99,102,241,0.35)' }}>
-            {(user?.username || user?.email || 'U')[0].toUpperCase()}
-          </div>
-          <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:'0.82rem', fontWeight:700, color:'#e8ecf4', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-              {(user?.username || user?.email || '').split('@')[0]}
-            </div>
-            <div style={{ display:'flex', alignItems:'center', gap:5, marginTop:2 }}>
-              <span style={{ width:6, height:6, borderRadius:'50%', background:C.greenLive, boxShadow:`0 0 6px ${C.greenLive}`, flexShrink:0 }} />
-              <span style={{ fontSize:'0.6rem', color:C.textMuted, fontWeight:500 }}>
-                {user?.role === 'admin' ? '👑 Admin' : 'User'}
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ── TAB BAR ── */}
