@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import ndLogo from '../assets/LOGO/logo.jpeg';
 import coffeeTableImg from '../assets/table/coffee_table_round_01_1k/coffee table1.jpg';
 import chairImg from '../assets/chair/plastic_monobloc_chair_01/Chair1.jpg';
@@ -307,6 +307,73 @@ const SbSelect = ({ value, onChange, options }) => (
   </select>
 );
 
+const SbSearchSelect = ({ value, onChange, options, placeholder }) => {
+  const listId = useId();
+  const normalizedOptions = useMemo(
+    () => options.map(o => ({ value: String(o.value ?? o), label: String(o.label ?? o) })),
+    [options]
+  );
+
+  const selectedLabel = useMemo(() => {
+    const selected = normalizedOptions.find(o => o.value === String(value));
+    return selected ? selected.label : '';
+  }, [normalizedOptions, value]);
+
+  const [inputValue, setInputValue] = useState(selectedLabel);
+
+  useEffect(() => {
+    setInputValue(selectedLabel);
+  }, [selectedLabel]);
+
+  const commitValue = (raw) => {
+    const normalizedRaw = String(raw || '').trim().toLowerCase();
+    const match = normalizedOptions.find(
+      o => o.label.toLowerCase() === normalizedRaw || o.value.toLowerCase() === normalizedRaw
+    );
+
+    if (match) {
+      setInputValue(match.label);
+      onChange(match.value);
+      return;
+    }
+
+    if (!normalizedRaw) {
+      const fallback = normalizedOptions[0];
+      if (fallback) {
+        setInputValue(fallback.label);
+        onChange(fallback.value);
+      }
+      return;
+    }
+
+    setInputValue(selectedLabel);
+  };
+
+  return (
+    <>
+      <input
+        type="text"
+        list={listId}
+        value={inputValue}
+        placeholder={placeholder}
+        onChange={(e) => {
+          const next = e.target.value;
+          setInputValue(next);
+          const exactMatch = normalizedOptions.find(o => o.label.toLowerCase() === next.trim().toLowerCase());
+          if (exactMatch) onChange(exactMatch.value);
+        }}
+        onBlur={(e) => commitValue(e.target.value)}
+        style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.04)', border:`1px solid ${C.border}`, borderRadius:8, color:C.textSub, fontSize:'0.75rem', fontFamily:'inherit', outline:'none', transition:C.tr, boxSizing:'border-box' }}
+      />
+      <datalist id={listId}>
+        {normalizedOptions.map(o => (
+          <option key={o.value} value={o.label} />
+        ))}
+      </datalist>
+    </>
+  );
+};
+
 const SliderRow = ({ value, min, max, step, onChange, displayFn, label, icon }) => (
   <div style={{ marginBottom:12 }}>
     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6 }}>
@@ -357,69 +424,232 @@ function LibraryPanel({ items, addItem }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [catFilter, setCatFilter] = useState('');
   const [matFilter, setMatFilter] = useState('All');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [sortBy, setSortBy] = useState('relevance');
+  const [modelFilter, setModelFilter] = useState('all');
+  const [colorFilter, setColorFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
   const [hovered, setHovered] = useState(null);
+  const quickCategories = useMemo(() => ['All', 'Living', 'Bedroom', 'Dining', 'Storage', 'Lighting'], []);
+
+  const categoryOptions = useMemo(() => CATEGORIES, []);
+  const materialOptions = useMemo(() => MATERIALS, []);
 
   const filtered = useMemo(() => {
     let r = FURNITURE_ITEMS;
-    if (searchQuery) r = r.filter(f => (f.name + f.desc).toLowerCase().includes(searchQuery.toLowerCase()));
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      r = r.filter(f => `${f.name} ${f.desc} ${f.category} ${f.material}`.toLowerCase().includes(q));
+    }
     if (catFilter) r = r.filter(f => f.category === catFilter);
     if (matFilter !== 'All') r = r.filter(f => f.material === matFilter);
+
+    if (modelFilter === '3d') r = r.filter(f => !!f.model);
+    if (modelFilter === 'no-3d') r = r.filter(f => !f.model);
+
+    const min = Number(minPrice);
+    const max = Number(maxPrice);
+    if (minPrice !== '' && !Number.isNaN(min)) r = r.filter(f => Number(f.price) >= min);
+    if (maxPrice !== '' && !Number.isNaN(max)) r = r.filter(f => Number(f.price) <= max);
+
+    if (colorFilter) {
+      const c = colorFilter.toLowerCase();
+      r = r.filter(f => (f.color || '').toLowerCase().includes(c));
+    }
+
+    if (sortBy === 'price-asc') r = [...r].sort((a, b) => a.price - b.price);
+    if (sortBy === 'price-desc') r = [...r].sort((a, b) => b.price - a.price);
+    if (sortBy === 'name-asc') r = [...r].sort((a, b) => a.name.localeCompare(b.name));
+    if (sortBy === 'name-desc') r = [...r].sort((a, b) => b.name.localeCompare(a.name));
+
     return r;
-  }, [searchQuery, catFilter, matFilter]);
+  }, [searchQuery, catFilter, matFilter, modelFilter, minPrice, maxPrice, colorFilter, sortBy]);
+
+  const hasActiveAdvanced = modelFilter !== 'all' || colorFilter || minPrice !== '' || maxPrice !== '' || sortBy !== 'relevance';
+  const hasAnyFilter = Boolean(searchQuery || catFilter || matFilter !== 'All' || hasActiveAdvanced);
+
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setCatFilter('');
+    setMatFilter('All');
+    setModelFilter('all');
+    setColorFilter('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSortBy('relevance');
+  };
 
   return (
     <div className="sb-fade" style={{ paddingBottom:8 }}>
+      <div style={{ position:'sticky', top:-14, zIndex:20, margin:'-2px -2px 12px', padding:'2px 2px 10px', background:'linear-gradient(180deg, rgba(6,7,15,0.98) 0%, rgba(6,7,15,0.9) 85%, rgba(6,7,15,0) 100%)', backdropFilter:'blur(8px)' }}>
+        {/* Search + Filter toggle */}
+        <div style={{ display:'flex', gap:8, alignItems:'stretch', marginBottom:10 }}>
+          <div style={{ position:'relative', flex:1 }}>
+            <span style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:C.textMuted, display:'flex', pointerEvents:'none' }}>
+              <Ico size={14} sw={2}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
+            </span>
+            <input
+              type="text" value={searchQuery} placeholder="Search furniture..."
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width:'100%', padding:'9px 34px 9px 34px', background:'rgba(255,255,255,0.04)', border:`1px solid ${C.border}`, borderRadius:10, color:C.textMain, fontSize:'0.82rem', fontFamily:'inherit', outline:'none', transition:C.tr, boxSizing:'border-box' }}
+              onFocus={e => { e.target.style.borderColor='rgba(99,102,241,0.5)'; e.target.style.background='rgba(99,102,241,0.06)'; e.target.style.boxShadow='0 0 0 3px rgba(99,102,241,0.12)'; }}
+              onBlur={e => { e.target.style.borderColor=C.border; e.target.style.background='rgba(255,255,255,0.04)'; e.target.style.boxShadow='none'; }}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')}
+                style={{ position:'absolute', right:9, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:C.textMuted, cursor:'pointer', fontSize:'1.1rem', lineHeight:1, padding:'2px 4px', borderRadius:4 }}>
+                ×
+              </button>
+            )}
+          </div>
 
-      {/* Search */}
-      <div style={{ position:'relative', marginBottom:12 }}>
-        <span style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:C.textMuted, display:'flex', pointerEvents:'none' }}>
-          <Ico size={14} sw={2}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></Ico>
-        </span>
-        <input
-          type="text" value={searchQuery} placeholder="Search furniture…"
-          onChange={e => setSearchQuery(e.target.value)}
-          style={{ width:'100%', padding:'9px 34px 9px 34px', background:'rgba(255,255,255,0.04)', border:`1px solid ${C.border}`, borderRadius:10, color:C.textMain, fontSize:'0.82rem', fontFamily:'inherit', outline:'none', transition:C.tr, boxSizing:'border-box' }}
-          onFocus={e => { e.target.style.borderColor='rgba(99,102,241,0.5)'; e.target.style.background='rgba(99,102,241,0.06)'; e.target.style.boxShadow='0 0 0 3px rgba(99,102,241,0.12)'; }}
-          onBlur={e => { e.target.style.borderColor=C.border; e.target.style.background='rgba(255,255,255,0.04)'; e.target.style.boxShadow='none'; }}
-        />
-        {searchQuery && (
-          <button onClick={() => setSearchQuery('')}
-            style={{ position:'absolute', right:9, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:C.textMuted, cursor:'pointer', fontSize:'1.1rem', lineHeight:1, padding:'2px 4px', borderRadius:4 }}>
-            ×
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(v => !v)}
+            style={{ minWidth:88, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, padding:'8px 10px', borderRadius:10, border:`1px solid ${showAdvanced ? 'rgba(99,102,241,0.45)' : C.borderSoft}`, background:showAdvanced ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.02)', color:showAdvanced ? '#c7d2fe' : C.textSub, fontSize:'0.72rem', fontWeight:700, fontFamily:'inherit', cursor:'pointer', transition:C.tr }}
+          >
+            <span>Filter</span>
+            <span>{showAdvanced ? '−' : '+'}</span>
           </button>
-        )}
-      </div>
+        </div>
 
-      {/* Category chips */}
-      <div style={{ marginBottom:10 }}>
-        <span style={{ display:'block', fontSize:'0.6rem', fontWeight:700, color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.7px', marginBottom:6 }}>Category</span>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
-          {CATEGORIES.map(cat => (
-            <Chip key={cat} active={catFilter === cat} onClick={() => setCatFilter(prev => (prev === cat ? '' : cat))}>{cat}</Chip>
-          ))}
+        {/* Quick category chips */}
+        <div className="sb-chip-row" style={{ marginBottom:10 }}>
+          {quickCategories.map(cat => {
+            const isAll = cat === 'All';
+            const active = isAll ? catFilter === '' : catFilter === cat;
+            return (
+              <Chip
+                key={cat}
+                active={active}
+                onClick={() => setCatFilter(isAll ? '' : cat)}
+              >
+                {cat}
+              </Chip>
+            );
+          })}
+        </div>
+
+        {/* Advanced filtering */}
+        <div style={{ marginBottom:10 }}>
+          {showAdvanced && (
+            <div style={{ padding:'10px', borderRadius:10, border:`1px solid ${C.borderSoft}`, background:'rgba(255,255,255,0.02)', display:'grid', gap:8 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                <div>
+                  <Label style={{ marginBottom:4 }}>Min Price</Label>
+                  <NumInput value={minPrice} min={0} step={1} onChange={v => setMinPrice(Number.isNaN(v) ? '' : v)} prefix="$" />
+                </div>
+                <div>
+                  <Label style={{ marginBottom:4 }}>Max Price</Label>
+                  <NumInput value={maxPrice} min={0} step={1} onChange={v => setMaxPrice(Number.isNaN(v) ? '' : v)} prefix="$" />
+                </div>
+              </div>
+
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+                <div>
+                  <Label style={{ marginBottom:4 }}>Model Type</Label>
+                  <SbSelect
+                    value={modelFilter}
+                    onChange={setModelFilter}
+                    options={[
+                      { value:'all', label:'All items' },
+                      { value:'3d', label:'3D only' },
+                      { value:'no-3d', label:'Non-3D only' },
+                    ]}
+                  />
+                </div>
+                <div>
+                  <Label style={{ marginBottom:4 }}>Sort By</Label>
+                  <SbSelect
+                    value={sortBy}
+                    onChange={setSortBy}
+                    options={[
+                      { value:'relevance', label:'Relevance' },
+                      { value:'price-asc', label:'Price: Low to High' },
+                      { value:'price-desc', label:'Price: High to Low' },
+                      { value:'name-asc', label:'Name: A to Z' },
+                      { value:'name-desc', label:'Name: Z to A' },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label style={{ marginBottom:4 }}>Color Keyword</Label>
+                <input
+                  type="text"
+                  value={colorFilter}
+                  onChange={e => setColorFilter(e.target.value)}
+                  placeholder="e.g. white, brown"
+                  style={{ width:'100%', padding:'8px 10px', background:'rgba(255,255,255,0.04)', border:`1px solid ${C.border}`, borderRadius:8, color:C.textMain, fontSize:'0.75rem', fontFamily:'inherit', outline:'none', boxSizing:'border-box' }}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                style={{ marginTop:2, width:'100%', padding:'8px 10px', borderRadius:8, border:`1px solid ${C.border}`, background:'rgba(239,68,68,0.09)', color:'#fca5a5', fontSize:'0.72rem', fontWeight:700, fontFamily:'inherit', cursor:'pointer' }}
+              >
+                Reset All Filters
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Category + Material dropdown filters */}
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <div style={{ minWidth:0 }}>
+            <Label style={{ marginBottom:5 }}>Category</Label>
+            <SbSearchSelect
+              value={catFilter}
+              onChange={setCatFilter}
+              options={[{ value:'', label:'All categories' }, ...categoryOptions.map(c => ({ value:c, label:c }))]}
+              placeholder="Select category"
+            />
+          </div>
+
+          <div style={{ minWidth:0 }}>
+            <Label style={{ marginBottom:5 }}>Material</Label>
+            <SbSearchSelect
+              value={matFilter}
+              onChange={setMatFilter}
+              options={materialOptions.map(m => ({ value:m, label:m }))}
+              placeholder="Select material"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Material chips */}
-      <div style={{ marginBottom:14 }}>
-        <span style={{ display:'block', fontSize:'0.6rem', fontWeight:700, color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.7px', marginBottom:6 }}>Material</span>
-        <div style={{ display:'flex', flexWrap:'wrap', gap:5 }}>
-          {MATERIALS.map(mat => (
-            <Chip key={mat} active={matFilter === mat} onClick={() => setMatFilter(mat)}>{mat}</Chip>
-          ))}
+      {hasAnyFilter && (
+        <div style={{ marginBottom:10, display:'flex', gap:6, flexWrap:'wrap' }}>
+          {searchQuery && <span style={{ fontSize:'0.58rem', fontWeight:700, color:C.textAccent, background:'rgba(99,102,241,0.16)', borderRadius:999, padding:'3px 8px' }}>Search: {searchQuery}</span>}
+          {catFilter && <span style={{ fontSize:'0.58rem', fontWeight:700, color:C.textAccent, background:'rgba(99,102,241,0.16)', borderRadius:999, padding:'3px 8px' }}>Category: {catFilter}</span>}
+          {matFilter !== 'All' && <span style={{ fontSize:'0.58rem', fontWeight:700, color:C.textAccent, background:'rgba(99,102,241,0.16)', borderRadius:999, padding:'3px 8px' }}>Material: {matFilter}</span>}
+          {modelFilter !== 'all' && <span style={{ fontSize:'0.58rem', fontWeight:700, color:C.textAccent, background:'rgba(99,102,241,0.16)', borderRadius:999, padding:'3px 8px' }}>{modelFilter === '3d' ? '3D only' : 'Non-3D only'}</span>}
         </div>
-      </div>
+      )}
 
       {/* Result count */}
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
         <span style={{ fontSize:'0.63rem', color:C.textMuted, fontWeight:500 }}>
           {filtered.length} item{filtered.length !== 1 ? 's' : ''} found
         </span>
-        {items.length > 0 && (
-          <span style={{ fontSize:'0.63rem', color:C.textAccent, fontWeight:600, background:C.accentDim, padding:'2px 9px', borderRadius:99 }}>
-            {items.length} on canvas
-          </span>
-        )}
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          {hasAnyFilter && (
+            <button
+              onClick={clearAllFilters}
+              style={{ border:`1px solid ${C.borderSoft}`, background:'rgba(255,255,255,0.03)', color:C.textMuted, borderRadius:99, padding:'2px 8px', fontSize:'0.58rem', fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}
+            >
+              Clear
+            </button>
+          )}
+          {items.length > 0 && (
+            <span style={{ fontSize:'0.63rem', color:C.textAccent, fontWeight:600, background:C.accentDim, padding:'2px 9px', borderRadius:99 }}>
+              {items.length} on canvas
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Furniture grid */}
@@ -472,6 +702,13 @@ function LibraryPanel({ items, addItem }) {
                     <span style={{ fontSize:'0.57rem', color:'rgba(129,140,248,0.7)', fontWeight:600, background:'rgba(99,102,241,0.1)', padding:'2px 6px', borderRadius:5 }}>{f.material}</span>
                     <span style={{ fontSize:'0.85rem', fontWeight:800, color:C.gold }}>${f.price}</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); addItem(f.name); }}
+                    style={{ marginTop:7, width:'100%', padding:'6px 8px', borderRadius:8, border:`1px solid rgba(99,102,241,0.35)`, background:'rgba(99,102,241,0.12)', color:'#c7d2fe', fontSize:'0.66rem', fontWeight:700, fontFamily:'inherit', cursor:'pointer' }}
+                  >
+                    Add to canvas
+                  </button>
                 </div>
               </button>
             );
@@ -508,22 +745,42 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
   const pos = selectedItem.position || [0,0,0];
   const rot = selectedItem.rotation || [0,0,0];
   const scl = selectedItem.scale || [1,1,1];
+  const fmtPrice = Number(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const roundAxis = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? Number(n.toFixed(2)) : 0;
+  };
+  const cardStyle = {
+    background: 'linear-gradient(180deg, rgba(233,53,199,0.06) 0%, rgba(139,92,246,0.03) 100%)',
+    borderRadius: 14,
+    border: `1px solid ${C.borderSoft}`,
+    overflow: 'hidden',
+    marginBottom: 12,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+  };
 
   return (
     <div className="sb-fade">
       {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'13px 14px', background:'rgba(255,255,255,0.03)', borderRadius:12, border:`1px solid ${C.borderSoft}`, marginBottom:14 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'13px 14px', background:'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(233,53,199,0.05))', borderRadius:12, border:`1px solid ${C.borderSoft}`, marginBottom:14, boxShadow:'0 8px 20px rgba(0,0,0,0.16)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-          <div style={{ width:40, height:40, borderRadius:10, background:C.accentDim, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0 }}>
-            {catalogItem.icon || '🪑'}
+          <div style={{ width:44, height:44, borderRadius:11, background:C.accentDim, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.3rem', flexShrink:0, overflow:'hidden', border:'1px solid rgba(255,255,255,0.18)' }}>
+            {catalogItem.thumbnail ? (
+              <img src={catalogItem.thumbnail} alt={selectedItem.type} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+            ) : (
+              <span>{catalogItem.icon || '🪑'}</span>
+            )}
           </div>
           <div>
-            <div style={{ fontSize:'0.88rem', fontWeight:700, color:C.textMain }}>{selectedItem.type}</div>
-            <div style={{ fontSize:'0.6rem', color:C.textMuted, fontFamily:C.mono }}>#{String(selectedItem.id).slice(-6)}</div>
+            <div style={{ fontSize:'1rem', fontWeight:800, color:C.textMain, letterSpacing:'-0.01em' }}>{selectedItem.type}</div>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:2 }}>
+              <span style={{ fontSize:'0.63rem', color:C.textMuted, fontFamily:C.mono }}>#{String(selectedItem.id).slice(-6)}</span>
+              {price > 0 && <span style={{ fontSize:'0.62rem', fontWeight:700, color:C.gold }}>${fmtPrice}</span>}
+            </div>
           </div>
         </div>
         <button onClick={() => setShowConfirm(true)}
-          style={{ width:34, height:34, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(239,68,68,0.07)', border:'1px solid rgba(239,68,68,0.15)', borderRadius:8, color:C.red, cursor:'pointer', transition:C.tr }}
+          style={{ width:36, height:36, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, color:C.red, cursor:'pointer', transition:C.tr }}
           onMouseEnter={e => { e.currentTarget.style.background='rgba(239,68,68,0.15)'; e.currentTarget.style.borderColor='rgba(239,68,68,0.35)'; }}
           onMouseLeave={e => { e.currentTarget.style.background='rgba(239,68,68,0.07)'; e.currentTarget.style.borderColor='rgba(239,68,68,0.15)'; }}>
           <Ico size={15} sw={2}><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4h6v2"/></Ico>
@@ -532,52 +789,51 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
 
       {/* Price tag */}
       {price > 0 && (
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', background:'linear-gradient(135deg,rgba(251,191,36,0.07),rgba(245,158,11,0.03))', borderRadius:11, border:'1px solid rgba(251,191,36,0.18)', marginBottom:14 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 14px', background:'linear-gradient(135deg,rgba(251,191,36,0.11),rgba(245,158,11,0.04))', borderRadius:12, border:'1px solid rgba(251,191,36,0.28)', marginBottom:14, boxShadow:'0 6px 18px rgba(245,158,11,0.12)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:7, color:C.gold }}>
             <Ico size={14} sw={2}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></Ico>
             <span style={{ fontSize:'0.7rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.5px' }}>Catalog Price</span>
           </div>
-          <span style={{ fontSize:'1.1rem', fontWeight:800, color:C.gold, fontFamily:C.mono, textShadow:'0 0 14px rgba(251,191,36,0.25)' }}>${price}</span>
+          <span style={{ fontSize:'1.15rem', fontWeight:800, color:C.gold, fontFamily:C.mono, fontVariantNumeric:'tabular-nums', textShadow:'0 0 14px rgba(251,191,36,0.25)' }}>${fmtPrice}</span>
         </div>
       )}
 
       {/* Material meta */}
       {(catalogItem.material || catalogItem.color) && (
-        <div style={{ display:'flex', gap:6, flexWrap:'wrap', padding:'7px 12px', background:'rgba(255,255,255,0.02)', borderRadius:8, marginBottom:14 }}>
-          {catalogItem.material && <span style={{ fontSize:'0.66rem', color:C.textAccent, fontWeight:500 }}>⬡ {catalogItem.material}</span>}
-          {catalogItem.material && catalogItem.color && <span style={{ fontSize:'0.6rem', color:'rgba(255,255,255,0.12)' }}>|</span>}
-          {catalogItem.color && <span style={{ fontSize:'0.66rem', color:C.textMuted }}>🎨 {catalogItem.color}</span>}
+        <div style={{ display:'flex', gap:7, flexWrap:'wrap', padding:'8px 12px', background:'rgba(255,255,255,0.02)', borderRadius:10, border:`1px solid ${C.borderSoft}`, marginBottom:14 }}>
+          {catalogItem.material && <span style={{ fontSize:'0.66rem', color:C.textAccent, fontWeight:700, background:'rgba(99,102,241,0.14)', borderRadius:999, padding:'3px 8px' }}>⬡ {catalogItem.material}</span>}
+          {catalogItem.color && <span style={{ fontSize:'0.66rem', color:C.textMuted, fontWeight:700, background:'rgba(255,255,255,0.04)', borderRadius:999, padding:'3px 8px' }}>🎨 {catalogItem.color}</span>}
         </div>
       )}
 
       {/* Color section */}
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, overflow:'hidden', marginBottom:12 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
           <span style={{ color:C.textMuted, display:'flex' }}><Ico size={13} sw={2}><circle cx="13.5" cy="6.5" r="0.5"/><circle cx="17.5" cy="10.5" r="0.5"/><circle cx="8.5" cy="7.5" r="0.5"/><circle cx="6.5" cy="12.5" r="0.5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.17-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></Ico></span>
           <span style={{ fontSize:'0.7rem', fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.4px' }}>Material Color</span>
         </div>
         <div style={{ padding:'11px 12px' }}>
           {/* Swatches */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:5, marginBottom:10 }}>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginBottom:10 }}>
             {COLOR_SWATCHES.map(sw => (
               <button key={sw} onClick={() => updateItem(selectedId, { color: sw })}
                 title={sw}
-                style={{ width:22, height:22, borderRadius:6, background:sw, border: selectedItem.color === sw ? '2px solid white' : '2px solid transparent', cursor:'pointer', transition:C.tr, flexShrink:0, boxShadow: selectedItem.color === sw ? `0 0 8px ${sw}` : 'none' }} />
+                style={{ width:27, height:27, borderRadius:8, background:sw, border: selectedItem.color === sw ? '2px solid rgba(255,255,255,0.95)' : '2px solid transparent', cursor:'pointer', transition:C.tr, flexShrink:0, boxShadow: selectedItem.color === sw ? `0 0 14px ${sw}` : '0 2px 8px rgba(0,0,0,0.22)' }} />
             ))}
           </div>
           {/* Native color picker */}
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <input type="color" value={selectedItem.color || '#888888'}
               onChange={e => updateItem(selectedId, { color: e.target.value })}
-              style={{ width:32, height:32, borderRadius:8, border:'none', cursor:'pointer', background:'transparent', flexShrink:0 }} />
-            <span style={{ fontSize:'0.72rem', color:C.textMuted, fontFamily:C.mono }}>{selectedItem.color || '#888888'}</span>
+              style={{ width:34, height:34, borderRadius:9, border:'1px solid rgba(255,255,255,0.18)', cursor:'pointer', background:'transparent', flexShrink:0 }} />
+            <span style={{ fontSize:'0.74rem', color:C.textMuted, fontFamily:C.mono }}>{selectedItem.color || '#888888'}</span>
           </div>
         </div>
       </div>
 
       {/* Position */}
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, overflow:'hidden', marginBottom:12 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
           <span style={{ color:C.textMuted, display:'flex' }}><Ico size={13} sw={2}><path d="M21 3L3 10.53v.98l6.84 2.65L12.48 21h.98L21 3z"/></Ico></span>
           <span style={{ fontSize:'0.7rem', fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.4px' }}>Position</span>
         </div>
@@ -588,8 +844,8 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
               return (
                 <div key={axis}>
                   <label style={{ display:'block', fontSize:'0.6rem', fontWeight:800, color:axisColors[axis], marginBottom:4, textAlign:'center' }}>{axis}</label>
-                  <NumInput value={pos[i]} step={0.1}
-                    onChange={v => { const p=[...pos]; p[i]=v; updateItem(selectedId,{position:p}); }} />
+                  <NumInput value={pos[i]} step={0.01}
+                    onChange={v => { const p=[...pos]; p[i]=roundAxis(v); updateItem(selectedId,{position:p}); }} />
                 </div>
               );
             })}
@@ -598,8 +854,8 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
       </div>
 
       {/* Rotation */}
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, overflow:'hidden', marginBottom:12 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
           <span style={{ color:C.textMuted, display:'flex' }}><Ico size={13} sw={2}><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></Ico></span>
           <span style={{ fontSize:'0.7rem', fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.4px' }}>Rotation</span>
         </div>
@@ -613,8 +869,8 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
       </div>
 
       {/* Scale */}
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, overflow:'hidden', marginBottom:12 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
           <span style={{ color:C.textMuted, display:'flex' }}><Ico size={13} sw={2}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></Ico></span>
           <span style={{ fontSize:'0.7rem', fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.4px' }}>Scale</span>
         </div>
@@ -628,8 +884,8 @@ function PropertiesPanel({ selectedItem, updateItem, deleteItem, selectedId }) {
       </div>
 
       {/* Surface Shading */}
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, overflow:'hidden', marginBottom:12 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
+      <div style={cardStyle}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 12px', borderBottom:`1px solid ${C.borderSoft}` }}>
           <span style={{ color:C.textMuted, display:'flex' }}><Ico size={13} sw={2}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></Ico></span>
           <span style={{ fontSize:'0.7rem', fontWeight:700, color:C.textSub, textTransform:'uppercase', letterSpacing:'0.4px' }}>Surface Shading</span>
         </div>
@@ -690,54 +946,80 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
     { id: 'front', label: 'Front', color: '#a78bfa' },
   ];
 
+  const roomCard = {
+    background: 'linear-gradient(180deg, rgba(233,53,199,0.06) 0%, rgba(139,92,246,0.03) 100%)',
+    border: `1px solid ${C.borderSoft}`,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 18,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+  };
+
+  const floorGridEnabled = roomConfig.showFloorGrid ?? true;
+
   return (
     <div className="sb-fade">
-
       {/* Room shape */}
       <SectionDivider title="Room Shape" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6, marginBottom:18 }}>
-        {ROOM_SHAPES.map(s => {
-          const active = roomConfig.shape === s.id;
-          return (
-            <button key={s.id} onClick={() => updateRoom('shape', s.id)}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:7, padding:'11px 5px', borderRadius:11, border:`1.5px solid ${active ? 'rgba(99,102,241,0.55)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none' }}>
-              <span style={{ width:28 }}>{s.svg}</span>
-              <span style={{ fontSize:'0.6rem', fontWeight:700, letterSpacing:'0.2px' }}>{s.label}</span>
-            </button>
-          );
-        })}
+      <div style={roomCard}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8 }}>
+          {ROOM_SHAPES.map(s => {
+            const active = roomConfig.shape === s.id;
+            return (
+              <button key={s.id} onClick={() => updateRoom('shape', s.id)}
+                style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:7, padding:'12px 6px', borderRadius:12, border:`1.5px solid ${active ? 'rgba(99,102,241,0.55)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none', position:'relative' }}>
+                <span style={{ width:28 }}>{s.svg}</span>
+                <span style={{ fontSize:'0.62rem', fontWeight:700, letterSpacing:'0.2px' }}>{s.label}</span>
+                {active && <span style={{ position:'absolute', top:6, right:6, width:7, height:7, borderRadius:'50%', background:C.accent, boxShadow:`0 0 8px ${C.accent}` }} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Dimensions */}
       <SectionDivider title="Dimensions" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:18 }}>
-        <div>
-          <Label>Width (m)</Label>
-          <NumInput value={roomConfig.width} min={3} max={50} step={0.5} onChange={v => updateRoom('width', v)} />
+      <div style={roomCard}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:8, marginBottom:10 }}>
+          <span style={{ fontSize:'0.63rem', color:C.textMuted }}>Quick presets</span>
+          <div className="sb-chip-row" style={{ gap:5 }}>
+            {[10, 12, 15, 20].map(size => (
+              <Chip key={size} active={roomConfig.width === size && roomConfig.depth === size} onClick={() => { updateRoom('width', size); updateRoom('depth', size); }}>
+                {size}m x {size}m
+              </Chip>
+            ))}
+          </div>
         </div>
-        <div>
-          <Label>Depth (m)</Label>
-          <NumInput value={roomConfig.depth} min={3} max={50} step={0.5} onChange={v => updateRoom('depth', v)} />
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div>
+            <Label>Width (m)</Label>
+            <NumInput value={roomConfig.width} min={3} max={50} step={0.5} onChange={v => updateRoom('width', v)} />
+          </div>
+          <div>
+            <Label>Depth (m)</Label>
+            <NumInput value={roomConfig.depth} min={3} max={50} step={0.5} onChange={v => updateRoom('depth', v)} />
+          </div>
         </div>
       </div>
 
       {/* Colors */}
       <SectionDivider title="Materials & Colors" />
-      <div style={{ marginBottom:18 }}>
+      <div style={roomCard}>
         {/* Wall color */}
         <div style={{ marginBottom:14 }}>
           <Label>Wall Color</Label>
-          <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:8 }}>
+          <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:8 }}>
             {WALL_PRESETS.map(c => (
               <button key={c} onClick={() => updateRoom('wallColor', c)}
-                style={{ width:24, height:24, borderRadius:6, background:c, border: roomConfig.wallColor === c ? '2px solid white' : '2px solid transparent', cursor:'pointer', flexShrink:0, transition:C.tr, boxShadow: roomConfig.wallColor === c ? `0 0 6px ${c}aa` : 'none' }} />
+                style={{ width:27, height:27, borderRadius:8, background:c, border: roomConfig.wallColor === c ? '2px solid white' : '2px solid transparent', cursor:'pointer', flexShrink:0, transition:C.tr, boxShadow: roomConfig.wallColor === c ? `0 0 10px ${c}aa` : '0 2px 8px rgba(0,0,0,0.25)' }} />
             ))}
             <input type="color" value={roomConfig.wallColor}
               onChange={e => updateRoom('wallColor', e.target.value)}
-              style={{ width:24, height:24, borderRadius:6, border:'none', cursor:'pointer', background:'transparent', padding:0 }} />
+              style={{ width:27, height:27, borderRadius:8, border:'1px solid rgba(255,255,255,0.2)', cursor:'pointer', background:'transparent', padding:0 }} />
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:32, height:22, borderRadius:6, background:roomConfig.wallColor, border:`1px solid ${C.border}` }} />
+            <div style={{ width:36, height:24, borderRadius:7, background:roomConfig.wallColor, border:`1px solid ${C.border}` }} />
             <span style={{ fontSize:'0.7rem', color:C.textMuted, fontFamily:C.mono }}>{roomConfig.wallColor}</span>
           </div>
         </div>
@@ -745,17 +1027,17 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
         {/* Floor color */}
         <div>
           <Label>Floor Color</Label>
-          <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:8 }}>
+          <div style={{ display:'flex', gap:6, flexWrap:'wrap', marginBottom:8 }}>
             {FLOOR_PRESETS.map(c => (
               <button key={c} onClick={() => updateRoom('floorColor', c)}
-                style={{ width:24, height:24, borderRadius:6, background:c, border: roomConfig.floorColor === c ? '2px solid white' : '2px solid transparent', cursor:'pointer', flexShrink:0, transition:C.tr, boxShadow: roomConfig.floorColor === c ? `0 0 6px ${c}aa` : 'none' }} />
+                style={{ width:27, height:27, borderRadius:8, background:c, border: roomConfig.floorColor === c ? '2px solid white' : '2px solid transparent', cursor:'pointer', flexShrink:0, transition:C.tr, boxShadow: roomConfig.floorColor === c ? `0 0 10px ${c}aa` : '0 2px 8px rgba(0,0,0,0.25)' }} />
             ))}
             <input type="color" value={roomConfig.floorColor}
               onChange={e => updateRoom('floorColor', e.target.value)}
-              style={{ width:24, height:24, borderRadius:6, border:'none', cursor:'pointer', background:'transparent', padding:0 }} />
+              style={{ width:27, height:27, borderRadius:8, border:'1px solid rgba(255,255,255,0.2)', cursor:'pointer', background:'transparent', padding:0 }} />
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ width:32, height:22, borderRadius:6, background:roomConfig.floorColor, border:`1px solid ${C.border}` }} />
+            <div style={{ width:36, height:24, borderRadius:7, background:roomConfig.floorColor, border:`1px solid ${C.border}` }} />
             <span style={{ fontSize:'0.7rem', color:C.textMuted, fontFamily:C.mono }}>{roomConfig.floorColor}</span>
           </div>
         </div>
@@ -763,66 +1045,79 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
 
       {/* Floor type */}
       <SectionDivider title="Floor Texture" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:6, marginBottom:18 }}>
-        {FLOOR_TYPES.map(f => {
-          const active = roomConfig.floorType === f.id;
-          return (
-            <button key={f.id} onClick={() => updateRoom('floorType', f.id)}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'9px 4px', borderRadius:10, border:`1.5px solid ${active ? 'rgba(99,102,241,0.5)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none' }}>
-              <span style={{ fontSize:'1rem' }}>{f.emoji}</span>
-              <span style={{ fontSize:'0.55rem', fontWeight:700, letterSpacing:'0.2px' }}>{f.label}</span>
-            </button>
-          );
-        })}
+      <div style={roomCard}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:7 }}>
+          {FLOOR_TYPES.map(f => {
+            const active = roomConfig.floorType === f.id;
+            return (
+              <button key={f.id} onClick={() => updateRoom('floorType', f.id)}
+                style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'10px 4px', borderRadius:11, border:`1.5px solid ${active ? 'rgba(99,102,241,0.5)' : C.border}`, background: active ? C.accentDim : 'rgba(255,255,255,0.02)', color: active ? C.accent : C.textMuted, cursor:'pointer', transition:C.tr, fontFamily:'inherit', boxShadow: active ? C.accentGlow : 'none' }}>
+                <span style={{ fontSize:'1rem' }}>{f.emoji}</span>
+                <span style={{ fontSize:'0.56rem', fontWeight:700, letterSpacing:'0.2px' }}>{f.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Floor grid */}
       <SectionDivider title="Floor Grid" />
-      <button
-        onClick={() => updateRoom('showFloorGrid', !(roomConfig.showFloorGrid ?? true))}
-        style={{
-          width:'100%',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'space-between',
-          padding:'10px 12px',
-          borderRadius:10,
-          border:`1.5px solid ${(roomConfig.showFloorGrid ?? true) ? 'rgba(99,102,241,0.5)' : C.border}`,
-          background:(roomConfig.showFloorGrid ?? true) ? C.accentDim : 'rgba(255,255,255,0.02)',
-          color:(roomConfig.showFloorGrid ?? true) ? C.accent : C.textMuted,
-          cursor:'pointer',
-          transition:C.tr,
-          fontFamily:'inherit',
-          marginBottom:18,
-          boxShadow:(roomConfig.showFloorGrid ?? true) ? C.accentGlow : 'none'
-        }}
-      >
-        <span style={{ fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.3px' }}>Show floor grid</span>
-        <span style={{ fontSize:'0.72rem', fontWeight:800 }}>
-          {(roomConfig.showFloorGrid ?? true) ? 'ON' : 'OFF'}
-        </span>
-      </button>
+      <div style={roomCard}>
+        <button
+          onClick={() => updateRoom('showFloorGrid', !floorGridEnabled)}
+          style={{
+            width:'100%',
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'space-between',
+            padding:'10px 12px',
+            borderRadius:11,
+            border:`1.5px solid ${floorGridEnabled ? 'rgba(99,102,241,0.5)' : C.border}`,
+            background: floorGridEnabled ? C.accentDim : 'rgba(255,255,255,0.02)',
+            color: floorGridEnabled ? C.accent : C.textMuted,
+            cursor:'pointer',
+            transition:C.tr,
+            fontFamily:'inherit',
+            boxShadow: floorGridEnabled ? C.accentGlow : 'none'
+          }}
+        >
+          <span style={{ fontSize:'0.72rem', fontWeight:700, letterSpacing:'0.3px' }}>Show floor grid</span>
+          <span style={{ width:46, height:24, borderRadius:99, background: floorGridEnabled ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)', position:'relative', transition:C.tr, display:'inline-block' }}>
+            <span style={{ position:'absolute', top:2, left: floorGridEnabled ? 24 : 2, width:18, height:18, borderRadius:'50%', background:'#fff', boxShadow:'0 2px 8px rgba(0,0,0,0.25)', transition:C.tr }} />
+          </span>
+        </button>
+      </div>
 
       {/* Windows */}
       <SectionDivider title="Windows" badge={windows.length} />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:12 }}>
-        {WALLS.map(w => {
-          const cnt = windows.filter(win => win.wall === w.id).length;
-          return (
-            <button key={w.id} onClick={() => addWindow(w.id)}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'10px 8px', borderRadius:10, border:`1.5px dashed ${w.color}40`, background:`${w.color}08`, color:w.color, cursor:'pointer', transition:C.tr, fontFamily:'inherit', fontSize:'0.7rem', fontWeight:600, position:'relative' }}
-              onMouseEnter={e => { e.currentTarget.style.background=`${w.color}15`; e.currentTarget.style.borderColor=`${w.color}70`; }}
-              onMouseLeave={e => { e.currentTarget.style.background=`${w.color}08`; e.currentTarget.style.borderColor=`${w.color}40`; }}>
-              <Ico size={14} sw={1.5}><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></Ico>
-              + {w.label}
-              {cnt > 0 && <span style={{ position:'absolute', top:4, right:4, fontSize:'0.5rem', fontWeight:800, background:w.color, color:'#000', padding:'1px 5px', borderRadius:99 }}>{cnt}</span>}
-            </button>
-          );
-        })}
+      <div style={roomCard}>
+        <div style={{ fontSize:'0.66rem', color:C.textMuted, marginBottom:10 }}>Add a window to any wall, then fine-tune its style and position below.</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
+          {WALLS.map(w => {
+            const cnt = windows.filter(win => win.wall === w.id).length;
+            return (
+              <button key={w.id} onClick={() => addWindow(w.id)}
+                style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'11px 8px', borderRadius:11, border:`1.5px dashed ${w.color}40`, background:`${w.color}08`, color:w.color, cursor:'pointer', transition:C.tr, fontFamily:'inherit', fontSize:'0.72rem', fontWeight:700, position:'relative' }}
+                onMouseEnter={e => { e.currentTarget.style.background=`${w.color}15`; e.currentTarget.style.borderColor=`${w.color}70`; }}
+                onMouseLeave={e => { e.currentTarget.style.background=`${w.color}08`; e.currentTarget.style.borderColor=`${w.color}40`; }}>
+                <Ico size={14} sw={1.5}><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></Ico>
+                + {w.label}
+                {cnt > 0 && <span style={{ position:'absolute', top:4, right:4, fontSize:'0.5rem', fontWeight:800, background:w.color, color:'#000', padding:'1px 5px', borderRadius:99 }}>{cnt}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {windows.length === 0 && (
+        <div style={{ marginBottom:12, borderRadius:11, border:`1px dashed ${C.border}`, background:'rgba(255,255,255,0.02)', padding:'10px 12px', fontSize:'0.68rem', color:C.textMuted }}>
+          No windows added yet.
+        </div>
+      )}
+
       {windows.map(win => (
-        <div key={win.id} style={{ marginBottom:8, borderRadius:10, border:'1px solid rgba(96,165,250,0.18)', background:'rgba(96,165,250,0.04)', overflow:'hidden' }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'7px 10px', borderBottom:'1px solid rgba(96,165,250,0.1)' }}>
+        <div key={win.id} style={{ marginBottom:10, borderRadius:12, border:'1px solid rgba(96,165,250,0.2)', background:'linear-gradient(180deg, rgba(96,165,250,0.09), rgba(96,165,250,0.03))', overflow:'hidden' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderBottom:'1px solid rgba(96,165,250,0.1)' }}>
             <span style={{ fontSize:'0.68rem', fontWeight:700, color:'#60a5fa' }}>Window · {win.wall}</span>
             <button onClick={() => deleteWindow(win.id)}
               style={{ width:26, height:26, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.15)', borderRadius:6, color:C.red, cursor:'pointer', transition:C.tr }}
@@ -853,24 +1148,34 @@ function RoomPanel({ roomConfig, setRoomConfig, windows, addWindow, updateWindow
 
       {/* Doors */}
       <SectionDivider title="Doors" badge={doors.length} />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:6, marginBottom:12 }}>
-        {WALLS.map(w => {
-          const cnt = doors.filter(d => d.wall === w.id).length;
-          return (
-            <button key={w.id} onClick={() => addDoor(w.id)}
-              style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'10px 8px', borderRadius:10, border:'1.5px dashed rgba(245,158,11,0.3)', background:'rgba(245,158,11,0.05)', color:'#f59e0b', cursor:'pointer', transition:C.tr, fontFamily:'inherit', fontSize:'0.7rem', fontWeight:600, position:'relative' }}
-              onMouseEnter={e => { e.currentTarget.style.background='rgba(245,158,11,0.12)'; e.currentTarget.style.borderColor='rgba(245,158,11,0.55)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background='rgba(245,158,11,0.05)'; e.currentTarget.style.borderColor='rgba(245,158,11,0.3)'; }}>
-              <Ico size={14} sw={1.5}><path d="M3 2h18v20H3z"/><line x1="12" y1="12" x2="14" y2="12"/></Ico>
-              + {w.label}
-              {cnt > 0 && <span style={{ position:'absolute', top:4, right:4, fontSize:'0.5rem', fontWeight:800, background:'#f59e0b', color:'#000', padding:'1px 5px', borderRadius:99 }}>{cnt}</span>}
-            </button>
-          );
-        })}
+      <div style={roomCard}>
+        <div style={{ fontSize:'0.66rem', color:C.textMuted, marginBottom:10 }}>Place doors by wall and adjust size/position for accurate layout plans.</div>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
+          {WALLS.map(w => {
+            const cnt = doors.filter(d => d.wall === w.id).length;
+            return (
+              <button key={w.id} onClick={() => addDoor(w.id)}
+                style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4, padding:'11px 8px', borderRadius:11, border:'1.5px dashed rgba(245,158,11,0.3)', background:'rgba(245,158,11,0.05)', color:'#f59e0b', cursor:'pointer', transition:C.tr, fontFamily:'inherit', fontSize:'0.72rem', fontWeight:700, position:'relative' }}
+                onMouseEnter={e => { e.currentTarget.style.background='rgba(245,158,11,0.12)'; e.currentTarget.style.borderColor='rgba(245,158,11,0.55)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background='rgba(245,158,11,0.05)'; e.currentTarget.style.borderColor='rgba(245,158,11,0.3)'; }}>
+                <Ico size={14} sw={1.5}><path d="M3 2h18v20H3z"/><line x1="12" y1="12" x2="14" y2="12"/></Ico>
+                + {w.label}
+                {cnt > 0 && <span style={{ position:'absolute', top:4, right:4, fontSize:'0.5rem', fontWeight:800, background:'#f59e0b', color:'#000', padding:'1px 5px', borderRadius:99 }}>{cnt}</span>}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {doors.length === 0 && (
+        <div style={{ marginBottom:12, borderRadius:11, border:`1px dashed ${C.border}`, background:'rgba(255,255,255,0.02)', padding:'10px 12px', fontSize:'0.68rem', color:C.textMuted }}>
+          No doors added yet.
+        </div>
+      )}
+
       {doors.map(door => (
-        <div key={door.id} style={{ marginBottom:8, borderRadius:10, border:'1px solid rgba(245,158,11,0.18)', background:'rgba(245,158,11,0.04)', overflow:'hidden' }}>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'7px 10px', borderBottom:'1px solid rgba(245,158,11,0.1)' }}>
+        <div key={door.id} style={{ marginBottom:10, borderRadius:12, border:'1px solid rgba(245,158,11,0.2)', background:'linear-gradient(180deg, rgba(245,158,11,0.09), rgba(245,158,11,0.03))', overflow:'hidden' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 10px', borderBottom:'1px solid rgba(245,158,11,0.1)' }}>
             <span style={{ fontSize:'0.68rem', fontWeight:700, color:'#f59e0b' }}>Door · {door.wall}</span>
             <button onClick={() => deleteDoor(door.id)}
               style={{ width:26, height:26, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.15)', borderRadius:6, color:C.red, cursor:'pointer', transition:C.tr }}
@@ -918,6 +1223,8 @@ function PricingPanel({ items }) {
   const tax         = subtotal * 0.08;
   const total       = subtotal + assembly + tax;
   const savings     = subtotal * 0.05;
+  const lineItems   = Object.keys(grouped).length;
+  const avgPerItem  = items.length ? subtotal / items.length : 0;
   const catalogItem = (name) => FURNITURE_ITEMS.find(f => f.name === name) || {};
 
   return (
@@ -929,22 +1236,26 @@ function PricingPanel({ items }) {
         {Object.values(grouped).map(g => {
           const ci = catalogItem(g.type);
           return (
-            <div key={g.type} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 12px', background:C.bgCard, borderRadius:12, border:`1px solid ${C.border}`, transition:C.tr }}
+            <div key={g.type} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 12px', background:'linear-gradient(180deg, rgba(233,53,199,0.06), rgba(139,92,246,0.03))', borderRadius:12, border:`1px solid ${C.borderSoft}`, transition:C.tr, boxShadow:'0 6px 18px rgba(0,0,0,0.18)' }}
               onMouseEnter={e => { e.currentTarget.style.background='rgba(99,102,241,0.06)'; e.currentTarget.style.borderColor='rgba(99,102,241,0.2)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background=C.bgCard; e.currentTarget.style.borderColor=C.border; }}>
+              onMouseLeave={e => { e.currentTarget.style.background='linear-gradient(180deg, rgba(233,53,199,0.06), rgba(139,92,246,0.03))'; e.currentTarget.style.borderColor=C.borderSoft; }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, flex:1, minWidth:0 }}>
-                <div style={{ width:36, height:36, borderRadius:10, background:C.accentDim, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.1rem', flexShrink:0 }}>
-                  {ci.icon || '🪑'}
+                <div style={{ width:46, height:46, borderRadius:11, background:C.accentDim, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.1rem', flexShrink:0, overflow:'hidden', border:'1px solid rgba(255,255,255,0.16)' }}>
+                  {ci.thumbnail ? (
+                    <img src={ci.thumbnail} alt={g.type} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                  ) : (
+                    <span>{ci.icon || '🪑'}</span>
+                  )}
                 </div>
                 <div style={{ minWidth:0 }}>
-                  <div style={{ fontSize:'0.8rem', fontWeight:700, color:C.textMain, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{g.type}</div>
-                  <div style={{ fontSize:'0.6rem', color:C.textMuted, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginTop:1 }}>{ci.desc || ''}</div>
-                  {ci.material && <div style={{ fontSize:'0.55rem', color:'rgba(129,140,248,0.6)', fontWeight:600, marginTop:2 }}>{ci.material}</div>}
+                  <div style={{ fontSize:'0.9rem', fontWeight:800, color:C.textMain, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{g.type}</div>
+                  <div style={{ fontSize:'0.63rem', color:C.textMuted, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginTop:1 }}>{ci.desc || ''}</div>
+                  {ci.material && <div style={{ fontSize:'0.58rem', color:'rgba(129,140,248,0.75)', fontWeight:700, marginTop:2 }}>{ci.material}</div>}
                 </div>
               </div>
               <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', gap:2, flexShrink:0, paddingLeft:10 }}>
                 {g.qty > 1 && <span style={{ fontSize:'0.6rem', fontWeight:700, color:C.textMuted, background:'rgba(255,255,255,0.06)', padding:'1px 7px', borderRadius:99 }}>×{g.qty}</span>}
-                <span style={{ fontSize:'0.92rem', fontWeight:800, color:C.gold }}>${g.total.toFixed(2)}</span>
+                <span style={{ fontSize:'0.98rem', fontWeight:800, color:C.gold, fontFamily:C.mono }}>${g.total.toFixed(2)}</span>
                 {g.qty > 1 && <span style={{ fontSize:'0.55rem', color:C.textMuted }}>${(ITEM_PRICES[g.type]||0).toFixed(2)} each</span>}
               </div>
             </div>
@@ -952,8 +1263,23 @@ function PricingPanel({ items }) {
         })}
       </div>
 
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:6, marginBottom:12 }}>
+        <div style={{ padding:'7px 8px', borderRadius:9, border:`1px solid ${C.borderSoft}`, background:'rgba(255,255,255,0.03)' }}>
+          <div style={{ fontSize:'0.55rem', color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.4px' }}>Items</div>
+          <div style={{ marginTop:2, fontSize:'0.78rem', fontWeight:700, color:C.textMain }}>{items.length}</div>
+        </div>
+        <div style={{ padding:'7px 8px', borderRadius:9, border:`1px solid ${C.borderSoft}`, background:'rgba(255,255,255,0.03)' }}>
+          <div style={{ fontSize:'0.55rem', color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.4px' }}>Types</div>
+          <div style={{ marginTop:2, fontSize:'0.78rem', fontWeight:700, color:C.textMain }}>{lineItems}</div>
+        </div>
+        <div style={{ padding:'7px 8px', borderRadius:9, border:`1px solid ${C.borderSoft}`, background:'rgba(255,255,255,0.03)' }}>
+          <div style={{ fontSize:'0.55rem', color:C.textMuted, textTransform:'uppercase', letterSpacing:'0.4px' }}>Avg</div>
+          <div style={{ marginTop:2, fontSize:'0.78rem', fontWeight:700, color:C.textMain, fontFamily:C.mono }}>${avgPerItem.toFixed(2)}</div>
+        </div>
+      </div>
+
       {/* Order summary card */}
-      <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:14, border:`1px solid ${C.border}`, overflow:'hidden' }}>
+      <div style={{ background:'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(233,53,199,0.03))', borderRadius:14, border:`1px solid ${C.borderSoft}`, overflow:'hidden', boxShadow:'0 10px 24px rgba(0,0,0,0.24)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:8, padding:'11px 14px', background:'rgba(99,102,241,0.06)', borderBottom:`1px solid ${C.borderSoft}` }}>
           <Ico size={13} sw={2}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></Ico>
           <span style={{ fontSize:'0.7rem', fontWeight:800, color:C.textAccent, textTransform:'uppercase', letterSpacing:'0.5px' }}>Price Breakdown</span>
@@ -964,7 +1290,7 @@ function PricingPanel({ items }) {
         <PriceLine label="Assembly (10%)" value={`$${assembly.toFixed(2)}`} />
         <PriceLine label="Est. Tax (8%)" value={`$${tax.toFixed(2)}`} muted />
 
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 16px', background:'linear-gradient(135deg,rgba(251,191,36,0.07),rgba(245,158,11,0.03))', borderTop:`1px solid rgba(251,191,36,0.15)` }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 16px', background:'linear-gradient(135deg,rgba(251,191,36,0.11),rgba(245,158,11,0.04))', borderTop:`1px solid rgba(251,191,36,0.15)` }}>
           <span style={{ fontSize:'0.85rem', fontWeight:800, color:C.textMain }}>Estimated Total</span>
           <span style={{ fontSize:'1.15rem', fontWeight:800, color:C.gold, fontFamily:C.mono, textShadow:'0 0 16px rgba(251,191,36,0.25)' }}>${total.toFixed(2)}</span>
         </div>
@@ -984,8 +1310,8 @@ function PricingPanel({ items }) {
 
 const PriceLine = ({ label, value, muted, valueColor }) => (
   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'9px 16px', borderBottom:`1px solid ${C.borderSoft}` }}>
-    <span style={{ fontSize:'0.75rem', color: muted ? C.textMuted : C.textSub }}>{label}</span>
-    <span style={{ fontSize:'0.78rem', fontWeight:700, color: valueColor || C.textMain, fontFamily:C.mono }}>{value}</span>
+    <span style={{ fontSize:'0.77rem', fontWeight:600, color: muted ? C.textMuted : C.textSub }}>{label}</span>
+    <span style={{ fontSize:'0.8rem', fontWeight:700, color: valueColor || C.textMain, fontFamily:C.mono }}>{value}</span>
   </div>
 );
 
@@ -994,12 +1320,37 @@ const PriceLine = ({ label, value, muted, valueColor }) => (
 ───────────────────────────────────────────────────────────────────────────── */
 function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downloadScreenshot, undo, redo, canUndo, canRedo }) {
   const updateRoom = (key, val) => setRoomConfig(p => ({ ...p, [key]: val }));
+  const panelCard = {
+    background:'linear-gradient(180deg, rgba(233,53,199,0.06), rgba(139,92,246,0.03))',
+    border:`1px solid ${C.borderSoft}`,
+    borderRadius:12,
+    boxShadow:'0 8px 20px rgba(0,0,0,0.2)'
+  };
+  const ambientValue = roomConfig.ambientIntensity ?? 0.6;
+  const sunValue = roomConfig.sunIntensity ?? 1.2;
+  const shadingPresets = [
+    { id:'soft', label:'Soft', ambient:0.85, sun:0.7 },
+    { id:'balanced', label:'Balanced', ambient:0.6, sun:1.2 },
+    { id:'dramatic', label:'Dramatic', ambient:0.35, sun:2.0 },
+  ];
+  const activeShadingPreset = shadingPresets.find(
+    p => Math.abs(ambientValue - p.ambient) <= 0.05 && Math.abs(sunValue - p.sun) <= 0.1
+  )?.id;
+
+  const applyShadingPreset = (preset) => {
+    updateRoom('ambientIntensity', preset.ambient);
+    updateRoom('sunIntensity', preset.sun);
+  };
 
   return (
     <div className="sb-fade">
       {/* Lighting */}
       <SectionDivider title="Environment" />
-      <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:20 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+        <span style={{ fontSize:'0.62rem', color:C.textMuted }}>Current mode:</span>
+        <span style={{ fontSize:'0.62rem', fontWeight:700, color:C.textAccent, background:'rgba(99,102,241,0.14)', borderRadius:999, padding:'2px 8px' }}>{roomConfig.lightingMode || 'Day'}</span>
+      </div>
+      <div style={{ ...panelCard, padding:10, display:'flex', flexDirection:'column', gap:8, marginBottom:18 }}>
         {LIGHTING_MODES.map(m => {
           const active = roomConfig.lightingMode === m.id;
           return (
@@ -1029,22 +1380,35 @@ function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downl
 
       {/* Scene Shading */}
       <SectionDivider title="Scene Shading" />
-      <div style={{ background:C.bgPanel, borderRadius:11, border:`1px solid ${C.borderSoft}`, padding:'12px 14px', marginBottom:18 }}>
+      <div style={{ ...panelCard, padding:'12px 14px', marginBottom:18 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+          <span style={{ fontSize:'0.62rem', color:C.textMuted }}>Quick presets</span>
+          <div className="sb-chip-row" style={{ gap:5 }}>
+            {shadingPresets.map(p => (
+              <Chip key={p.id} active={activeShadingPreset === p.id} onClick={() => applyShadingPreset(p)}>{p.label}</Chip>
+            ))}
+          </div>
+        </div>
+
         <SliderRow
-          value={roomConfig.ambientIntensity ?? 0.6}
+          value={ambientValue}
           min={0.0} max={1.5} step={0.05}
           onChange={v => updateRoom('ambientIntensity', v)}
           label="Ambient Brightness" icon="💡"
           displayFn={v => `${Math.round(v * 100)}%`}
         />
         <SliderRow
-          value={roomConfig.sunIntensity ?? 1.2}
+          value={sunValue}
           min={0.0} max={3.0} step={0.1}
           onChange={v => updateRoom('sunIntensity', v)}
           label="Sun Intensity" icon="☀️"
           displayFn={v => `${v.toFixed(1)}×`}
         />
-        <div style={{ marginTop:4 }}>
+        <div style={{ marginTop:2, display:'flex', alignItems:'center', justifyContent:'space-between', gap:8 }}>
+          <div style={{ display:'flex', gap:5, flexWrap:'wrap' }}>
+            <span style={{ fontSize:'0.58rem', color:C.textMuted, background:'rgba(255,255,255,0.04)', border:`1px solid ${C.borderSoft}`, borderRadius:999, padding:'2px 7px' }}>Ambient {Math.round(ambientValue * 100)}%</span>
+            <span style={{ fontSize:'0.58rem', color:C.textMuted, background:'rgba(255,255,255,0.04)', border:`1px solid ${C.borderSoft}`, borderRadius:999, padding:'2px 7px' }}>Sun {sunValue.toFixed(1)}x</span>
+          </div>
           <button
             onClick={() => { updateRoom('ambientIntensity', undefined); updateRoom('sunIntensity', undefined); }}
             style={{ fontSize:'0.65rem', color:C.textMuted, background:'none', border:`1px solid ${C.border}`, borderRadius:7, padding:'4px 10px', cursor:'pointer', fontFamily:'inherit', transition:C.trFast }}
@@ -1057,7 +1421,7 @@ function GlobalPanel({ roomConfig, setRoomConfig, saveDesign, loadDesigns, downl
 
       {/* Project actions */}
       <SectionDivider title="Project Actions" />
-      <div style={{ display:'flex', flexDirection:'column', gap:7 }}>
+      <div style={{ ...panelCard, padding:9, display:'flex', flexDirection:'column', gap:7 }}>
         <ActionBtn onClick={saveDesign} primary
           icon={<Ico size={15} sw={2}><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></Ico>}
           label="Save Project" />
